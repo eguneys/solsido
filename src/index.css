@@ -1,0 +1,43 @@
+/*
+ * #011526
+ * #F2F0F0
+ * #8C8181
+ * #BFB4B4
+ * #262626
+ */
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: #8c8181;
+  text-decoration: none;
+}
+
+body {
+  background: #262626;
+  color: #f2f0f0;
+  font-family: 'Fredoka', sans-serif;
+}
+
+
+.solsido {
+  display: flex;
+  flex-flow: column;
+  font-size: 1.3em;
+}
+
+.solsido section {
+  margin: 1em 0.4em;
+}
+
+.solsido section ul,
+.solsido section p {
+  margin: 0.4em;
+}
