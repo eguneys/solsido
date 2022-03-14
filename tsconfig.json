@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "strict": true,
     "module": "esnext",
     "moduleResolution": "node",
     "inlineSources": true,
-    "target": "ES2018"
+    "target": "ES2021"
   }
 }
