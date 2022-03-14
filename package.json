@@ -1,0 +1,43 @@
+{
+  "name": "solsido",
+  "version": "1.0.0",
+  "description": "Learn and make sound and music, interactively.",
+  "info": "A platform to learn about sound and music, with an interactive guide, assignments and practices, and a tool to put it into production.",
+  "homepage": "eguneys.github.io/solsido",
+  "contributors": [
+    {
+      "name": "Emre",
+      "email": "eguneys@gmail.com",
+      "url": "https://eguneys.github.io"
+    }
+  ],
+  "keywords": [
+    "solidhack",
+    "best_app",
+    "solsido",
+    "ui",
+    "music",
+    "audio",
+    "webaudio"
+  ],
+  "repository": "https://github.com/eguneys/solsido",
+  "author": "Emre Guneyler",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "watch": "yarn -s clean && rollup --config --watch",
+    "build": "yarn -s clean && rollup --config --config-prod"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-typescript": "^8.3.1",
+    "rollup": "^2.70.0",
+    "rollup-plugin-generate-html-template": "^1.7.0",
+    "rollup-plugin-import-css": "^3.0.3",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.2"
+  }
+}
