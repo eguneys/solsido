@@ -41,3 +41,7 @@ body {
 .solsido section p {
   margin: 0.4em;
 }
+
+.solsido .m-wrap {
+  margin: 0.2em 0;
+}

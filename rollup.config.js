@@ -3,6 +3,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve'
 //import typescript from '@rollup/plugin-typescript'
 import babel from '@rollup/plugin-babel'
 import css from 'rollup-plugin-import-css'
+import copy from 'rollup-plugin-copy'
 
 import htmlTemplate from 'rollup-plugin-generate-html-template'
 import serve from 'rollup-plugin-serve'
@@ -34,6 +35,7 @@ export default args => {
       babel({ extensions, babelHelpers: 'bundled' }),
       //typescript(),
       css(),
+      copy({ targets: [{ src: 'assets', dest: 'dist' }], copyOnce: true}),
       htmlTemplate({
         template: 'src/index.html',
         target: 'index.html'

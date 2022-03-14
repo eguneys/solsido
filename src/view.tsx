@@ -1,3 +1,5 @@
+import { Music, PianoKeys } from './music'
+
 const App = () => {
   return (
     <div class='solsido'>
@@ -22,20 +24,38 @@ const SoundSection = () => {
 
 const NotationSection = () => {
   return (<Section title="Notation">
-    <p><StrongItem title='The staff'>is five equally spaced horizontal lines.</StrongItem></p>
+    <p><StrongItem title='The staff'>is five equally spaced horizontal lines.</StrongItem> </p>
+    <Music zoom='2'/>
     <p><StrongItem title='Pitches'>are represented as symbols positioned on the staff.</StrongItem></p>
     <p>Pitches are referred to by the seven letters of the alphabet <strong>A B C D E F G</strong>.</p>
+    <PianoKeys n={3}/>
 
     <p>Each key on a keyboard corresponds with a different pitch. The lowest pitch is on the far left, and each key to the right plays a successively higher pitch.</p>
 
 
     <p><StrongItem title='A clef'>is a symbol placed at the beginning of the staff. It assigns one of the lines or spaces on a staff to a specific pitch.</StrongItem></p>
 
-    <p><StrongItem title='Treble clef or G clef'>symbol is a stylized G placed above middle C</StrongItem></p>
+    <p><StrongItem title='Treble clef or G clef'>symbol is a stylized G placed above middle C</StrongItem>. The curved line terminates at the second line designating the line as note G.</p>
+    <Music zoom='2' fen={`{
+/clef treble
+g'"G"
+}`}/>
 
     <p><StrongItem title='Bass clef or F clef'>symbol is a stylized F. The dots are placed above and below the fourth line of staff, designating the line as an F.</StrongItem></p>
+    <Music zoom='2' fen={`{
+/clef bass
+}`}/>
 
     <p>Together the treble and bass staves make a <strong>grand staff</strong>.</p>
+
+    <Music zoom='2' fen={`>>
+{
+/clef treble
+}
+{
+/clef bass
+}
+<<`}/>
 
     <p>The lines of the treble clef from bottom to top are <strong>E G B D and F</strong> or "Every Good Boy Deserves Fruit". The spaces from bottom to top are <strong>F A C and E</strong> or "F A C E".</p>
 

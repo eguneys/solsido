@@ -1,0 +1,17 @@
+.p-wrap {
+  position: relative;
+  user-select: none;
+  display: flex;
+}
+
+.p-wrap .background {
+  height: 4em;
+  background: url(assets/piano_keys.png);
+  background-size: contain;
+  background-repeat: repeat-x;
+}
+
+.p-wrap .letter {
+  position: absolute;
+  color: black;
+}
