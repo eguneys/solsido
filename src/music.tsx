@@ -32,6 +32,10 @@ let model_durations = ['1', '2', '4', '8', '16', '32']
 
 let duration_codes = ['dwhole', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
 
+function po_ledger(pitch: Pitch, octave: Octave) {
+  return 2
+}
+
 function model_to_free(model: ONoteOrChord) {
   if (Array.isArray(model)) {
     return model.map(model_to_free)
@@ -55,12 +59,17 @@ function model_to_free(model: ONoteOrChord) {
            let code = duration_codes[duration]
 
            code += '_note'
+
+           let ledger = po_ledger(pitch, octave)
+
+
            return {
              code,
              pitch: _pitch,
              octave: _octave,
              klass: '',
-             duration: _duration
+             duration: _duration,
+             ledger
            }
          }
       }
@@ -76,7 +85,8 @@ type OFreeOnStaff = {
  code?: string,
  klass: string,
  pitch: Pitch,
- octave: Octave
+ octave: Octave,
+ ledger?: number
 }
 
 export const Music = (props) => {
@@ -108,18 +118,57 @@ export const Music = (props) => {
          <For each={notes}>{ (note_or_chord, i) =>
            Array.isArray(note_or_chord) ?
              <For each={note_or_chord}>{ (note) =>
-               <FreeOnStaff klass={note.klass} pitch={note.pitch} octave={note.octave} ox={(i()+1)*2} oy={note.text ? -0.125 : 0}>{
-                 note.code ? g[note.code] : <span class='text'>{note.text}</span>
-               }</FreeOnStaff>
+               <FullOnStaff note={note} i={i}/>
              }</For>
-             :
-             <FreeOnStaff klass={note_or_chord.klass} pitch={note_or_chord.pitch} octave={note_or_chord.octave} ox={(i()+1)*2} oy={note_or_chord.text ? -0.125 : 0}>{
-             note_or_chord.code ? g[note_or_chord.code] : <span class='text'>{note_or_chord.text}</span>
-             }</FreeOnStaff>
+             : <FullOnStaff note={note_or_chord} i={i}/>
          }</For>
        </staff>
 
     </div>)
+}
+
+function transform_style(ox: number, oy: number) {
+  return {
+    transform: `translate(${ox}em, ${oy}em) translateZ(0)`
+  }
+}
+
+let ledger_pitches = [undefined, [], [6, 4, 2], [6, 4], [6, 4], [6], [6], []]
+let ledger_pitches6 = [undefined, [1], [1], [1, 3], [1, 3], [1, 3, 5], [1, 3, 5], [1, 3, 5, 7]]
+
+function pitch_octave_ledgers(pitch: Pitch, octave: Octave) {
+  if (octave === 4 && pitch === 1) {
+    return [[1, 4]]
+  }
+  if (octave === 3) {
+    return [[1, 4], ...ledger_pitches[pitch].map(_ => [_, 3])]
+  }
+  if (octave === 5 && pitch > 5) {
+    return [[6, 5]]
+  }
+  if (octave === 6) {
+    return [[6, 5], ...ledger_pitches6[pitch].map(_ => [_, 6])]
+  }
+  return []
+}
+
+export const FullOnStaff = (props) => {
+  let { note, i } = props;
+
+  let ox = (i()+1)*2
+  let oy = pitch_y(note.pitch, note.octave)
+
+  let ledger_oys = note.ledger ? pitch_octave_ledgers(note.pitch, note.octave)
+  .map(_ => pitch_y(..._)) : []
+
+  return (<>
+      <FreeOnStaff klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} oy={note.text ? -0.125 : 0}>{
+      note.code ? g[note.code] : <span class='text'>{note.text}</span>
+       }</FreeOnStaff>
+       <Index each={ledger_oys}>{ (_oy) =>
+         <span class='ledger' style={transform_style(ox, _oy())}/>
+       }</Index>
+      </>)
 }
 
 export const FreeOnStaff = (props) => {
@@ -129,7 +178,7 @@ export const FreeOnStaff = (props) => {
   let y = pitch_y(pitch, octave) + (oy || 0)
 
   let style = {
-   transform: `translate(${x}em, ${y}em)`
+   transform: `translate(${x}em, ${y}em) translateZ(0)`
   }
 
   return (<span class={klass} style={style}>{children}</span>)

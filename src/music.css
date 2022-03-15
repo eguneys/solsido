@@ -45,3 +45,10 @@ staff > span .text {
   vertical-align: sub;
   margin: 0.35em;
 }
+
+staff > span.ledger {
+  top: 2em;
+  left: -0.25em;
+  border-top: 0.03em solid black;
+  width: 1em;
+}
