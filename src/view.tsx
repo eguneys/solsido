@@ -144,9 +144,28 @@ cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
     <p><StrongItem title='A tie'>is a curved line that connects two adjacent notes, with the same pitch, that sounds as single sound duration of both note values.</StrongItem></p>
 
+    <Music zoom='2' fen={`{
+/clef treble
+c''4~ c''4 | c''2
+}`}/>
+
+    <Subtitle>Tied quarter notes are equal to the half note</Subtitle>
+
+
+
+
     <p><StrongItem title='A dot'>is placed right of a note head. It lengthens the value of the note by half of it's note value.</StrongItem>
       A dotted quarter note is equal to a regular quarter note plus an eight note. Rests can be dotted as well. 
 			<StrongItem title='A double dotted note'>the second dot adds half of the value added by the first note.</StrongItem></p>
+
+
+    <Music zoom='2' fen={`{
+/clef treble
+a'2. | a'2~ a'4
+}`}/>
+
+    <Subtitle>Tied quarter notes are equal to the half note</Subtitle>
+
 
     <p>Ties can be confused with <strong>slurs</strong>. <StrongItem title='A slur'>is similar to a tie except it connects different pitches.</StrongItem> Rests cannot be tied.</p>
 
@@ -165,13 +184,47 @@ cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
     <p><StrongItem title='Time signature'>is pair of large numbers at the beginning of the first line of staff. They indicate the meter of the music.</StrongItem>
       The meter may change in between measures, new meter is indicated by a new time signature.
-      In a time signature of 3/4, 3 indicates that there are three beats per measure, and 4 indicates that each beat is the length of a quarter note.</p>
+      </p>
+
+
+    <Music zoom='2' fen={`{
+/clef treble
+/time 2/2 
+|| 
+/time 3/2 
+|| 
+/time 4/2 
+|| 
+/time 3/4 
+|| 
+/time 4/4 
+|| 
+/time 6/8 
+|| 
+/time 9/8 
+|| 
+/time 12/8 
+}`}/>
+
+    <Subtitle> Time signatures with 6 simple meter and 3 compound meter. </Subtitle>
+
+
+      
 
     <p>Any time signature where the top number is 2, 3, or 4 is a <strong>simple meter</strong>.
       For simple meters, top number indicates the number of beats per measure (duple, triple, or quadruple), and bottom number indicates the beat value.
-
+      In a time signature of 3/4, 3 indicates that there are three beats per measure, and 4 indicates that each beat is the length of a quarter note.
       C is a time signature shorthand for 4/4 or <strong>common time</strong>.
       C/ is a time signature shorthand for 2/2 or <strong>cut time</strong>.</p>
+
+
+    <Music zoom='2' fen={`{
+/clef treble
+
+}`}/>
+
+    <Subtitle>Tied quarter notes are equal to the half note</Subtitle>
+
 
     <p>For <strong>compound meters</strong> beat is divided into three equal durations. Each beat is a dotted note.
       The upper numbers are usually 6, 9 and, 12.

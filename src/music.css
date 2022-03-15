@@ -55,3 +55,19 @@ staff > span.ledger {
   border-top: 0.03em solid black;
   width: 1em;
 }
+
+staff > span.bar {
+  border-left: 0.03em solid black;
+  top: 2em;
+  height: 1em;
+}
+
+staff > span.dot {
+  top: calc(2em - 0.05em);
+  left: 0.4em;
+  width: 0.1em;
+  height: 0.1em;
+  background-color: black;
+  border-radius: 50%;
+  display: inline-block;
+}

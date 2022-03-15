@@ -1,10 +1,25 @@
 import g from './glyphs'
 
 import read_fen from './music/format/read'
-import { NoteOrChord as ONoteOrChord } from './music/format/model'
+import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
 function pitch_y(pitch: Pitch, octave: Octave) {
   return ((4 - octave) * 7 + 7 - pitch) * 0.25 / 2
+}
+
+
+const model_nb_beats = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+function model_to_nb_beats(_nb_beats: string) {
+  return model_nb_beats.indexOf(_nb_beats)
+}
+
+// 1 2 4 8 16
+// d w h q e s t x
+// 1 2 3 4 5 6 7 8
+// 2 3 4 5 6
+const model_note_values = ['0', '0', '1', '2', '4', '8', '16', '32', '64']
+function model_to_note_value(_note_value: string) {
+  return model_note_values.indexOf(_note_value)
 }
 
 const model_clefs = ['treble', 'bass']
@@ -26,6 +41,20 @@ function clef_to_pitch(clef: Clef) {
   return clef_pitches[clef - 1]
 }
 
+const nb_note_value_codes = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve']
+function nb_note_value_to_code(nb_note_value: NbNoteValue) {
+  return nb_note_value_codes[nb_note_value] + '_time'
+}
+
+// 0 1 2 3 4 5 6 7 8 9 10 11 12
+// _ d w h q e s t x
+// z z o t f e s
+const note_value_codes = ['zero', 'zero', 'one', 'two', 'four', 'eight', 'sixth']
+function note_value_to_code(note_value: NoteValue) {
+console.log(note_value)
+  return note_value_codes[note_value] + '_time'
+}
+
 let model_pitches = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 let model_octaves = [3, 4, 5, 6]
 let model_durations = ['1', '2', '4', '8', '16', '32']
@@ -34,11 +63,43 @@ let duration_codes = ['dwhole', 'whole', 'half', 'quarter', 'quarter', 'quarter'
 
 let accidentals = ['is', 'es', 'isis', 'eses']
 
-function model_to_free(model: ONoteOrChord) {
+function model_to_free(model: Array<OCommandNoteOrChord>) {
+  return model.flatMap(model_item_to_free)
+}
+
+// TODO remove
+function make_time_signature(nb: number, value: number) {
+  return nb * 100 + value * 1
+}
+
+function time_nb_note_value(sig: number) {
+  return Math.floor(sig / 100)
+}
+
+function time_note_value(sig: number) {
+  return sig % 100
+}
+
+function model_item_to_free(model: OCommandNoteOrChord) {
   if (Array.isArray(model)) {
-    return model.map(model_to_free)
+    if (typeof model[0] === 'string') {
+      let [command, rest] = model
+
+      if (command === 'clef') {
+         return { clef: model_to_clef(rest) }
+      } else if (command === 'time') {
+        let [_nb_beats, _note_value] = rest.split('/')
+        let time = make_time_signature(model_to_nb_beats(_nb_beats), 
+            model_to_note_value(_note_value))
+        return { time }
+      }
+    } else {
+      return model.map(model_item_to_free)
+    }
+  } else if (model === '|' || model === '||') {
+     return model
   } else {
-    let { pitch, octave, duration, text, accidental } = model
+    let { pitch, octave, dot, duration, text, accidental, tie } = model
 
     let _pitch = model_pitches.indexOf(pitch) + 1
     let _octave = model_octaves[octave]
@@ -66,6 +127,8 @@ function model_to_free(model: ONoteOrChord) {
              pitch: _pitch,
              octave: _octave,
              ledger: true,
+             tie: !!tie,
+             dot: !!dot,
              klass: '',
              duration: _duration,
              accidental: _accidental
@@ -80,13 +143,15 @@ function model_to_free(model: ONoteOrChord) {
 
 type OFreeOnStaff = {
  duration?: string,
+ dot?: true,
  text?: string,
  code?: string,
  klass: string,
  pitch: Pitch,
  octave: Octave,
  ledger?: number,
- accidental?: Accidental
+ accidental?: Accidental,
+ tie?: true
 }
 
 export const Music = (props) => {
@@ -94,10 +159,8 @@ export const Music = (props) => {
     fen ||= ''
   let music_model = read_fen(fen)
 
-  let clef
   let notes
   if (music_model) {
-    clef = model_to_clef(music_model.staff.clef)
     notes = model_to_free(music_model.staff.notes)
   }
 
@@ -111,20 +174,64 @@ export const Music = (props) => {
             <line/>
             <line/>
          </lines>
-         <Show when={!!clef}>
-            <FreeOnStaff klass='' pitch={clef_to_pitch(clef)} octave={4} ox={0.25}>{g[clef_to_code(clef)]}</FreeOnStaff>
-         </Show>
-         <For each={notes}>{ (note_or_chord, i) =>
-           Array.isArray(note_or_chord) ?
-             <For each={note_or_chord}>{ (note) =>
-               <FullOnStaff note={note} i={i}/>
-             }</For>
-             : <FullOnStaff note={note_or_chord} i={i}/>
+         <For each={notes}>{ (note_or_chord_or_bar, i) =>
+           <Switch fallback={
+              <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
+              }>
+             <Match when={note_or_chord_or_bar==='|'}>
+               <Bar i={i()}/>
+             </Match>
+             <Match when={note_or_chord_or_bar==='||'}>
+               <DoubleBar i={i()}/>
+             </Match>
+
+             <Match when={Array.isArray(note_or_chord_or_bar)}> 
+               <For each={note_or_chord_or_bar}>{ (note) =>
+                 <FullOnStaff note={note} i={i()}/>
+               }</For>
+             </Match>
+              <Match when={!!note_or_chord_or_bar.clef}>
+                <FreeOnStaff klass='' pitch={clef_to_pitch(note_or_chord_or_bar.clef)} octave={4} ox={0.25}>{g[clef_to_code(note_or_chord_or_bar.clef)]}</FreeOnStaff>
+              </Match>
+
+              <Match when={!!note_or_chord_or_bar.time}>
+                <FreeOnStaff klass='' pitch={2} octave={5} ox={i() + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
+                  {g[nb_note_value_to_code(time_nb_note_value(note_or_chord_or_bar.time))]}
+                </FreeOnStaff>
+                <FreeOnStaff klass='' pitch={5} octave={4} ox={i()}>
+                  {g[note_value_to_code(time_note_value(note_or_chord_or_bar.time))]}
+                </FreeOnStaff>
+              </Match>
+
+
+
+           </Switch>
          }</For>
        </staff>
 
     </div>)
 }
+
+const Bar = (props) => {
+  let { i, ox } = props
+
+  let x = (i+1) * 2 + (ox || 0),
+      y = 0;
+
+  let style = {
+    transform: `translate(${x}em, -50%) translateZ(0)`
+  }
+  return (<span class='bar' style={style}/>)
+}
+
+const DoubleBar = (props) => {
+  let { i } = props
+  return (<>
+      <Bar i={i} ox={0}/>
+      <Bar i={i} ox={0.1}/>
+      </>)
+}
+
 
 function transform_style(ox: number, oy: number) {
   return {
@@ -154,12 +261,11 @@ function pitch_octave_ledgers(pitch: Pitch, octave: Octave) {
 export const FullOnStaff = (props) => {
   let { note, i } = props;
 
-  let ox = (i()+1)*2
+  let ox = (i+1)*2
   let oy = pitch_y(note.pitch, note.octave)
 
   let ledger_oys = note.ledger ? pitch_octave_ledgers(note.pitch, note.octave)
   .map(_ => pitch_y(..._)) : []
-
 
   return (<>
       <FreeOnStaff klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} oy={note.text ? -0.125 : 0}>{
@@ -169,9 +275,21 @@ export const FullOnStaff = (props) => {
          <span class='ledger' style={transform_style(ox, _oy())}/>
        }</Index>
        <Show when={note.accidental}>
-         <Accidentals pitch={note.pitch} octave={note.octave} ox={ox} accidental={note.accidental}/>
+         <Accidentals klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} accidental={note.accidental}/>
+       </Show>
+       <Show when={note.dot}>
+         <Dot klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox}/>
        </Show>
       </>)
+}
+
+const Dot = (props) => {
+  let { klass, pitch, octave, ox } = props;
+
+  let oy = pitch_y(pitch, octave)
+  let style = transform_style(ox, oy)
+  
+  return (<span class={['dot', klass].join('')} style={style}/>)
 }
 
 const accidental_code = [undefined, 'sharp', 'flat', 'dsharp', 'dflat']

@@ -4,6 +4,9 @@
 - [ ] Accidental natural
 - [ ] Responsive sheet width
 - [ ] Responsive note spacing
+- [ ] Show error messages for music input
+
+- [ ] Add README
 
 ## Fix
 

@@ -3,28 +3,35 @@ export type Music = {
 }
 
 export type Staff = {
-  clef: Clef,
-  notes: Array<NoteOrChord>
+  notes: Array<ClefTimeNoteOrChord>
 }
 
 export type Pitch = string
 export type Octave = number
 export type Duration = number
 export type Text = string
+export type Tie = string
+export type Dot = string
+export type Bar = string
 
-export type NoteOrChord = Note | Chord
+export type Time = string
+export type Clef = string
+
+export type ClefTimeNoteOrChord = Clef | Time | Note | Chord | Bar
 
 export type Note = {
   pitch: Pitch,
   octave: Octave,
   duration?: Duration,
+  dot?: Dot,
+  tie?: Tie,
   text?: Text
 }
 
 export type Chord = Array<Note>
 
 export const ignores = []
-export const ids = ['octave', 'pitch', 'clef', 'duration', 'text', 'word', 'accidental']
+export const ids = ['octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar']
 
 
 export function model(ref: any): Music | undefined {
@@ -38,38 +45,58 @@ export function model(ref: any): Music | undefined {
 
 export function _staff(_: any) {
   let { staff } = _
-  let commands = staff.filter(_ => "command" in _)
-  .map(_ => _.command)
+
+
+  let notes = staff.flatMap(_ => {
+    if ("command" in _) {
+      return [command(_)]
+    } else if ("dbar" in _) {
+      return _.dbar
+    } else if ("bar" in _) {
+      return _.bar
+    } else if ("wPO" in _) {
+      return wPO(_)
+    } else if ("chord" in _) {
+      return [_.chord.map(wPO)]
+    }
+    return []
+  })
+
+  return { notes }
 
   let clef = commands.find(_ => _[0].word === 'clef')
   if (clef) {
     clef = clef[1].word
   }
 
-  let notes = staff.filter(_ => "wPO" in _ || "chord" in _)
-
-  notes = notes.map(_ => {
-    if ("wPO" in _) {
-      return _wPO(_)
-    } else if ("chord" in _) {
-      return _.chord.map(_wPO)
-    }
-  })
-
-  return { clef, notes }
+  let time = commands.find(_ => _[0].word === 'time')
+  if (time) {
+    time = time[1].word
+  }
 }
 
-export function _wPO(_: any) {
+export function command(_: any) {
+  let { command } = _
+
+  return command.map(_ => _.word)
+}
+
+export function wPO(_: any) {
   let { wPO } = _
 
   if (wPO) {
 
     let _pitch = wPO.find(_ => "pitch" in _)
     let _accidental_octaves = wPO.find(_ => "accidentals_octave" in _)
+    let _duration_ties = wPO.find(_ => "duration_ties" in _)
+
     let _octaves = _accidental_octaves?.accidentals_octave.find(_ => "octaves" in _)
     let _accidentals = _accidental_octaves?.accidentals_octave.filter(_ => "accidental" in _)
-    let _text = wPO.find(_ => "text" in _)
-    let _duration = wPO.find(_ => "duration" in _)
+
+    let _text = _duration_ties?.duration_ties.find(_ => "text" in _)
+    let _duration = _duration_ties?.duration_ties.find(_ => "duration" in _)
+
+    let _tie = _duration_ties?.duration_ties.find(_ => "tie" in _)
 
     if (_pitch) {
       let pitch = _pitch.pitch,
@@ -85,13 +112,19 @@ export function _wPO(_: any) {
       } else {
         let duration = _duration?.duration
 
+        let _duration_number = duration?.find(_ => _.duration_number)?.duration_number,
+          _duration_dot = duration?.find(_ => _.dot)?.dot
+
         let accidental = _accidentals?.map(_ => _.accidental).join('')
+        let tie = _tie?.tie
 
         return {
           pitch,
           octave,
-          duration,
-          accidental
+          duration: _duration_number,
+          dot: _duration_dot,
+          accidental,
+          tie
         }
       }
     }
