@@ -111,6 +111,16 @@ c' cis' d' dis' e' f' fis' g' gis' a' ais' b' c''
     <p><StrongItem title='Enharmonically equivalent'>names are when two different names refer to the same pitch.</StrongItem></p>
     <p>Sharps and flats are not exclusive to black keys. C is enharmonically equivalent to a B sharp, or E is enharmonically equivalent to an F flat.</p>
 
+    <Music zoom='2' fen={`{
+/clef treble
+cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
+}`}/>
+
+    <Subtitle>Note that enharmonically equivalent notes sound the same.</Subtitle>
+
+
+
+
     <p>Accidentals apply to all other noteheads appearing on that line or space for the remainder of the measure, unless otherwise indicated. A natural accidental is used to cancel this convention.</p>
 
     <h3>Duration, Meter and, Rhythm</h3>
