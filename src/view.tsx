@@ -41,6 +41,8 @@ const NotationSection = () => {
 g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G" 
 }`}/>
 
+    <Subtitle> Different note pitches are placed on a G clef staff </Subtitle>
+
     <p><StrongItem title='Bass clef or F clef'>symbol is a stylized F. The dots are placed above and below the fourth line of staff, designating the line as an F.</StrongItem></p>
     <Music zoom='2' fen={`{
 /clef bass
@@ -63,8 +65,10 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 
     <Music zoom='2' fen={`{
 /clef treble
-<c'1 c"C"> <b1 c"B"> <a1 c"A"> <g1 c"G"> <f1 f"F"> <a''1 a"A"> <b''1 a"B"> <c'''1 a"C"> <d'''1 a"D"> <e'''1 a"E">
+<c'1 c"C"> <b1 c"B"> <a1 c"A"> <g1 c"G"> <f1 c"F"> <a''1 a"A"> <b''1 a"B"> <c'''1 a"C"> <d'''1 a"D"> <e'''1 a"E">
 }`}/>
+
+    <Subtitle> Notes with ledger lines </Subtitle>
 
 		<p><StrongItem title='Accidentals'>are symbols that are placed to the left of the noteheads to indicate raising or lowering the pitch.</StrongItem></p>
 		<ul>
@@ -78,6 +82,7 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 /clef treble
 <gis'1 g"G Sharp"> <ges'1 g"G Flat"> <gisis'1 g"G Double Sharp"> <geses'1 g"G Double Flat">
 }`}/>
+    <Subtitle>A note can have sharps, flats or natural</Subtitle>
 
     <p>The notion of step is discussed later.</p>
 

@@ -2,3 +2,7 @@
 - [ ] Difference between semitone and step
 - [ ] View source for sheet
 - [ ] Accidental natural
+
+## Fix
+
+- [ ] Piano keys image off
