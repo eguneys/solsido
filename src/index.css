@@ -45,3 +45,9 @@ body {
 .solsido .m-wrap {
   margin: 0.2em 0;
 }
+
+.solsido .subtitle {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+}

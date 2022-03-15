@@ -52,7 +52,8 @@ function model_to_free(model: ONoteOrChord) {
               klass: '',
               text 
             }
-         } else if (duration) {
+         } else {
+           duration = duration || 1
            let _duration = model_durations.indexOf(duration) + 1
            let code = duration_codes[duration]
 

@@ -94,6 +94,15 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
     <p>The pattern of black and white keys repeats every octave on the keyboard. An octave is equal to 12 semitones (If you play all successive pitches between and including two pitches an octave apart, you would play 12 keys on the keyboard). Pitches an octave apart sound similar.</p>
 
     <p>The black keys on the keyboard, are named according to the adjacent white keys. Accidentals are used to indicate this adjacency. For example, black key between A and B can be referred to as A sharp or B flat.</p>
+
+    <Music zoom='2' fen={`{
+/clef treble
+c' cis' d' dis' e' f' fis' g' gis' a' ais' b' c''
+}`}/>
+
+    <Subtitle>An octave of notes, increasing by a semitone.</Subtitle>
+
+
     <p><StrongItem title='Enharmonically equivalent'>names are when two different names refer to the same pitch.</StrongItem></p>
     <p>Sharps and flats are not exclusive to black keys. C is enharmonically equivalent to a B sharp, or E is enharmonically equivalent to an F flat.</p>
 
@@ -176,6 +185,10 @@ const ReferencesSection = () => {
     <li><a href="https://www.youtube.com/watch?v=ICDPWP6HUbk&list=PLw9t0oA3fHkxx1PgYpiXrMUPXaOiwh6KU">Dr. B Music Theory Lesson Youtube Playlist</a></li>
   </ul>
 </Section>)
+}
+
+const Subtitle = (props) => {
+  return (<p class='subtitle'>{props.children}</p>)
 }
 
 const StrongItem = (props) => {

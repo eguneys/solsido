@@ -7,7 +7,7 @@ export const mNewline = mm.mr(/^(\n)(.*)$/s, 'newline')
 export const mSlash = mm.mr(/^(\/)(.*)$/s, 'slash')
 export const mWord = mm.mr(/^([a-zA-Z]+)(.*)$/s, 'word')
 
-export const mText = mm.mr(/^([a-z|A-Z| ]+)(.*)$/s, 'word')
+export const mText = mm.mr(/^([a-z|A-Z|0-9| ]+)(.*)$/s, 'word')
 
 export const mQuote = mm.mr(/^(\")(.*)$/s, 'quote')
 
@@ -37,10 +37,10 @@ export const mWithPitchOctave = mm.mseq3([
     mm.mOpt(mAccidental),
     mm.mOpt(mm.mgroup(mm.mstar(mm.meither([mOctave, mOctaveDown])), mm.oneMatcherNode('octaves'))),
   ], rr.fAll('accidentals_octave')),
-  mm.meither([
+  mm.mOpt(mm.meither([
     mDuration,
     mQuotedText
-  ])
+  ]))
 ], rr.fAll('wPO'))
 
 export const mNotes = mm.mstar(mm.meither([
