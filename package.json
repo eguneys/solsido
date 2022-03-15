@@ -32,6 +32,7 @@
     "@babel/core": "^7.17.5",
     "@babel/preset-typescript": "^7.16.7",
     "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-typescript": "^8.3.1",
     "babel-plugin-tsconfig-paths": "^1.0.2",
@@ -48,6 +49,7 @@
     "typescript": "^4.6.2"
   },
   "dependencies": {
-    "solid-js": "^1.3.12"
+    "solid-js": "^1.3.12",
+    "tamcher": "^1.1.1"
   }
 }

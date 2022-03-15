@@ -36,4 +36,12 @@ lines line:last-child {
 staff > span {
   position: absolute;
   font-size: 1em;
+  line-height: 4em;
+}
+
+staff > span .text {
+  font-size: 0.25em;
+  font-weight: bold;
+  vertical-align: sub;
+  margin: 0.35em;
 }
