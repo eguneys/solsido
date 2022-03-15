@@ -10,6 +10,9 @@ const brace = ''
 const flat_accidental = ''
 const natural_accidental = ''
 const sharp_accidental = ''
+const dsharp_accidental = ''
+const dflat_accidental = ''
+
 
 const eighth_flag_up = ''
 const sixteenth_flag_up = ''
@@ -61,6 +64,8 @@ export default {
   flat_accidental,
   natural_accidental,
   sharp_accidental,
+  dflat_accidental,
+  dsharp_accidental,
   eighth_flag_down,
   sixteenth_flag_down,
   thirtysecond_flag_down,

@@ -63,7 +63,7 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 
     <Music zoom='2' fen={`{
 /clef treble
-<c'1 c"C"> <b1 c"B"> <a1 c"A"> <g1 c"G"> <f1 c"F"> <a''1 a"A"> <b''1 a"B"> <c'''1 a"C"> <d'''1 a"D"> <e'''1 a"E">
+<c'1 c"C"> <b1 c"B"> <a1 c"A"> <g1 c"G"> <f1 f"F"> <a''1 a"A"> <b''1 a"B"> <c'''1 a"C"> <d'''1 a"D"> <e'''1 a"E">
 }`}/>
 
 		<p><StrongItem title='Accidentals'>are symbols that are placed to the left of the noteheads to indicate raising or lowering the pitch.</StrongItem></p>
@@ -73,6 +73,12 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 		<li><StrongItem title='Natural'>cancels any previous sharp or flat and returns to the natural, unaltered pitch.</StrongItem></li>
 		<li><StrongItem title='Double sharp, or double flat'>raises or lowers the pitch two half steps.</StrongItem></li>
 		</ul>
+
+    <Music zoom='2' fen={`{
+/clef treble
+<gis'1 g"G Sharp"> <ges'1 g"G Flat"> <gisis'1 g"G Double Sharp"> <geses'1 g"G Double Flat">
+}`}/>
+
     <p>The notion of step is discussed later.</p>
 
 

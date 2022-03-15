@@ -24,7 +24,7 @@ export type Note = {
 export type Chord = Array<Note>
 
 export const ignores = []
-export const ids = ['octave', 'pitch', 'clef', 'duration', 'text', 'word']
+export const ids = ['octave', 'pitch', 'clef', 'duration', 'text', 'word', 'accidental']
 
 
 export function model(ref: any): Music | undefined {
@@ -65,7 +65,9 @@ export function _wPO(_: any) {
   if (wPO) {
 
     let _pitch = wPO.find(_ => "pitch" in _)
-    let _octaves = wPO.find(_ => "octaves" in _)
+    let _accidental_octaves = wPO.find(_ => "accidentals_octave" in _)
+    let _octaves = _accidental_octaves?.accidentals_octave.find(_ => "octaves" in _)
+    let _accidentals = _accidental_octaves?.accidentals_octave.filter(_ => "accidental" in _)
     let _text = wPO.find(_ => "text" in _)
     let _duration = wPO.find(_ => "duration" in _)
 
@@ -83,10 +85,13 @@ export function _wPO(_: any) {
       } else {
         let duration = _duration?.duration
 
+        let accidental = _accidentals?.map(_ => _.accidental).join('')
+
         return {
           pitch,
           octave,
-          duration
+          duration,
+          accidental
         }
       }
     }

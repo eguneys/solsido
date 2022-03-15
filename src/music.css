@@ -43,7 +43,10 @@ staff > span .text {
   font-size: 0.25em;
   font-weight: bold;
   vertical-align: sub;
-  margin: 0.35em;
+  margin: 0.75em 0.5em;
+  position: absolute;
+  transform: translate(-50%, 0);
+  white-space: nowrap;
 }
 
 staff > span.ledger {

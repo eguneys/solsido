@@ -25,6 +25,8 @@
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf dist",
+    "lint": "tsc --outDir dist",
+    "lint:watch": "tsc --outDir dist --watch",
     "watch": "yarn -s clean && rollup --config --watch",
     "build": "yarn -s clean && rollup --config --config-prod"
   },

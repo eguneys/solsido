@@ -32,15 +32,13 @@ let model_durations = ['1', '2', '4', '8', '16', '32']
 
 let duration_codes = ['dwhole', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
 
-function po_ledger(pitch: Pitch, octave: Octave) {
-  return 2
-}
+let accidentals = ['is', 'es', 'isis', 'eses']
 
 function model_to_free(model: ONoteOrChord) {
   if (Array.isArray(model)) {
     return model.map(model_to_free)
   } else {
-    let { pitch, octave, duration, text } = model
+    let { pitch, octave, duration, text, accidental } = model
 
     let _pitch = model_pitches.indexOf(pitch) + 1
     let _octave = model_octaves[octave]
@@ -60,16 +58,16 @@ function model_to_free(model: ONoteOrChord) {
 
            code += '_note'
 
-           let ledger = po_ledger(pitch, octave)
-
+           let _accidental = (accidentals.indexOf(accidental) + 1) || undefined
 
            return {
              code,
              pitch: _pitch,
              octave: _octave,
+             ledger: true,
              klass: '',
              duration: _duration,
-             ledger
+             accidental: _accidental
            }
          }
       }
@@ -86,12 +84,12 @@ type OFreeOnStaff = {
  klass: string,
  pitch: Pitch,
  octave: Octave,
- ledger?: number
+ ledger?: number,
+ accidental?: Accidental
 }
 
 export const Music = (props) => {
   let { fen } = props
-
     fen ||= ''
   let music_model = read_fen(fen)
 
@@ -161,6 +159,7 @@ export const FullOnStaff = (props) => {
   let ledger_oys = note.ledger ? pitch_octave_ledgers(note.pitch, note.octave)
   .map(_ => pitch_y(..._)) : []
 
+
   return (<>
       <FreeOnStaff klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} oy={note.text ? -0.125 : 0}>{
       note.code ? g[note.code] : <span class='text'>{note.text}</span>
@@ -168,7 +167,21 @@ export const FullOnStaff = (props) => {
        <Index each={ledger_oys}>{ (_oy) =>
          <span class='ledger' style={transform_style(ox, _oy())}/>
        }</Index>
+       <Show when={note.accidental}>
+         <Accidentals pitch={note.pitch} octave={note.octave} ox={ox} accidental={note.accidental}/>
+       </Show>
       </>)
+}
+
+const accidental_code = [undefined, 'sharp', 'flat', 'dsharp', 'dflat']
+const accidental_offset = [0, 0.25, 0.25, 0.3, 0.4]
+const Accidentals = (props) => {
+  let { klass, pitch, octave, ox, accidental } = props;
+
+  let oy = pitch_y(pitch, octave)
+  let style = transform_style(ox - accidental_offset[accidental], oy)
+  
+  return (<span class={klass} style={style}>{g[accidental_code[accidental] + '_accidental']}</span>)
 }
 
 export const FreeOnStaff = (props) => {
