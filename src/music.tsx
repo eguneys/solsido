@@ -376,7 +376,7 @@ export const NotesDurationTable = (props) => {
       <FullOnFreeStaff duration={3} ox={0.6}/> 
     </td>
     </tr>
-            <tr> <td>Half Whole Note</td> 
+            <tr> <td>Half Note</td> 
     <td> <FullOnFreeStaff duration={3}/> </td>
     <td> <FullOnFreeStaff rest={true} duration={3} ox={0.4} /> </td>
 

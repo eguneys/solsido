@@ -1,11 +1,11 @@
-- [ ] Table of notes and rests duration
+- [+] Table of notes and rests duration
 - [ ] Table of note divisions
 - [ ] Beams with irregular divisions
 - [ ] Display Common time signature when none given
 
 - [ ] Header
 - [ ] Assignments section
-- [ ] An editor page where you can play notes
+- [ ] @An editor page where you can play notes
 
 - [ ] Explain notes scientific notation
 - [ ] Explain difference between semitone and step
@@ -25,12 +25,8 @@
 
 ## Fix
 
+- [ ] Review Explanation
+- [ ] Dotted note spacing
+- [ ] 1 for whole note 2 for half note 4 for quarter note etc.
 - [ ] Multiple staffs vertical spacing
-- [ ] Text nodes are horizontally off
-- [ ] The following quote
-
-> The duration of a note is specified by a number after the note name: 1 for a whole note, 2 for a half note, 4 for a quarter note and so on. Beams are added automatically.
-
-> If you do not specify a duration, the previous duration is used for the next note. The duration of the first note defaults to a quarter note.
-
 - [ ] Piano keys image off (chrome rounding bug on some font sizes)

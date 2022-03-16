@@ -10,7 +10,6 @@ const App = () => {
       )
 }
 
-
 const SoundSection = () => {
   return (<Section title="Sound"> 
 <ul>
@@ -87,13 +86,14 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 		<li><StrongItem title='Double sharp, or double flat'>raises or lowers the pitch two half steps.</StrongItem></li>
 		</ul>
 
+    <small>The notion of step is discussed later.</small>
+
     <Music zoom='2' fen={`{
 /clef treble
 <gis'1 g"G Sharp"> <ges'1 g"G Flat"> <gisis'1 g"G Double Sharp"> <geses'1 g"G Double Flat">
 }`}/>
     <Subtitle>A note can have sharps, flats or natural</Subtitle>
 
-    <p>The notion of step is discussed later.</p>
 
 
     <p><StrongItem title='An interval'>is the distance between two pitches.</StrongItem></p>
@@ -132,11 +132,14 @@ cis'1 des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
     <p>Accidentals apply to all other noteheads appearing on that line or space for the remainder of the measure, unless otherwise indicated. A natural accidental is used to cancel this convention.</p>
 
-    <p>Accidentals are closely related to key signatures that is discussed later. </p>
+    <p>
+      <small>Accidentals are closely related to key signatures that is discussed later. </small>
+    </p>
 
     <h3>Duration, Meter and, Rhythm</h3>
 
-    <p><StrongItem title='Meter and rhythm'>are patterns of duration.</StrongItem> Meter is regularly recurring pulses of equal duration, grouped in patterns of two, three, four etc. One of the pulses is accented, or strong. Pattern of strong and weak pulses are called <strong>beats</strong>. Duple (two beats) and triple (three beats) meter are two basic meters. More on this later.</p>
+    <p><StrongItem title='Meter and rhythm'>are patterns of duration.</StrongItem> Meter is regularly recurring pulses of equal duration, grouped in patterns of two, three, four etc. One of the pulses is accented, or strong. Pattern of strong and weak pulses are called <strong>beats</strong>. Duple (two beats) and triple (three beats) meter are two basic meters.</p>
+    <p> <small>More on this later.</small></p>
 
     <p><StrongItem title='Rhythm'>is pattern of uneven durations.</StrongItem>
       Steady beats of a meter form <strong>measures</strong>, while rhythm can be any length.</p>
@@ -146,6 +149,8 @@ cis'1 des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
   <p>Music may start with a partial measure, called an <strong>anacrusis</strong>. It is not counted in the measure numbering.</p>
 
     <NotesDurationTable/>
+ 
+    <Subtitle>The notation of duration for notes and rests</Subtitle>
 
     <p>One whole note lasts as long as two half notes. One half note lasts as long as two quarter notes etc.</p>
 
