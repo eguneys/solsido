@@ -64,7 +64,6 @@ export default function read_fen(str: string): Music | undefined {
   let res = mm.mMusic(str)
 
   if (res) {
-    console.log(to_model(tamcher(res, reducer)))
     return to_model(tamcher(res, reducer))
   }
 }

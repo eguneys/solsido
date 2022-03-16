@@ -217,13 +217,19 @@ a'2. | a'2~ a'4
       C is a time signature shorthand for 4/4 or <strong>common time</strong>.
       C/ is a time signature shorthand for 2/2 or <strong>cut time</strong>.</p>
 
+{
+// TODO Fix note durations and bars
+}
 
     <Music zoom='2' fen={`{
 /clef treble
+/time 3/4
+
+b'4 b'4 b'4 | b'8 b'8 b'8 b'8 b'16 b'16 b'16 b'16
 
 }`}/>
 
-    <Subtitle>Tied quarter notes are equal to the half note</Subtitle>
+    <Subtitle> First measure, a full note for each beat, and next measure, beats are divided and further subdivided </Subtitle>
 
 
     <p>For <strong>compound meters</strong> beat is divided into three equal durations. Each beat is a dotted note.

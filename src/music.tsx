@@ -51,7 +51,6 @@ function nb_note_value_to_code(nb_note_value: NbNoteValue) {
 // z z o t f e s
 const note_value_codes = ['zero', 'zero', 'one', 'two', 'four', 'eight', 'sixth']
 function note_value_to_code(note_value: NoteValue) {
-console.log(note_value)
   return note_value_codes[note_value] + '_time'
 }
 
@@ -114,9 +113,8 @@ function model_item_to_free(model: OCommandNoteOrChord) {
               text 
             }
          } else {
-           duration = duration || 1
            let _duration = model_durations.indexOf(duration) + 1
-           let code = duration_codes[duration]
+           let code = duration_codes[_duration]
 
            code += '_note'
 
@@ -195,10 +193,10 @@ export const Music = (props) => {
               </Match>
 
               <Match when={!!note_or_chord_or_bar.time}>
-                <FreeOnStaff klass='' pitch={2} octave={5} ox={i() + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
+                <FreeOnStaff klass='' pitch={2} octave={5} ox={(i() + 1) * 2 + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
                   {g[nb_note_value_to_code(time_nb_note_value(note_or_chord_or_bar.time))]}
                 </FreeOnStaff>
-                <FreeOnStaff klass='' pitch={5} octave={4} ox={i()}>
+                <FreeOnStaff klass='' pitch={5} octave={4} ox={(i() + 1) * 2}>
                   {g[note_value_to_code(time_note_value(note_or_chord_or_bar.time))]}
                 </FreeOnStaff>
               </Match>

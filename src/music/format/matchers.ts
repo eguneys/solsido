@@ -32,6 +32,7 @@ export const mDot = mm.mr(/^(\.)(.*)$/s, 'dot')
 
 /* https://stackoverflow.com/questions/71474211/how-to-match-some-specific-one-digit-numbers-or-two-digit-numbers?noredirect=1#comment126330449_71474211 */
 export const mDurationNumber = mm.mr(/^([1248])(.*)$/s, 'duration_number')
+export const mDurationNumber2 = mm.mr(/^(16)(.*)$/s, 'duration_number')
 
 export const mQuotedText = mm.mseq3([
   mQuote,
@@ -40,7 +41,7 @@ export const mQuotedText = mm.mseq3([
 ], rr.fSecond('text'))
 
 export const mDuration = mm.mseq3([
-  mDurationNumber,
+  mm.meither([mDurationNumber2, mDurationNumber]),
   mm.mpass,
   mm.mOpt(mDot)
 ], rr.fOneAndThree('duration'))
