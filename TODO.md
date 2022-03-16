@@ -10,6 +10,7 @@
 - [ ] Display grand staff
 - [ ] Display common and cut time with according glyphs
 - [ ] Larger font size for text on sheet
+- [ ] Bass clef to adjust notes
 
 - [ ] Add README
 

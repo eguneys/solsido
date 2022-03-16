@@ -22,7 +22,7 @@ export type ClefTimeNoteOrChord = Clef | Time | Note | Chord | Bar
 export type Note = {
   pitch: Pitch,
   octave: Octave,
-  duration?: Duration,
+  duration: Duration,
   dot?: Dot,
   tie?: Tie,
   text?: Text
@@ -33,23 +33,30 @@ export type Chord = Array<Note>
 export const ignores = []
 export const ids = ['staffs', 'octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar']
 
+type Context = {
+  duration: number
+}
 
-export function model(ref: any): Music | undefined {
+const defaultContext = () => ({
+  duration: '4'
+})
+
+export function model(ref: any, ctx: Context = defaultContext()): Music | undefined {
 
   return ref.flatMap(_ => {
     if ("grandstaff" in _) {
       return {
-        grandstaff: model(_.grandstaff)
+        grandstaff: model(_.grandstaff, ctx)
       }
     } else if ("staffs" in _) {
       return {
-        staffs: _.staffs.map(staff)
+        staffs: _.staffs.map(_ => staff(_, ctx))
       }
     }
   })[0]
 }
 
-export function staff(_: any) {
+export function staff(_: any, ctx: Context) {
   let { staff } = _
 
 
@@ -61,9 +68,9 @@ export function staff(_: any) {
     } else if ("bar" in _) {
       return _.bar
     } else if ("wPO" in _) {
-      return wPO(_)
+      return wPO(_, ctx)
     } else if ("chord" in _) {
-      return [_.chord.map(wPO)]
+      return [_.chord.map(_ => wPO(_, ctx))]
     }
     return []
   })
@@ -87,7 +94,7 @@ export function command(_: any) {
   return command.map(_ => _.word)
 }
 
-export function wPO(_: any) {
+export function wPO(_: any, ctx: Context) {
   let { wPO } = _
 
   if (wPO) {
@@ -123,6 +130,12 @@ export function wPO(_: any) {
 
         let accidental = _accidentals?.map(_ => _.accidental).join('')
         let tie = _tie?.tie
+
+        if (_duration_number) {
+          ctx.duration = _duration_number
+        } else {
+          _duration_number = ctx.duration
+        }
 
         return {
           pitch,

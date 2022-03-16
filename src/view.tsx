@@ -48,6 +48,9 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 /clef bass
 }`}/>
 
+    <Subtitle> Bass clef notes are placed different than treble clef. (To be implemented) </Subtitle>
+
+
     <p>Together the treble and bass staves make a <strong>grand staff</strong>.</p>
 
     <p>The lines of the treble clef from bottom to top are <strong>E G B D and F</strong> or "Every Good Boy Deserves Fruit". The spaces from bottom to top are <strong>F A C and E</strong> or "F A C E".</p>
@@ -56,9 +59,11 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
     <Music zoom='2' fen={`/new GrandStaff <<
 {
 /clef treble
+<g'1 d"G"> <f'1 d"F"> <e'1 d"E"> <d'1 d"D"> <c'1 d"C" c'''"Middle C">
 }
 {
 /clef bass
+<d''1 d"F"> <e''1 d"G"> <f''1 d"A"> <g''1 d"B"> <a''1 d"C" e'''"Middle C">
 }
 >>`}/>
 
@@ -106,7 +111,7 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 
     <Music zoom='2' fen={`{
 /clef treble
-c' cis' d' dis' e' f' fis' g' gis' a' ais' b' c''
+c'1 cis' d' dis' e' f' fis' g' gis' a' ais' b' c''
 }`}/>
 
     <Subtitle>An octave of notes, increasing by a semitone.</Subtitle>
@@ -117,7 +122,7 @@ c' cis' d' dis' e' f' fis' g' gis' a' ais' b' c''
 
     <Music zoom='2' fen={`{
 /clef treble
-cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
+cis'1 des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 }`}/>
 
     <Subtitle>Note that enharmonically equivalent notes sound the same.</Subtitle>
@@ -126,6 +131,8 @@ cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
 
     <p>Accidentals apply to all other noteheads appearing on that line or space for the remainder of the measure, unless otherwise indicated. A natural accidental is used to cancel this convention.</p>
+
+    <p>Accidentals are closely related to key signatures that is discussed later. </p>
 
     <h3>Duration, Meter and, Rhythm</h3>
 
@@ -137,6 +144,11 @@ cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
     <p>Each group of a meter is a <strong>measure or a bar</strong>. Vertical lines are <strong>measure lines or bar lines</strong>. Each measure is abbreviated as "m." and measures is abbreviated as "mm.".</p>
 
   <p>Music may start with a partial measure, called an <strong>anacrusis</strong>. It is not counted in the measure numbering.</p>
+
+
+
+
+
 
     <p>One whole note lasts as long as two half notes. One half note lasts as long as two quarter notes etc.</p>
 
@@ -150,7 +162,7 @@ cis' des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
     <Music zoom='2' fen={`{
 /clef treble
-c''4~ c''4 | c''2
+c''~ c''4 | c''2
 }`}/>
 
     <Subtitle>Tied quarter notes are equal to the half note</Subtitle>
@@ -221,14 +233,10 @@ a'2. | a'2~ a'4
       C is a time signature shorthand for 4/4 or <strong>common time</strong>.
       C/ is a time signature shorthand for 2/2 or <strong>cut time</strong>.</p>
 
-{
-// TODO Fix note durations and bars
-}
-
-    <Music zoom='2' fen={`{
+      <Music zoom='2' fen={`{
 /clef treble
 /time 3/4
-<b'4 b''"Beats" a"1"> <b'4 a"2"> <b'4 a"3"> | <b'8 b''"Beats divided" a"1"> b'8 <b'8 a"2"> b'8 <b'16 b''"Beats subdivided" a"3"> b'16 b'16 b'16
+<b' b''"Beats" a"1"> <b' a"2"> <b' a"3"> | <b'8 b''"Beats divided" a"1"> b'8 <b'8 a"2"> b'8 <b'16 b''"Beats subdivided" a"3"> b'16 b'16 b'16
 
 } {
 /clef treble

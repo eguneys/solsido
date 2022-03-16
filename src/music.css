@@ -72,3 +72,29 @@ staff > span.dot {
   border-radius: 50%;
   display: inline-block;
 }
+
+grand {
+  position: relative;
+  background: white;
+  display: flex;
+  flex-flow: column;
+}
+
+grand .staff-line {
+  position: absolute;
+  border-left: 0.03em solid black;
+  height: 5em;
+  left: 0.5em;
+  top: calc(2em - 0.5em);
+}
+
+grand span.brace {
+  position: absolute;
+  color: black;
+  top: -0.72em;
+  font-size: 5em;
+}
+
+grand staff {
+  margin-left: 0.5em;
+}

@@ -1,14 +1,10 @@
-/*
- * #011526
- * #F2F0F0
- * #8C8181
- * #BFB4B4
- * #262626
- */
-
 * {
   padding: 0;
   margin: 0;
+  --color-bg: #232731;
+  --color-bg-accent: #536266;
+  --color-font: #f2f2f2;
+  --color-primary: #bc3e5b;
 }
 
 ul {
@@ -16,13 +12,13 @@ ul {
 }
 
 a {
-  color: #8c8181;
+  color: var(--color-bg-accent);
   text-decoration: none;
 }
 
 body {
-  background: #262626;
-  color: #f2f0f0;
+  background: var(--color-bg);
+  color: var(--color-font);
   font-family: 'Fredoka', sans-serif;
 }
 
@@ -42,8 +38,23 @@ body {
   margin: 0.4em;
 }
 
+.solsido section h2 {
+  display: inline-block;
+  border-bottom: 0.2em solid var(--color-primary);
+  padding-right: 2em;
+}
+
+.solsido section h3 {
+  display: inline-block;
+  border-bottom: 0.1em solid var(--color-primary);
+  padding-right: 0.8em;
+}
+
 .solsido .m-wrap {
   margin: 0.2em 0;
+  border-radius: 0.1em;
+  overflow: hidden;
+  box-shadow: 0.03em 0.03em 0.01em black;
 }
 
 .solsido .subtitle {

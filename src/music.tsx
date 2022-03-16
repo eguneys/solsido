@@ -167,9 +167,13 @@ export const Music = (props) => {
         }</For>
       }>
       <Match when={!!grandstaff}>
-        <For each={grandstaff.staffs}>{ (staff) =>
-          <Staff staff={staff}/>
-        }</For>
+        <grand>
+          <For each={grandstaff.staffs}>{ (staff) =>
+            <Staff staff={staff}/>
+          }</For>
+          <span class='staff-line'/>
+          <span class='brace'>{g['brace']}</span>
+        </grand>
       </Match>
       </Switch>
       </div>)
