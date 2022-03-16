@@ -24,6 +24,7 @@ const sixteenth_flag_down = ''
 const thirtysecond_flag_down = ''
 const sixtyfourth_flag_down = ''
 
+const double_rest = ''
 const whole_rest = ''
 const half_rest = ''
 const quarter_rest = ''
@@ -75,6 +76,7 @@ export default {
   thirtysecond_flag_up,
   sixtyfourth_flag_up,
   brace,
+  double_rest,
   whole_rest,
   half_rest,
   quarter_rest,

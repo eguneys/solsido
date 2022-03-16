@@ -1,4 +1,4 @@
-import { Music, PianoKeys } from './music'
+import { Music, PianoKeys, NotesDurationTable } from './music'
 
 const App = () => {
   return (
@@ -145,10 +145,7 @@ cis'1 des' aes' gis' ais' bes' ees'' dis'' eis' f' bis' c'' bis' deses''
 
   <p>Music may start with a partial measure, called an <strong>anacrusis</strong>. It is not counted in the measure numbering.</p>
 
-
-
-
-
+    <NotesDurationTable/>
 
     <p>One whole note lasts as long as two half notes. One half note lasts as long as two quarter notes etc.</p>
 

@@ -58,9 +58,14 @@ let model_pitches = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 let model_octaves = [3, 4, 5, 6]
 let model_durations = ['1', '2', '4', '8', '16', '32']
 
-let duration_codes = ['dwhole', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
+let duration_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
 
 let accidentals = ['is', 'es', 'isis', 'eses']
+
+let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
+
+
+let duration_rests = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
 function model_notes_to_free(model: Array<OCommandNoteOrChord>) {
   return model.flatMap(model_item_to_free)
@@ -149,7 +154,8 @@ type OFreeOnStaff = {
  octave: Octave,
  ledger?: number,
  accidental?: Accidental,
- tie?: true
+ tie?: true,
+ stem?: number
 }
 
 export const Music = (props) => {
@@ -291,7 +297,23 @@ export const FullOnStaff = (props) => {
        <Show when={note.dot}>
          <Dot klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox}/>
        </Show>
+       <Show when={note.stem}>
+          <Stem klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} stem={note.stem}/>
+       </Show>
       </>)
+}
+
+const Stem = (props) => {
+  let { klass, pitch, octave, ox, stem } = props;
+
+  let oy = pitch_y(pitch, octave)
+  let style = transform_style(ox, oy)
+
+  let direction = Math.sign(stem)
+
+  let d_klass = direction === -1 ? 'up' : 'down'
+ 
+  return (<span class={['stem', d_klass, klass].join(' ')} style={style}/>)
 }
 
 const Dot = (props) => {
@@ -327,7 +349,114 @@ export const FreeOnStaff = (props) => {
   return (<span class={klass} style={style}>{children}</span>)
 }
 
+export const NotesDurationTable = (props) => {
 
+  return (<div class='notes-duration-wrap'>
+    <table>
+          <thead>
+            <tr><th>Name</th><th>Note</th><th>Rest</th><th colspan='2'>Equivalents</th></tr>
+          </thead>
+          <tbody>
+            <tr> <td>Double Whole Note</td>
+    <td> <FullOnFreeStaff duration={1} /> </td>
+    <td> <FullOnFreeStaff rest={true} duration={1} ox={0.4} /> </td>
+    <td>Two Whole Notes</td>
+    <td>
+      <FullOnFreeStaff duration={2} ox={0.1}/> 
+      <FullOnFreeStaff duration={2} ox={0.6}/> 
+    </td>
+     </tr>
+            <tr> <td>Whole Note</td> 
+    <td> <FullOnFreeStaff duration={2}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={2} ox={0.4} /> </td>
+    <td>Two Half Notes</td>
+
+    <td>
+      <FullOnFreeStaff duration={3} ox={0.1}/> 
+      <FullOnFreeStaff duration={3} ox={0.6}/> 
+    </td>
+    </tr>
+            <tr> <td>Half Whole Note</td> 
+    <td> <FullOnFreeStaff duration={3}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={3} ox={0.4} /> </td>
+
+    <td>Two Quarter Notes</td>
+    <td>
+      <FullOnFreeStaff duration={4} ox={0.1}/> 
+      <FullOnFreeStaff duration={4} ox={0.6}/> 
+
+    </td>
+    </tr>
+            <tr> <td>Quarter Note</td>  
+    <td> <FullOnFreeStaff duration={4}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={4} ox={0.4} /> </td>
+    <td>Two Eighth Notes</td>
+    <td> 
+      <FullOnFreeStaff duration={5} ox={0.1}/> 
+      <FullOnFreeStaff duration={5} ox={0.6}/> 
+    </td>
+    </tr>
+            <tr> <td>Eighth Note</td>  
+
+    <td> <FullOnFreeStaff duration={5}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={5} ox={0.4} /> </td>
+    <td>Two Sixteenth Notes</td>
+    <td></td>
+    </tr>
+           <tr> <td>Sixteenth Note</td>  
+
+    <td> <FullOnFreeStaff duration={6}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={6} ox={0.4} /> </td>
+    <td>Two Thirty-second Notes</td>
+    <td></td>
+    </tr>
+            <tr> <td>Thirty-second Note</td>  
+
+    <td> <FullOnFreeStaff duration={7}/> </td>
+    <td> <FullOnFreeStaff rest={true} duration={7} ox={0.4} /> </td>
+    <td>Two Sixty-fourth Notes</td>
+    <td></td>
+     </tr>
+          </tbody>
+        </table>
+    </div>)
+}
+
+export const FreeLines = (props: string) => {
+}
+
+export const FullOnFreeStaff = (props: string) => {
+  let { rest, duration, ox } = props
+
+  ox = ox === undefined ? 0.2: ox
+
+  let pitch = rest ? 2 : 6
+  let octave = rest ? 7 : 6
+  let code = rest ? duration_rests[duration] + '_rest' : duration_codes[duration] + '_note'
+  let stem = rest ? undefined : duration_stems[duration] * -1
+
+  let _klass = rest ? 'rest' : 'note'
+  let d_klass = duration_rests[duration]
+ 
+  let klass = [_klass, d_klass].join(' ')
+
+  let note = { 
+    code,
+    pitch,
+    octave,
+    klass,
+    duration,
+    stem
+  }
+
+  return (<div class='free-staff'>
+      <Show when={!!rest}>
+        <lines><line/><line/><line/><line/><line/></lines>
+      </Show>
+      <FullOnStaff note={note} i={-1 + ox}/>
+    </div>)
+
+}
 
 let letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 

@@ -1,6 +1,14 @@
+- [ ] Table of notes and rests duration
+- [ ] Table of note divisions
+- [ ] Beams with irregular divisions
+- [ ] Display Common time signature when none given
 
-- [ ] Add explanation for notes scientific notation
-- [ ] Add explanation for difference between semitone and step
+- [ ] Header
+- [ ] Assignments section
+- [ ] An editor page where you can play notes
+
+- [ ] Explain notes scientific notation
+- [ ] Explain difference between semitone and step
 - [ ] View source for sheet
 - [ ] Accidental natural
 - [ ] Responsive sheet width
@@ -11,6 +19,7 @@
 - [ ] Display common and cut time with according glyphs
 - [ ] Larger font size for text on sheet
 - [ ] Bass clef to adjust notes
+- [ ] Explain stem direction, beaming
 
 - [ ] Add README
 

@@ -22,12 +22,34 @@ body {
   font-family: 'Fredoka', sans-serif;
 }
 
+table {
+  box-shadow: 0.02em 0.02em 0.2em black;
+}
+
+table, th, td {
+  background: white;
+  color: black;
+  border-collapse: collapse;
+  border: 0.06em solid var(--color-bg);
+  padding: 0.4em;
+}
 
 .solsido {
   display: flex;
   flex-flow: column;
   font-size: 1.3em;
 }
+
+.solsido .notes-duration-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.solsido .notes-duration-wrap table tbody tr td:last-child,
+.solsido .notes-duration-wrap table tbody tr td:nth-child(3) {
+  width: 3em;
+}
+
 
 .solsido section {
   margin: 1em 0.4em;

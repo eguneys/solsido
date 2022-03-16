@@ -13,7 +13,8 @@ staff {
   color: black;
 }
 
-staff lines {
+staff lines,
+.free-staff lines {
   width: 100%;
   position: absolute;
   top: 2em;
@@ -73,6 +74,24 @@ staff > span.dot {
   display: inline-block;
 }
 
+.free-staff > span.rest.whole,
+staff > span.rest.whole {
+  top: -0.25em;
+}
+
+staff > span.stem,
+.free-staff > span.stem {
+  border-left: 0.03em solid black;
+  width: 1em;
+  height: 1em;
+  top: 2em;
+}
+
+span.stem.up {
+  left: calc(0.25em + 0.0125em);
+  top: 1em;
+}
+
 grand {
   position: relative;
   background: white;
@@ -98,3 +117,19 @@ grand span.brace {
 grand staff {
   margin-left: 0.5em;
 }
+
+
+.free-staff {
+  position: relative;
+  font-family: Bravura;
+  font-size: 1.5em;
+}
+
+.free-staff lines {
+  top: 0em;
+}
+
+.free-staff span {
+  position: absolute;
+}
+
