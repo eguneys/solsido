@@ -50,16 +50,19 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 
     <p>Together the treble and bass staves make a <strong>grand staff</strong>.</p>
 
-    <Music zoom='2' fen={`>>
+    <p>The lines of the treble clef from bottom to top are <strong>E G B D and F</strong> or "Every Good Boy Deserves Fruit". The spaces from bottom to top are <strong>F A C and E</strong> or "F A C E".</p>
+
+
+    <Music zoom='2' fen={`/new GrandStaff <<
 {
 /clef treble
 }
 {
 /clef bass
+}
+>>`}/>
 
-<<`}/>
-
-    <p>The lines of the treble clef from bottom to top are <strong>E G B D and F</strong> or "Every Good Boy Deserves Fruit". The spaces from bottom to top are <strong>F A C and E</strong> or "F A C E".</p>
+    <Subtitle> Notes go from Bass Cleff to Treble Cleff on a Grand Staff </Subtitle>
 
     <p>Pitches that go beyond the limits of the staff are written by adding <strong>ledger lines</strong> above or below the staff.</p>
 
@@ -69,6 +72,7 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 }`}/>
 
     <Subtitle> Notes with ledger lines </Subtitle>
+
 
 		<p><StrongItem title='Accidentals'>are symbols that are placed to the left of the noteheads to indicate raising or lowering the pitch.</StrongItem></p>
 		<ul>

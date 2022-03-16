@@ -1,5 +1,5 @@
 
-- [ ] Notes scientific notation
+- [ ] Add explanation for notes scientific notation
 - [ ] Add explanation for difference between semitone and step
 - [ ] View source for sheet
 - [ ] Accidental natural

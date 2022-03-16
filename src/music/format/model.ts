@@ -35,13 +35,18 @@ export const ids = ['staffs', 'octave', 'pitch', 'clef', 'duration_number', 'dot
 
 
 export function model(ref: any): Music | undefined {
-  let { staffs } = ref[0]
-  let _staffs = staffs.map(staff)
-  if (_staffs) {
-    return {
-      staffs: _staffs
-    } 
-  }
+
+  return ref.flatMap(_ => {
+    if ("grandstaff" in _) {
+      return {
+        grandstaff: model(_.grandstaff)
+      }
+    } else if ("staffs" in _) {
+      return {
+        staffs: _.staffs.map(staff)
+      }
+    }
+  })[0]
 }
 
 export function staff(_: any) {

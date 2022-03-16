@@ -156,15 +156,24 @@ export const Music = (props) => {
   let { fen, zoom } = props
   let music_model = read_fen(fen || '')
 
-  
   if (music_model) {
+    let { grandstaff } = music_model
     let { staffs } = music_model
   
     return (<div class='m-wrap' style={{ 'font-size': `${zoom||1}em` }}>
+      <Switch fallback={
         <For each={staffs}>{ (staff) =>
           <Staff staff={staff}/>
         }</For>
+      }>
+      <Match when={!!grandstaff}>
+        <For each={grandstaff.staffs}>{ (staff) =>
+          <Staff staff={staff}/>
+        }</For>
+      </Match>
+      </Switch>
       </div>)
+
   }
 }
 

@@ -63,6 +63,7 @@ function reducer(rmv: tt.OneMatcherValue,
 export default function read_fen(str: string): Music | undefined {
   let res = mm.mMusic(str)
 
+  //console.log(str, res)
   if (res) {
     return to_model(tamcher(res, reducer))
   }

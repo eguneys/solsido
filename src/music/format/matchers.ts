@@ -1,6 +1,5 @@
 import { mm, rr } from 'tamcher'
 
-
 export const mSpaceStar = mm.mr(/^( +)(.*)$/s, 'space')
 export const mSpace = mm.mr(/^( )(.*)$/s, 'newline')
 export const mNewline = mm.mr(/^(\n)(.*)$/s, 'newline')
@@ -33,6 +32,12 @@ export const mDot = mm.mr(/^(\.)(.*)$/s, 'dot')
 /* https://stackoverflow.com/questions/71474211/how-to-match-some-specific-one-digit-numbers-or-two-digit-numbers?noredirect=1#comment126330449_71474211 */
 export const mDurationNumber = mm.mr(/^([1248])(.*)$/s, 'duration_number')
 export const mDurationNumber2 = mm.mr(/^(16)(.*)$/s, 'duration_number')
+
+
+export const mStaffsBegin = mm.mr(/^(\<\<)(.*)$/s, 'dot')
+export const mStaffsEnd = mm.mr(/^(\>\>)(.*)$/s, 'dot')
+
+export const mGrandStaffBegin = mm.mr(/^(\/new GrandStaff)(.*)$/s, 'grandstaffbegin')
 
 export const mQuotedText = mm.mseq3([
   mQuote,
@@ -116,8 +121,22 @@ export const mStaff =
 
 export const mStaffs = mm.mgroup(mm.mstar(mm.meither([mStaff, mSpace, mNewline])), mm.oneMatcherNode('staffs'))
 
+export const mWhitespace = mm.mOpt(mm.mstar(mm.meither([
+  mSpace,
+  mNewline
+])))
+
+export const mGrandStaff = mm.mseq3([
+  mGrandStaffBegin,
+  mm.mpass,
+  mm.mseq3([
+    mm.mseq3([mWhitespace, mStaffsBegin, mWhitespace], _ => 1),
+    mStaffs,
+    mm.mseq3([mWhitespace, mStaffsEnd, mm.mpass], _ => 1),
+  ], _ => _[1])
+], rr.fLast('grandstaff'))
+
 export const mMusic = mm.meither([
+  mGrandStaff,
   mStaffs
 ])
-
-
