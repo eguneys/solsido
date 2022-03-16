@@ -62,7 +62,7 @@ let duration_codes = ['dwhole', 'whole', 'half', 'quarter', 'quarter', 'quarter'
 
 let accidentals = ['is', 'es', 'isis', 'eses']
 
-function model_to_free(model: Array<OCommandNoteOrChord>) {
+function model_notes_to_free(model: Array<OCommandNoteOrChord>) {
   return model.flatMap(model_item_to_free)
 }
 
@@ -93,7 +93,7 @@ function model_item_to_free(model: OCommandNoteOrChord) {
         return { time }
       }
     } else {
-      return model.map(model_item_to_free)
+      return [model.map(model_item_to_free)]
     }
   } else if (model === '|' || model === '||') {
      return model
@@ -153,61 +153,61 @@ type OFreeOnStaff = {
 }
 
 export const Music = (props) => {
-  let { fen } = props
-    fen ||= ''
-  let music_model = read_fen(fen)
+  let { fen, zoom } = props
+  let music_model = read_fen(fen || '')
 
-  let notes
+  
   if (music_model) {
-    notes = model_to_free(music_model.staff.notes)
+    let { staffs } = music_model
+  
+    return (<div class='m-wrap' style={{ 'font-size': `${zoom||1}em` }}>
+        <For each={staffs}>{ (staff) =>
+          <Staff staff={staff}/>
+        }</For>
+      </div>)
   }
+}
 
-  return (
-    <div class='m-wrap' style={{ 'font-size': `${props.zoom||1}em` }}>
-       <staff>
-         <lines>
-            <line/>
-            <line/>
-            <line/>
-            <line/>
-            <line/>
-         </lines>
-         <For each={notes}>{ (note_or_chord_or_bar, i) =>
-           <Switch fallback={
-              <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
-              }>
-             <Match when={note_or_chord_or_bar==='|'}>
-               <Bar i={i()}/>
-             </Match>
-             <Match when={note_or_chord_or_bar==='||'}>
-               <DoubleBar i={i()}/>
-             </Match>
+export const Staff = (props) => {
+  let { staff } = props
 
-             <Match when={Array.isArray(note_or_chord_or_bar)}> 
-               <For each={note_or_chord_or_bar}>{ (note) =>
-                 <FullOnStaff note={note} i={i()}/>
-               }</For>
-             </Match>
-              <Match when={!!note_or_chord_or_bar.clef}>
-                <FreeOnStaff klass='' pitch={clef_to_pitch(note_or_chord_or_bar.clef)} octave={4} ox={0.25}>{g[clef_to_code(note_or_chord_or_bar.clef)]}</FreeOnStaff>
-              </Match>
+  let notes = model_notes_to_free(staff.notes)
 
-              <Match when={!!note_or_chord_or_bar.time}>
-                <FreeOnStaff klass='' pitch={2} octave={5} ox={(i() + 1) * 2 + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
-                  {g[nb_note_value_to_code(time_nb_note_value(note_or_chord_or_bar.time))]}
-                </FreeOnStaff>
-                <FreeOnStaff klass='' pitch={5} octave={4} ox={(i() + 1) * 2}>
-                  {g[note_value_to_code(time_note_value(note_or_chord_or_bar.time))]}
-                </FreeOnStaff>
-              </Match>
+  return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
+    <For each={notes}>{ (note_or_chord_or_bar, i) =>
+      <Switch fallback={
+         <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
+         }>
+        <Match when={note_or_chord_or_bar==='|'}>
+          <Bar i={i()}/>
+        </Match>
+        <Match when={note_or_chord_or_bar==='||'}>
+          <DoubleBar i={i()}/>
+        </Match>
+
+        <Match when={Array.isArray(note_or_chord_or_bar)}> 
+          <For each={note_or_chord_or_bar}>{ (note) =>
+            <FullOnStaff note={note} i={i()}/>
+          }</For>
+        </Match>
+         <Match when={!!note_or_chord_or_bar.clef}>
+           <FreeOnStaff klass='' pitch={clef_to_pitch(note_or_chord_or_bar.clef)} octave={4} ox={0.25}>{g[clef_to_code(note_or_chord_or_bar.clef)]}</FreeOnStaff>
+         </Match>
+
+         <Match when={!!note_or_chord_or_bar.time}>
+           <FreeOnStaff klass='' pitch={2} octave={5} ox={(i() + 1) * 2 + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
+             {g[nb_note_value_to_code(time_nb_note_value(note_or_chord_or_bar.time))]}
+           </FreeOnStaff>
+           <FreeOnStaff klass='' pitch={5} octave={4} ox={(i() + 1) * 2}>
+             {g[note_value_to_code(time_note_value(note_or_chord_or_bar.time))]}
+           </FreeOnStaff>
+         </Match>
 
 
 
-           </Switch>
-         }</For>
-       </staff>
-
-    </div>)
+      </Switch>
+    }</For>
+   </staff>)
 }
 
 const Bar = (props) => {

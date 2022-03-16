@@ -114,9 +114,10 @@ export const mStaff =
     mm.mstar(mm.meither([mNewline, mCommand, mChordOrNotes])),
     mm.mr(/^(\})(.*)$/s, 'send')], rr.fSecond('staff'))
 
+export const mStaffs = mm.mgroup(mm.mstar(mm.meither([mStaff, mSpace, mNewline])), mm.oneMatcherNode('staffs'))
 
 export const mMusic = mm.meither([
-  mStaff
+  mStaffs
 ])
 
 

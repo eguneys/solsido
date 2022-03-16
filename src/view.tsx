@@ -224,10 +224,15 @@ a'2. | a'2~ a'4
     <Music zoom='2' fen={`{
 /clef treble
 /time 3/4
+<b'4 b''"Beats" a"1"> <b'4 a"2"> <b'4 a"3"> | <b'8 b''"Beats divided" a"1"> b'8 <b'8 a"2"> b'8 <b'16 b''"Beats subdivided" a"3"> b'16 b'16 b'16
 
-b'4 b'4 b'4 | b'8 b'8 b'8 b'8 b'16 b'16 b'16 b'16
-
+} {
+/clef treble
+/time 3/2
+<b'2 b''"Beats" a"1"> <b'2 a"2"> <b'2 a"3"> | <b'4 b''"Beats divided" a"1"> b'4 <b'4 a"2"> b'4 <b'8 a"3"> b'8 b'8 b'8
 }`}/>
+
+// TODO REST
 
     <Subtitle> First measure, a full note for each beat, and next measure, beats are divided and further subdivided </Subtitle>
 

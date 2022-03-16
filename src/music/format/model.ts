@@ -1,5 +1,5 @@
 export type Music = {
-  staff: Staff
+  staffs: Array<Staff>
 }
 
 export type Staff = {
@@ -31,19 +31,20 @@ export type Note = {
 export type Chord = Array<Note>
 
 export const ignores = []
-export const ids = ['octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar']
+export const ids = ['staffs', 'octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar']
 
 
 export function model(ref: any): Music | undefined {
-  let staff = ref.map(_staff)[0]
-  if (staff) {
+  let { staffs } = ref[0]
+  let _staffs = staffs.map(staff)
+  if (_staffs) {
     return {
-      staff
-    }
+      staffs: _staffs
+    } 
   }
 }
 
-export function _staff(_: any) {
+export function staff(_: any) {
   let { staff } = _
 
 

@@ -6,14 +6,16 @@
 - [ ] Responsive sheet width
 - [ ] Responsive note spacing
 - [ ] Show error messages for music input
-- [ ] Display multiple sheets
+- [ ] Display multiple staffs
 - [ ] Display grand staff
 - [ ] Display common and cut time with according glyphs
+- [ ] Larger font size for text on sheet
 
 - [ ] Add README
 
 ## Fix
 
+- [ ] Multiple staffs vertical spacing
 - [ ] Text nodes are horizontally off
 - [ ] The following quote
 

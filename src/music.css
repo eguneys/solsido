@@ -2,6 +2,7 @@
   user-select: none;
   font-family: Bravura;
   display: flex;
+  flex-flow: column;
 }
 
 staff {
