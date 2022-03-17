@@ -56,7 +56,7 @@ function note_value_to_code(note_value: NoteValue) {
 
 let model_pitches = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 let model_octaves = [3, 4, 5, 6]
-let model_durations = ['1', '2', '4', '8', '16', '32']
+let model_durations = [undefined, undefined, '1', '2', '4', '8', '16', '32']
 
 let duration_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
 
@@ -118,7 +118,7 @@ function model_item_to_free(model: OCommandNoteOrChord) {
               text 
             }
          } else {
-           let _duration = model_durations.indexOf(duration) + 1
+           let _duration = model_durations.indexOf(duration)
            let code = duration_codes[_duration]
 
            code += '_note'
