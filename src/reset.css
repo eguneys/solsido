@@ -3,7 +3,7 @@
   margin: 0;
   --color-bg: #232731;
   --color-bg-accent: #536266;
-  --color-font: #f2f2f2;
+  --color-font: #fafafa;
   --color-primary: #bc3e5b;
   --color-bg-secondary: #3c4a54;
   --color-secondary: #f0968c;
@@ -19,8 +19,8 @@ a {
 }
 
 body {
-  background: var(--color-bg);
   color: var(--color-font);
+  background: var(--color-bg);
   font-family: 'Fredoka', sans-serif;
 }
 

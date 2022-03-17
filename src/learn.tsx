@@ -53,6 +53,13 @@ const PrefaceSection = () => {
       </Section>)
 }
 
+const IntroductionSection = () => {
+  return (<>
+    <SoundSection/>
+    <NotationSection/>
+    </>)
+}
+
 const SoundSection = () => {
   return (<Section title="Sound"> 
 <ul>
@@ -327,8 +334,7 @@ const default_learn_route = 4
 
 const route_components = [undefined, undefined, undefined, undefined, undefined, 
  PrefaceSection,
- SoundSection,
- NotationSection,
+ IntroductionSection,
  ReferencesSection
 ]
 
