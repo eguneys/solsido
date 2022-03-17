@@ -1,0 +1,7 @@
+header {
+  background: white;
+}
+
+header .site-title a {
+  color: black;
+}

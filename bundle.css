@@ -1,0 +1,245 @@
+@font-face {
+  font-family: 'Bravura';
+  src: url(assets/Bravura.woff);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  --color-bg: #232731;
+  --color-bg-accent: #536266;
+  --color-font: #f2f2f2;
+  --color-primary: #bc3e5b;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: var(--color-bg-accent);
+  text-decoration: none;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-font);
+  font-family: 'Fredoka', sans-serif;
+}
+
+table {
+  box-shadow: 0.02em 0.02em 0.2em black;
+}
+
+table, th, td {
+  background: white;
+  color: black;
+  border-collapse: collapse;
+  border: 0.06em solid var(--color-bg);
+  padding: 0.4em;
+}
+
+.solsido {
+  display: flex;
+  flex-flow: column;
+  font-size: 1.3em;
+}
+
+.solsido .notes-duration-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.solsido .notes-duration-wrap table tbody tr td:last-child,
+.solsido .notes-duration-wrap table tbody tr td:nth-child(3) {
+  width: 3em;
+}
+
+
+.solsido section {
+  margin: 1em 0.4em;
+}
+
+.solsido section ul,
+.solsido section p {
+  margin: 0.4em;
+}
+
+.solsido section h2 {
+  display: inline-block;
+  border-bottom: 0.2em solid var(--color-primary);
+  padding-right: 2em;
+}
+
+.solsido section h3 {
+  display: inline-block;
+  border-bottom: 0.1em solid var(--color-primary);
+  padding-right: 0.8em;
+}
+
+.solsido .m-wrap {
+  margin: 0.2em 0;
+  border-radius: 0.1em;
+  overflow: hidden;
+  box-shadow: 0.03em 0.03em 0.01em black;
+}
+
+.solsido .subtitle {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.m-wrap {
+  user-select: none;
+  font-family: Bravura;
+  display: flex;
+  flex-flow: column;
+}
+
+staff {
+  width: 100%;
+  height: 4em;
+  position: relative;
+  background: white;
+  color: black;
+}
+
+staff lines,
+.free-staff lines {
+  width: 100%;
+  position: absolute;
+  top: 2em;
+  transform: translate(0, -50%);
+  display: flex;
+  flex-flow: column;
+  align-items: stretch;
+}
+
+
+lines line {
+  padding-bottom: calc(0.25em - 0.03em);
+  border-top: 0.03em solid black;
+}
+
+lines line:last-child {
+  padding-bottom: 0;
+}
+
+
+staff > span {
+  position: absolute;
+  font-size: 1em;
+  line-height: 4em;
+}
+
+staff > span .text {
+  font-size: 0.25em;
+  font-weight: bold;
+  vertical-align: sub;
+  margin: 0.75em 0.5em;
+  position: absolute;
+  transform: translate(-50%, 0);
+  white-space: nowrap;
+}
+
+staff > span.ledger {
+  top: 2em;
+  left: -0.25em;
+  border-top: 0.03em solid black;
+  width: 1em;
+}
+
+staff > span.bar {
+  border-left: 0.03em solid black;
+  top: 2em;
+  height: 1em;
+}
+
+staff > span.dot {
+  top: calc(2em - 0.05em);
+  left: 0.4em;
+  width: 0.1em;
+  height: 0.1em;
+  background-color: black;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.free-staff > span.rest.whole,
+staff > span.rest.whole {
+  top: -0.25em;
+}
+
+staff > span.stem,
+.free-staff > span.stem {
+  border-left: 0.03em solid black;
+  width: 1em;
+  height: 1em;
+  top: 2em;
+}
+
+span.stem.up {
+  left: calc(0.25em + 0.0125em);
+  top: 1em;
+}
+
+grand {
+  position: relative;
+  background: white;
+  display: flex;
+  flex-flow: column;
+}
+
+grand .staff-line {
+  position: absolute;
+  border-left: 0.03em solid black;
+  height: 5em;
+  left: 0.5em;
+  top: calc(2em - 0.5em);
+}
+
+grand span.brace {
+  position: absolute;
+  color: black;
+  top: -0.72em;
+  font-size: 5em;
+}
+
+grand staff {
+  margin-left: 0.5em;
+}
+
+
+.free-staff {
+  position: relative;
+  font-family: Bravura;
+  font-size: 1.5em;
+}
+
+.free-staff lines {
+  top: 0em;
+}
+
+.free-staff span {
+  position: absolute;
+}
+
+
+.p-wrap {
+  position: relative;
+  user-select: none;
+  display: flex;
+}
+
+.p-wrap .background {
+  height: 4em;
+  background: url(assets/piano_keys.png);
+  background-size: contain;
+  background-repeat: repeat-x;
+}
+
+.p-wrap .letter {
+  position: absolute;
+  color: black;
+}
