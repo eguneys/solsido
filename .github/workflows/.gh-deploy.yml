@@ -12,7 +12,7 @@ jobs:
         run: |
           yarn install
           yarn build
-          cp dist/index.html dist/404.html
+          ./hack_gh_page_routes.sh
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5

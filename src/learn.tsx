@@ -10,7 +10,7 @@ const Learn = () => {
     <div class='learn'>
       <TableOfContents/>
       <div class='content'>
-        <Dynamic component={route_components[route() === default_learn_route ? 5 : route()]}/>
+        <Dynamic component={route_components[route()]}/>
       </div>
     </div>
       )
