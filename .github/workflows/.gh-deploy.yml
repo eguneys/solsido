@@ -12,6 +12,7 @@ jobs:
         run: |
           yarn install
           yarn build
+          ln -s index.html 404.html
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
