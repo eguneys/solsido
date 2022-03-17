@@ -1,5 +1,6 @@
 header {
   background: white;
+  box-shadow: 0 0.05em 0.1em black;
 }
 
 header .site-title {
@@ -8,9 +9,44 @@ header .site-title {
 }
 
 header .site-title a {
+  transition: color 0.3s;
   color: var(--color-bg);
 }
 
+header .site-title:hover a  {
+  color: var(--color-primary);
+} 
+
 header .site-title span {
+  transition: color 0.5s;
   color: var(--color-primary)
+}
+
+header .site-title:hover span {
+  color: var(--color-bg);
+}
+
+
+header .site-title-nav {
+  display: flex;
+  flex-flow: row;
+}
+
+header .site-title-nav nav {
+  flex-grow: 1;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  gap: 1em;
+  align-items: center;
+}
+
+nav section a {
+  transition: color 0.1s;
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+nav section a:hover {
+  color: var(--color-bg-accent);
 }
