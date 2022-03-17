@@ -1,13 +1,56 @@
+import { useRouter, Link } from './router'
 import { Music, PianoKeys, NotesDurationTable } from './music_'
 
+
 const Learn = () => {
+
+  let [route] = useRouter()
+
   return (
-    <div class='solsido'>
-      <SoundSection/>
-      <NotationSection/>
-      <ReferencesSection/>
+    <div class='learn'>
+      <TableOfContents/>
+      <div class='content'>
+        <Dynamic component={route_components[route() === default_learn_route ? 5 : route()]}/>
+      </div>
     </div>
       )
+}
+
+
+const TableOfContents = () => {
+  return (<div class='table-of-contents'>
+      <div class='contents'>
+        <TocSection i={1} title="Preface">
+          Audience, Highlights
+        </TocSection>
+        <TocSection i={2} title="Introduction">
+          Sound, Notation
+        </TocSection>
+        <TocSection i="A" title="References">
+          Books, Videos
+        </TocSection>
+
+     </div>
+      <h2> <span>Table Of</span>Contents</h2>
+    </div>)
+}
+
+const TocSection = (props) => {
+  let { i, title, children } = props
+
+  return (<section>
+      <h3>{i}</h3>
+      <div>
+        <Link href={"learn/"+title.toLowerCase()}>{title}</Link>
+        {children}
+      </div>
+    </section>)
+}
+
+const PrefaceSection = () => {
+  return (<Section title="Preface">
+     Preface Hello
+      </Section>)
 }
 
 const SoundSection = () => {
@@ -279,6 +322,17 @@ const ReferencesSection = () => {
   </ul>
 </Section>)
 }
+
+const default_learn_route = 4
+
+const route_components = [undefined, undefined, undefined, undefined, undefined, 
+ PrefaceSection,
+ SoundSection,
+ NotationSection,
+ ReferencesSection
+]
+
+
 
 const Subtitle = (props) => {
   return (<p class='subtitle'>{props.children}</p>)

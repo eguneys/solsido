@@ -1,6 +1,9 @@
 import { createEffect, createSignal, createContext, useContext } from 'solid-js'
 
-const href_routes = [undefined, '', 'sound', 'music', 'learn']
+const href_routes = [undefined, '', 'sound', 'music', 'learn',
+'learn/preface',
+'learn/introduction',
+'learn/references']
 
 const RouterContext = createContext()
 
@@ -44,7 +47,7 @@ export function useRouter() {
 }
 
 function href_route(href) {
-  return href_routes.indexOf(href.split('/').slice(-1)[0])
+  return href_routes.indexOf(href.replace(/^(\/)/, ''))
 }
 
 
@@ -55,6 +58,7 @@ export const Link = (props) => {
 
   let _route = href_route(href)
 
+console.log(href, _route)
   let onClick = (e) => {
     e.preventDefault()
     setRoute(_route)

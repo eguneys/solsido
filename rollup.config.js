@@ -39,7 +39,9 @@ export default args => {
       copy({ targets: [{ src: 'assets', dest: 'dist' }], copyOnce: true}),
       htmlTemplate({
         template: 'src/index.html',
-        target: 'index.html'
+        target: 'index.html',
+        /* https://github.com/bengsfort/rollup-plugin-generate-html-template/issues/12 */
+        prefix: '/'
       }),
       ...(prod? [] : [
         serve({ contentBase: 'dist', port: 3000, historyApiFallback: true }),

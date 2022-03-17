@@ -1,0 +1,112 @@
+.learn .table-of-contents,
+.learn h2, .learn h3 {
+  font-family: 'Lato', sans-serif;
+}
+
+.learn .table-of-contents {
+  display: flex;
+  padding: 2em;
+  background: var(--color-bg-secondary);
+}
+
+.learn .table-of-contents .contents {
+  align-self: end;
+}
+
+.learn .table-of-contents h2 span {
+  color: var(--color-font);
+  font-size: 0.35em;
+  font-weight: bold;
+}
+
+.learn .table-of-contents h2 {
+  /* https://stackoverflow.com/a/40911154/3994249 */
+  writing-mode: tb-rl;
+  transform: rotate(-180deg);
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  font-size: 3.75em;
+  font-weight: bold;
+  display: flex;
+  flex-flow: column;
+  align-items: self-end;
+}
+
+.learn .table-of-contents section {
+  display: flex;
+  gap: 1em;
+}
+
+.learn .table-of-contents section h3 {
+  color: var(--color-secondary);
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.learn .table-of-contents section div {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+.learn .table-of-contents section a {
+  transition: color 0.1s;
+  color: var(--color-font);
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.learn .table-of-contents section a:hover {
+  color: var(--color-secondary);
+}
+
+.learn .content {
+  display: flex;
+  flex-flow: column;
+  font-size: 1.3em;
+}
+
+.learn .content .notes-duration-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.learn .content .notes-duration-wrap table tbody tr td:last-child,
+.learn .content .notes-duration-wrap table tbody tr td:nth-child(3) {
+  width: 3em;
+}
+
+
+.learn .content section {
+  margin: 1em 0.4em;
+}
+
+.learn .content section ul,
+.learn .content section p {
+  margin: 0.4em;
+}
+
+.learn .content section h2 {
+  display: inline-block;
+  border-bottom: 0.2em solid var(--color-primary);
+  padding-right: 2em;
+}
+
+.learn .content section h3 {
+  display: inline-block;
+  border-bottom: 0.1em solid var(--color-primary);
+  padding-right: 0.8em;
+}
+
+.learn .content .m-wrap {
+  margin: 0.2em 0;
+  border-radius: 0.1em;
+  overflow: hidden;
+  box-shadow: 0.03em 0.03em 0.01em black;
+}
+
+.learn .content .subtitle {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+}

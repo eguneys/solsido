@@ -21,7 +21,9 @@ const Home = () => {
       </div>)
 }
 
-const route_components = [Home, Home, Sound, Music, Learn]
+const route_components = [Home, Home, 
+Sound, Music, 
+Learn, Learn, Learn, Learn, Learn]
 
 const Main = (props) => {
 
@@ -41,9 +43,9 @@ const Header = (props) => {
       <h1 class='site-title'> <a href='/'> lasolsido<span>.org</span></a></h1>
       <nav>
         <section> <Link href='/'> Home </Link> </section>
-        <section> <Link href='/sound'> Sound </Link> </section>
-        <section> <Link href='/music'> Music </Link> </section>
-        <section> <Link href='/learn'> Learn </Link> </section>
+        <section> <Link href='sound'> Sound </Link> </section>
+        <section> <Link href='music'> Music </Link> </section>
+        <section> <Link href='learn'> Learn </Link> </section>
       </nav>
     </div>
     </header>)
