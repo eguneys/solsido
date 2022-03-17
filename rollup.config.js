@@ -25,7 +25,7 @@ export default args => {
       dir: 'dist',
       ...(prod ? {
         entryFileNames: '[name].min.js',
-        plugins: [terser({mangle: { properties: { keep_quoted: true } } })]
+        plugins: [terser({mangle: true })]
       } : { sourcemap: true })
     },
     watch: {
@@ -35,8 +35,7 @@ export default args => {
       nodeResolve({ extensions, browser: true }),
       commonjs(),
       babel({ extensions, babelHelpers: 'bundled' }),
-      //typescript(),
-      css(),
+      css({minify: prod }),
       copy({ targets: [{ src: 'assets', dest: 'dist' }], copyOnce: true}),
       htmlTemplate({
         template: 'src/index.html',
