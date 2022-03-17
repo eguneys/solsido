@@ -42,7 +42,7 @@ export default args => {
         target: 'index.html'
       }),
       ...(prod? [] : [
-        serve({ contentBase: 'dist', port: 3000 }),
+        serve({ contentBase: 'dist', port: 3000, historyApiFallback: true }),
         livereload({ watch: 'dist', port: 8080 })
       ])
     ]

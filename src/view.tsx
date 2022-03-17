@@ -1,19 +1,35 @@
-import { Link } from './router'
+import { useRouter, RouterProvider, Link } from './router'
+
 import Learn from './learn'
+import Sound from './sound'
+import Music from './music'
 
 
 const App = () => {
-  return (
-    <div class='app-wrap'>
-      <Header/>
-      <Main/>
-    </div>)
+
+  return (<RouterProvider>
+      <div class='app-wrap'>
+        <Header/>
+        <Main/>
+      </div>
+    </RouterProvider>)
 }
 
+const Home = () => {
+  return (<div>
+    Hello
+      </div>)
+}
+
+const route_components = [Home, Home, Sound, Music, Learn]
+
 const Main = (props) => {
+
+  let [route] = useRouter()
+
   return (<div class='main-wrap'>
       <main>
-        <Learn/>
+        <Dynamic component={route_components[route()]}/>
       </main>
     </div>)
 }

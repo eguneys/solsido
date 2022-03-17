@@ -1,4 +1,4 @@
-import { Music, PianoKeys, NotesDurationTable } from './music'
+import { Music, PianoKeys, NotesDurationTable } from './music_'
 
 const Learn = () => {
   return (
