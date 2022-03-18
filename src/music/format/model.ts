@@ -111,32 +111,37 @@ export function wPO(_: any, ctx: Context) {
 
     let _tie = _duration_ties?.duration_ties.find(_ => "tie" in _)
 
+    let pitch, octave
+
     if (_pitch) {
-      let pitch = _pitch.pitch,
-        octave = _octaves?.octaves.length || 0
+      pitch = _pitch.pitch
+      octave = _octaves?.octaves.length || 0
+    }
 
-      if (_text) {
-        let text = _text.text.map(_ => _.word).join('')
-        return {
-          pitch,
-          octave,
-          text
-        }
+    if (_text) {
+      let text = _text.text.map(_ => _.word).join('')
+      return {
+        pitch,
+        octave,
+        text
+      }
+    } else {
+      let duration = _duration?.duration
+
+      let _duration_number = duration?.find(_ => _.duration_number)?.duration_number,
+        _duration_dot = duration?.find(_ => _.dot)?.dot
+
+      let accidental = _accidentals?.map(_ => _.accidental).join('')
+      let tie = _tie?.tie
+
+      if (_duration_number) {
+        ctx.duration = _duration_number
       } else {
-        let duration = _duration?.duration
+        _duration_number = ctx.duration
+      }
 
-        let _duration_number = duration?.find(_ => _.duration_number)?.duration_number,
-          _duration_dot = duration?.find(_ => _.dot)?.dot
 
-        let accidental = _accidentals?.map(_ => _.accidental).join('')
-        let tie = _tie?.tie
-
-        if (_duration_number) {
-          ctx.duration = _duration_number
-        } else {
-          _duration_number = ctx.duration
-        }
-
+      if (pitch) {
         return {
           pitch,
           octave,
@@ -144,6 +149,11 @@ export function wPO(_: any, ctx: Context) {
           dot: _duration_dot,
           accidental,
           tie
+        }
+      } else {
+        return {
+          duration: _duration_number,
+          dot: _duration_dot
         }
       }
     }

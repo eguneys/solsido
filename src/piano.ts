@@ -1,4 +1,5 @@
 import { time_nb_note_value, time_note_value, make_note } from './music/types'
+import { note_uci } from './music/format/uci'
 
 export class Playback {
 
@@ -40,6 +41,18 @@ export class Piano {
 export class ComposeInTime {
 
   nrs: Array<NoteOrRest> = []
+
+  get fen() {
+
+    let notes = this.nrs.map(note_uci).join(' ')
+
+    return `{ 
+    /clef treble
+    /time 2/2
+    ${notes}
+  }`
+
+  } 
 
   get nb_beats() {
     return time_nb_note_value(this.time_signature)

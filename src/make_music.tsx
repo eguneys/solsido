@@ -97,7 +97,7 @@ const Music = () => {
   add_measure()
 
   return (<div class='make-music'>
-      <MusicPlay/>
+      <MusicPlay fen={composer().fen}/>
       <PianoPlay/>
     </div>) 
 }
@@ -109,13 +109,12 @@ const MusicWrap = () => {
     </MusicProvider>)
 }
 
-const MusicPlay = () => {
-  let fen = `{ /clef treble }`
+const MusicPlay = (props) => {
 
   let [[piano, playback], { quanti }] = useMusic()
 
   return (<Zoom zoom={4}>
-      <_Music playback={playback()} fen={fen}/>
+      <_Music playback={playback()} fen={props.fen}/>
     </Zoom>)
 }
 

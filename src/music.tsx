@@ -68,7 +68,7 @@ let accidentals = ['is', 'es', 'isis', 'eses']
 let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
 
 
-let duration_rests = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
+let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
 function model_notes_to_free(model: Array<OCommandNoteOrChord>) {
   return model.flatMap(model_item_to_free)
@@ -88,7 +88,9 @@ function time_note_value(sig: number) {
 }
 
 function model_item_to_free(model: OCommandNoteOrChord) {
-  if (Array.isArray(model)) {
+  if (!model) {
+    return 
+  } else if (Array.isArray(model)) {
     if (typeof model[0] === 'string') {
       let [command, rest] = model
 
@@ -124,23 +126,35 @@ function model_item_to_free(model: OCommandNoteOrChord) {
            let _duration = model_durations.indexOf(duration)
            let code = duration_codes[_duration]
 
-           code += '_note'
-
            let _accidental = (accidentals.indexOf(accidental) + 1) || undefined
 
            return {
-             code,
+             code: code + '_note',
              pitch: _pitch,
              octave: _octave,
              ledger: true,
              tie: !!tie,
              dot: !!dot,
-             klass: '',
+             klass: ['note', code].join(' '),
              duration: _duration,
              accidental: _accidental
            }
          }
       }
+    } else {
+
+      let { duration, dot } = model
+
+      let _duration = model_durations.indexOf(duration)
+      let code = duration_rest_codes[_duration]
+
+      return {
+        code: code + '_rest',
+        klass: ['rest', code].join(' '),
+        duration: _duration
+      }
+
+
     }
 
 
@@ -219,6 +233,9 @@ export const Staff = (props) => {
       <Switch fallback={
          <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
          }>
+        <Match when={!note_or_chord_or_bar}>
+          X
+        </Match>
         <Match when={note_or_chord_or_bar==='|'}>
           <Bar i={i()}/>
         </Match>
@@ -300,27 +317,34 @@ function pitch_octave_ledgers(pitch: Pitch, octave: Octave) {
 export const FullOnStaff = (props) => {
   let { note, i } = props;
 
+  let { pitch, octave } = note
+
+  if (!pitch) {
+    pitch = 7
+    octave = 4
+  }
+
   let ox = (i+1)*2
-  let oy = pitch_y(note.pitch, note.octave)
+  let oy = pitch_y(pitch, octave)
 
   let ledger_oys = note.ledger ? pitch_octave_ledgers(note.pitch, note.octave)
   .map(_ => pitch_y(..._)) : []
 
   return (<>
-      <FreeOnStaff klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} oy={note.text ? -0.125 : 0}>{
+      <FreeOnStaff klass={note.klass} pitch={pitch} octave={octave} ox={ox} oy={note.text ? -0.125 : 0}>{
       note.code ? g[note.code] : <span class='text'>{note.text}</span>
        }</FreeOnStaff>
        <Index each={ledger_oys}>{ (_oy) =>
          <span class='ledger' style={transform_style(ox, _oy())}/>
        }</Index>
        <Show when={note.accidental}>
-         <Accidentals klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} accidental={note.accidental}/>
+         <Accidentals klass={note.klass} pitch={pitch} octave={octave} ox={ox} accidental={note.accidental}/>
        </Show>
        <Show when={note.dot}>
-         <Dot klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox}/>
+         <Dot klass={note.klass} pitch={pitch} octave={octave} ox={ox}/>
        </Show>
        <Show when={note.stem}>
-          <Stem klass={note.klass} pitch={note.pitch} octave={note.octave} ox={ox} stem={note.stem}/>
+          <Stem klass={note.klass} pitch={pitch} octave={octave} ox={ox} stem={note.stem}/>
        </Show>
       </>)
 }
