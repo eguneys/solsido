@@ -178,7 +178,8 @@ export const Music = (props) => {
     return (<div class='m-wrap'>
       <Switch fallback={
         <For each={staffs}>{ (staff) =>
-          <Staff staff={staff}/>
+          <Staff playback={props.playback} staff={staff}/>
+         
         }</For>
       }>
       <Match when={!!grandstaff}>
@@ -196,12 +197,24 @@ export const Music = (props) => {
   }
 }
 
+export const Playback = (props) => {
+
+  let style = () => ({
+      transform: `translate(calc(${2+props.playback.bm}em), -50%)` 
+    })
+
+  return (<div class='playback'>
+      <span class='cursor' style={style()}/>
+    </div>)
+}
+
 export const Staff = (props) => {
   let { staff } = props
 
   let notes = model_notes_to_free(staff.notes)
 
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
+    <Playback playback={props.playback}/>
     <For each={notes}>{ (note_or_chord_or_bar, i) =>
       <Switch fallback={
          <FullOnStaff note={note_or_chord_or_bar} i={i()}/>

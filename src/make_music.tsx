@@ -7,6 +7,8 @@ import { Black, White, index_black, index_white } from './music/piano'
 
 import { Piano as OPiano, Playback as OPlayback } from './piano'
 
+import { useApp } from './loop'
+
 export const getKeyAtDomPos = (epos: NumberPair, bounds: ClientRect, key_xys: [Array<NumberRect>, Array<NumberRect>]) => {
   let x = epos[0] - bounds.left,
     y = epos[1] - bounds.top
@@ -34,6 +36,11 @@ const MusicProvider = (props) => {
   const store = [
     [piano, playback],
     {
+      quanti(quanti: BeatMeasure) {
+        setPlayback(playback => {
+            playback.bm += quanti
+            return playback })
+      },
       press(key: PianoKey) {
         setPiano(piano => piano.toggle(key, playback().bm))
       },
@@ -54,29 +61,51 @@ const MusicProvider = (props) => {
 
 const Music = () => {
 
+  let [[piano, playback], { quanti }] = useMusic()
+  let [input] = useApp()
+
+  createEffect(() => {
+    let _input = input()
+    let ix = 0
+    if (_input.btn('left')) {
+      ix = -1
+    } else if (_input.btn('right')) {
+      ix = 1
+    }
+
+    if (_input.btnp('1')) {
+     quanti(ix) 
+    }
+    
+  })
+
 
   return (<div class='make-music'>
-      <MusicProvider>
-        <MusicPlay/>
-        <PianoPlay/>
-      </MusicProvider>
+      <MusicPlay/>
+      <PianoPlay/>
     </div>) 
 }
 
-const MusicPlayback = (props) => {
 
-  return (<div class='mp-wrap'>
-    {props.playback.bm}
-      </div>)
+const MusicWrap = () => {
+  return (<MusicProvider>
+      <Music/>
+    </MusicProvider>)
 }
 
 const MusicPlay = () => {
   let fen = `{ /clef treble }`
 
-  let [[piano, playback]] = useMusic()
+  let [[piano, playback], { quanti }] = useMusic()
+
+
+  setTimeout(() => {
+    console.log('here')
+    quanti(1)
+    }, 500)
 
   return (<Zoom zoom={4}>
-      <_Music fen={fen}/>
+      <_Music playback={playback()} fen={fen}/>
     </Zoom>)
 }
 
@@ -133,4 +162,4 @@ const PianoPlay = () => {
 }
 
 
-export default Music
+export default MusicWrap

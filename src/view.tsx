@@ -1,4 +1,5 @@
 import { useRouter, RouterProvider, Link } from './router'
+import { AppProvider } from './loop'
 
 import Learn from './learn'
 import Sound from './sound'
@@ -8,10 +9,12 @@ import Music from './make_music'
 const App = () => {
 
   return (<RouterProvider>
-      <div class='app-wrap'>
-        <Header/>
-        <Main/>
-      </div>
+      <AppProvider>
+        <div class='app-wrap'>
+          <Header/>
+          <Main/>
+        </div>
+      </AppProvider>
     </RouterProvider>)
 }
 
