@@ -4,10 +4,12 @@ import { Zoom, PianoKeys, Music as _Music } from './music'
 import { eventPosition, point_in_rect } from './util'
 
 import { Black, White, index_black, index_white } from './music/piano'
+import { make_time_signature } from './music/types'
 
-import { Piano as OPiano, Playback as OPlayback } from './piano'
+import { Piano as OPiano, Playback as OPlayback, ComposeInTime as OComposeInTime } from './piano'
 
 import { useApp } from './loop'
+
 
 export const getKeyAtDomPos = (epos: NumberPair, bounds: ClientRect, key_xys: [Array<NumberRect>, Array<NumberRect>]) => {
   let x = epos[0] - bounds.left,
@@ -31,11 +33,21 @@ const MusicContext = createContext()
 const useMusic = () => { return useContext(MusicContext) }
 
 const MusicProvider = (props) => {
+
+  let time_signature = make_time_signature(2, 2)
+
   let [playback, setPlayback] = createSignal(new OPlayback(), { equals: false })
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
+  let [composer, setComposer] = createSignal(new OComposeInTime(time_signature), { equals: false })
+
   const store = [
-    [piano, playback],
+    [piano, playback, composer],
     {
+      add_measure() {
+        setComposer(composer => {
+            composer.add_measure()
+            return composer})
+      },
       quanti(quanti: BeatMeasure) {
         setPlayback(playback => {
             playback.bm += quanti
@@ -47,7 +59,6 @@ const MusicProvider = (props) => {
       release(key: PianoKey) {
         setPiano(piano => {
           let quanti = piano.release(key, playback().bm)
-          console.log(quanti)
           return piano
         })
       }
@@ -61,7 +72,7 @@ const MusicProvider = (props) => {
 
 const Music = () => {
 
-  let [[piano, playback], { quanti }] = useMusic()
+  let [[piano, playback, composer], { add_measure, quanti }] = useMusic()
   let [input] = useApp()
 
   createEffect(() => {
@@ -79,6 +90,11 @@ const Music = () => {
     
   })
 
+  createEffect(() => {
+    console.log(composer())
+      })
+
+  add_measure()
 
   return (<div class='make-music'>
       <MusicPlay/>
@@ -97,12 +113,6 @@ const MusicPlay = () => {
   let fen = `{ /clef treble }`
 
   let [[piano, playback], { quanti }] = useMusic()
-
-
-  setTimeout(() => {
-    console.log('here')
-    quanti(1)
-    }, 500)
 
   return (<Zoom zoom={4}>
       <_Music playback={playback()} fen={fen}/>
