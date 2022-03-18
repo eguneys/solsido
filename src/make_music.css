@@ -1,0 +1,9 @@
+.make-music .p-zoom {
+  font-size: 2em;
+  display: flex;
+  justify-content: center;
+}
+
+.make-music .p-wrap {
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
 import { useRouter, Link } from './router'
-import { Music, PianoKeys, NotesDurationTable } from './music_'
+import { Music, PianoKeys, NotesDurationTable } from './music'
 
 
 const Learn = () => {

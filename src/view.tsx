@@ -2,7 +2,7 @@ import { useRouter, RouterProvider, Link } from './router'
 
 import Learn from './learn'
 import Sound from './sound'
-import Music from './music'
+import Music from './make_music'
 
 
 const App = () => {

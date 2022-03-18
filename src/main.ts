@@ -1,6 +1,7 @@
 import './reset.css'
 import './fonts.css'
 import './site.css'
+import './make_music.css'
 import './learn.css'
 import './solsido.css'
 import './music.css'
