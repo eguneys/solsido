@@ -1,7 +1,10 @@
+import { createEffect } from 'solid-js'
 import g from './glyphs'
 
 import read_fen from './music/format/read'
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
+
+import { white_index, black_index, is_black } from './music/piano'
 
 function pitch_y(pitch: Pitch, octave: Octave) {
   return ((4 - octave) * 7 + 7 - pitch) * 0.25 / 2
@@ -158,15 +161,21 @@ type OFreeOnStaff = {
  stem?: number
 }
 
+export const Zoom = (props) => {
+  return (<div class={['zoom', props.klass].join(' ')} style={`font-size: ${props.zoom}em`}>
+    {props.children}
+    </div>)
+}
+
 export const Music = (props) => {
-  let { fen, zoom } = props
+  let { fen } = props
   let music_model = read_fen(fen || '')
 
   if (music_model) {
     let { grandstaff } = music_model
     let { staffs } = music_model
   
-    return (<div class='m-wrap' style={{ 'font-size': `${zoom||1}em` }}>
+    return (<div class='m-wrap'>
       <Switch fallback={
         <For each={staffs}>{ (staff) =>
           <Staff staff={staff}/>
@@ -463,6 +472,7 @@ let letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 export const PianoKeys = (props) => {
 
   let { n, ref } = props
+
   let style = { width: `calc(${n} * 4em * 203/125)` }
 
   let _letters = [...Array(n)].flatMap(() => letters)
@@ -473,11 +483,40 @@ export const PianoKeys = (props) => {
       }
     }
 
+    function white_style(i: number) {
+      return {
+        width: `calc(4em * 203/125 / 7)`,
+        height: `3.9em`,
+        transform: `translate(calc((${n} * 4em * 203/125) * ${i/(n*7)}), calc(0em))`
+      }
+    }
+
+    function black_style(i: number) {
+      let [bxys, wxys] = props.key_xys
+      let [x, y, w, h] = bxys[i]
+      return {
+        width: `calc(0.8 * 4em * 203/125 / 7)`,
+        height: `calc(4em * 0.58)`,
+        transform: `translate(${x}px, ${y}px)`
+      }
+    }
+
     return (
     <div ref={ref} class='p-wrap'>
        <div class='background' style={style}></div>
        <Index each={_letters}>{ (letter, i) =>
           <span class='letter' style={key_style(i)}>{letter}</span>
        }</Index>
+
+       <For each={[...props.piano.actives]}>{ active =>
+          <Switch fallback= {
+            <span class='active white' style={white_style(white_index(active))}/>
+          }>
+            <Match when={is_black(active)}>
+              <span class='active black' style={black_style(black_index(active))}/>
+            </Match>
+          </Switch>
+          }</For>
+
     </div>)
 }

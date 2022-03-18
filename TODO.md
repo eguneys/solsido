@@ -20,6 +20,10 @@
 - [ ] Add README
 - [ ] Show error messages for music input
 
+- [ ] Apply for competition
+- [ ] Setup backup paypal account
+- [ ] Homepage patreon link, features to add
+
 ## Fix
 
 - [ ] Typescript Errors
