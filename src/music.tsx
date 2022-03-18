@@ -228,7 +228,9 @@ export const Staff = (props) => {
   let notes = model_notes_to_free(staff.notes)
 
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
-    <Playback playback={props.playback}/>
+    <Show when={props.playback}>
+      <Playback playback={props.playback}/>
+    </Show>
     <For each={notes}>{ (note_or_chord_or_bar, i) =>
       <Switch fallback={
          <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
@@ -478,11 +480,11 @@ export const FullOnFreeStaff = (props: string) => {
 
   let pitch = rest ? 2 : 6
   let octave = rest ? 7 : 6
-  let code = rest ? duration_rests[duration] + '_rest' : duration_codes[duration] + '_note'
+  let code = rest ? duration_rest_codes[duration] + '_rest' : duration_codes[duration] + '_note'
   let stem = rest ? undefined : duration_stems[duration] * -1
 
   let _klass = rest ? 'rest' : 'note'
-  let d_klass = duration_rests[duration]
+  let d_klass = duration_rest_codes[duration]
  
   let klass = [_klass, d_klass].join(' ')
 
@@ -545,15 +547,16 @@ export const PianoKeys = (props) => {
           <span class='letter' style={key_style(i)}>{letter}</span>
        }</Index>
 
-       <For each={[...props.piano.actives]}>{ active =>
-          <Switch fallback= {
-            <span class='active white' style={white_style(white_index(active))}/>
-          }>
-            <Match when={is_black(active)}>
-              <span class='active black' style={black_style(black_index(active))}/>
-            </Match>
-          </Switch>
-          }</For>
-
+      <Show when={!!props.piano}>
+        <For each={[...props.piano.actives]}>{ active =>
+           <Switch fallback= {
+             <span class='active white' style={white_style(white_index(active))}/>
+           }>
+             <Match when={is_black(active)}>
+               <span class='active black' style={black_style(black_index(active))}/>
+             </Match>
+           </Switch>
+           }</For>
+      </Show>
     </div>)
 }

@@ -1,5 +1,5 @@
 import { useRouter, Link } from './router'
-import { Music, PianoKeys, NotesDurationTable } from './music'
+import { Zoom, Music as _Music, PianoKeys, NotesDurationTable } from './music'
 
 
 const Learn = () => {
@@ -328,6 +328,12 @@ const ReferencesSection = () => {
     <li><a href="https://www.youtube.com/watch?v=ICDPWP6HUbk&list=PLw9t0oA3fHkxx1PgYpiXrMUPXaOiwh6KU">Dr. B Music Theory Lesson Youtube Playlist</a></li>
   </ul>
 </Section>)
+}
+
+const Music = (props) => {
+  return (<Zoom zoom={props.zoom}>
+    <_Music fen={props.fen}/>
+    </Zoom>)
 }
 
 const default_learn_route = 4
