@@ -7,6 +7,7 @@ import { Black, White, index_black, index_white } from './music/piano'
 import { make_time_signature } from './music/types'
 
 import { Piano as OPiano, Playback as OPlayback, ComposeInTime as OComposeInTime } from './piano'
+import { composer_sheet, composer_sheet_context_intime, nr_free } from './piano'
 
 import { useApp } from './loop'
 
@@ -40,9 +41,36 @@ const MusicProvider = (props) => {
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
   let [composer, setComposer] = createSignal(new OComposeInTime(time_signature), { equals: false })
 
+  const composer_ctx = () => {
+    return composer_sheet_context_intime(composer(), playback().bm)
+  }
+
   const store = [
     [piano, playback, composer],
     {
+      composer_ctx,
+      zero_notes() {
+        return piano()
+          .zero_notes(playback().bm)
+      },
+      active_notes() {
+        let ctx = composer_sheet_context_intime(composer(), playback().bm)
+        return piano()
+          .active_notes(
+            composer().time_signature,
+            playback().bm).map(nr => {
+              let res
+              if (Array.isArray(nr)) {
+                res = nr.map(_ => nr_free(_, ctx))
+              } else {
+                res = nr_free(nr, ctx)
+              }
+              return res
+            })
+      },
+      composer_sheet() {
+        return composer_sheet(composer())
+      },
       add_measure() {
         setComposer(composer => {
             composer.add_measure()
@@ -101,10 +129,20 @@ const Music = () => {
 
 const Sheet = (props) => {
 
-  let [[piano, playback, composer], { quanti }] = useMusic()
+  let [[piano, playback, composer], {
+    quanti ,
+    composer_ctx,
+    composer_sheet,
+    active_notes,
+    zero_notes
+  }] = useMusic()
 
   return (<Zoom zoom={4}>
-      <_Sheet playback={playback()} composer={composer()}/>
+      <_Sheet playback={playback()} piano={piano()} 
+    composer_ctx={composer_ctx()}
+    composer_sheet={composer_sheet()}
+    zero_notes={zero_notes()}
+    active_notes={active_notes()}/>
     </Zoom>)
 }
 

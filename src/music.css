@@ -133,6 +133,14 @@ grand staff {
   position: absolute;
 }
 
+staff span.zero-note {
+  color: orange;
+  opacity: 0.5;
+}
+
+staff span.active {
+  opacity: 0.6;
+}
 
 .playback {
   position: absolute;

@@ -1,5 +1,6 @@
 import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave } from './music/types'
 import { BeatMeasure, time_bm_duration, duration_bm } from './music/types'
+import { pianokey_pitch_octave } from './music/piano'
 
 import { note_uci } from './music/format/uci'
 
@@ -22,12 +23,27 @@ export class Piano {
     return this.keys.keys()
   }
 
-  active_notes(now: BeatMeasure) {
-    [...this.keys.keys()].map(key => {
-
+  active_notes(time_signature: time, t: BeatMeasure) {
+    return [...this.keys.keys()].flatMap(key => {
+      let t0 = this.keys.get(key)!
+      if (t - t0 > 0) {
+        let [pitch, octave] = pianokey_pitch_octave(key)
+        return make_note(pitch, octave, time_bm_duration(time_signature, t - t0))
+      }
+      return []
     })
-
   }
+
+  zero_notes(t: BeatMeasure) {
+    return [...this.keys.keys()].flatMap(key => {
+      let t0 = this.keys.get(key)!
+        if (t - t0 <= 0) {
+          return [pianokey_pitch_octave(key)]
+        }
+      return []
+    })
+  }
+
 
   toggle(key: PianoKey, at: BeatMeasure) {
     if (!this.keys.has(key)) {
@@ -204,7 +220,7 @@ function composer_context(composer: ComposeInTime) {
 function composer_context_note_add(composer: ComposeInTime, ctx: ComposeSheetContext, note: ChordOrNoteOrRest) {
   ctx.x += 1
   
-  ctx.quanti += duration_bm(chord_note_rest_duration(note))
+  ctx.quanti += duration_bm(chord_note_rest_duration(note), composer.time_signature)
 }
 
 export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatMeasure) {
@@ -214,7 +230,7 @@ export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatM
 
 
   nrs.find(nr => {
-    if (ctx.quanti + duration_bm(nr) > bm) {
+    if (ctx.quanti + duration_bm(nr, composer.time_signature) > bm) {
       return true
     }
 
@@ -242,7 +258,7 @@ export function composer_sheet(composer: ComposeInTime) {
   })
 }
 
-function nr_free(nr: NoteOrRest, ctx: Context) {
+export function nr_free(nr: NoteOrRest, ctx: Context) {
   if (is_note(nr)) {
     let pitch = note_pitch(nr),
       octave = note_octave(nr),

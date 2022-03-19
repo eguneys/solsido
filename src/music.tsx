@@ -43,34 +43,68 @@ let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
 let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
 export const Sheet = (props) => {
+
   return (<div class='m-wrap'>
-    <Staff playback={props.playback} notes={composer_sheet(props.composer)}/>
+    <Staff 
+    playback={props.playback} 
+    context0={props.composer_ctx}
+    active_notes={props.active_notes}
+    zero_notes={props.zero_notes} 
+    notes={props.composer_sheet}/>
     </div>)
 }
 
 export const Staff = (props) => {
-  let { notes } = props
-
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
       <Playback playback={props.playback}/>
     </Show>
 
-    <For each={notes}>{ (note) =>
-      <Switch>
-        <Match when={note.pitch}>
-          <NoteOnStaff note={note}/>
-        </Match>
-        <Match when={note.rest}>
-          <RestOnStaff rest={note}/>
-        </Match>
-      </Switch>
+    <For each={props.zero_notes}>{ note =>
+      <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} context={props.context0}/>
+    }</For>
+
+    <For each={props.notes}>{ (note) =>
+      <NoteOrRestOnStaff note={note}/>
+    }</For>
+
+    <For each={props.active_notes}>{ (note) =>
+      <NoteOnStaff klass='active' note={note}/>
     }</For>
   </staff>)
 }
 
+const NoteOrRestOnStaff = (props) => {
+  let { note, klass } = props
+
+  return (<Switch>
+      <Match when={note.pitch}>
+        <NoteOnStaff klass={klass} note={note}/>
+      </Match>
+      <Match when={note.rest}>
+        <RestOnStaff klass={klass} rest={note}/>
+      </Match>
+    </Switch>)
+}
+
+const ZeroNoteOnStaff = (props) => {
+  let { pitch, octave, klass, context } = props
+
+  let x = context.x
+  let y = pitch_y(pitch, octave)
+
+  let style = {
+    transform: `translate(${x}em, ${y}em) translateZ(0)`
+  }
+
+  klass = [klass || '', 'zero-note'].join(' ')
+
+  return (<span class={klass} style={style}>{g['quarter_note']}</span>)
+
+}
+
 const NoteOnStaff = (props) => {
-  let { note } = props
+  let { note, klass } = props
 
 
   let { pitch, octave, duration, ox, oy } = note
@@ -79,7 +113,7 @@ const NoteOnStaff = (props) => {
   let y = pitch_y(pitch, octave) + (oy || 0)
 
   let dklass = duration_codes[duration]
-  let klass = ['note', dklass].join(' ')
+  klass = ['note', dklass, klass || ''].join(' ')
   let glyph = g[dklass + '_note']
 
   let style = {
