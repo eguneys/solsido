@@ -6,31 +6,10 @@ import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model
 
 import { white_index, black_index, is_black } from './music/piano'
 
+import { composer_sheet } from './piano'
+
 function pitch_y(pitch: Pitch, octave: Octave) {
   return ((4 - octave) * 7 + 7 - pitch) * 0.25 / 2
-}
-
-
-const model_nb_beats = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-function model_to_nb_beats(_nb_beats: string) {
-  return model_nb_beats.indexOf(_nb_beats)
-}
-
-// 1 2 4 8 16
-// d w h q e s t x
-// 1 2 3 4 5 6 7 8
-// 2 3 4 5 6
-const model_note_values = ['0', '0', '1', '2', '4', '8', '16', '32', '64']
-function model_to_note_value(_note_value: string) {
-  return model_note_values.indexOf(_note_value)
-}
-
-const model_clefs = ['treble', 'bass']
-function model_to_clef(_clef: string) {
-  let clef = model_clefs.indexOf(_clef) + 1
-  if (clef > 0) {
-    return clef
-  }
 }
 
 let clef_codes = ['gclef', 'bclef']
@@ -57,217 +36,77 @@ function note_value_to_code(note_value: NoteValue) {
   return note_value_codes[note_value] + '_time'
 }
 
-let model_pitches = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
-let model_octaves = [3, 4, 5, 6]
-let model_durations = [undefined, undefined, '1', '2', '4', '8', '16', '32']
-
 let duration_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
-
-let accidentals = ['is', 'es', 'isis', 'eses']
 
 let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
 
-
 let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
-function model_notes_to_free(model: Array<OCommandNoteOrChord>) {
-  return model.flatMap(model_item_to_free)
-}
-
-// TODO remove
-function make_time_signature(nb: number, value: number) {
-  return nb * 100 + value * 1
-}
-
-function time_nb_note_value(sig: number) {
-  return Math.floor(sig / 100)
-}
-
-function time_note_value(sig: number) {
-  return sig % 100
-}
-
-function model_item_to_free(model: OCommandNoteOrChord) {
-  if (!model) {
-    return 
-  } else if (Array.isArray(model)) {
-    if (typeof model[0] === 'string') {
-      let [command, rest] = model
-
-      if (command === 'clef') {
-         return { clef: model_to_clef(rest) }
-      } else if (command === 'time') {
-        let [_nb_beats, _note_value] = rest.split('/')
-        let time = make_time_signature(model_to_nb_beats(_nb_beats), 
-            model_to_note_value(_note_value))
-        return { time }
-      }
-    } else {
-      return [model.map(model_item_to_free)]
-    }
-  } else if (model === '|' || model === '||') {
-     return model
-  } else {
-    let { pitch, octave, dot, duration, text, accidental, tie } = model
-
-    let _pitch = model_pitches.indexOf(pitch) + 1
-    let _octave = model_octaves[octave]
-    if (_pitch > 0) {
-
-      if (!!_octave) {
-         if (text) {
-            return {
-              pitch: _pitch,
-              octave: _octave,
-              klass: '',
-              text 
-            }
-         } else {
-           let _duration = model_durations.indexOf(duration)
-           let code = duration_codes[_duration]
-
-           let _accidental = (accidentals.indexOf(accidental) + 1) || undefined
-
-           return {
-             code: code + '_note',
-             pitch: _pitch,
-             octave: _octave,
-             ledger: true,
-             tie: !!tie,
-             dot: !!dot,
-             klass: ['note', code].join(' '),
-             duration: _duration,
-             accidental: _accidental
-           }
-         }
-      }
-    } else {
-
-      let { duration, dot } = model
-
-      let _duration = model_durations.indexOf(duration)
-      let code = duration_rest_codes[_duration]
-
-      return {
-        code: code + '_rest',
-        klass: ['rest', code].join(' '),
-        duration: _duration
-      }
-
-
-    }
-
-
-  }
-}
-
-type OFreeOnStaff = {
- duration?: string,
- dot?: true,
- text?: string,
- code?: string,
- klass: string,
- pitch: Pitch,
- octave: Octave,
- ledger?: number,
- accidental?: Accidental,
- tie?: true,
- stem?: number
-}
-
-export const Zoom = (props) => {
-  return (<div class={['zoom', props.klass].join(' ')} style={`font-size: ${props.zoom}em`}>
-    {props.children}
-    </div>)
-}
-
-export const Music = (props) => {
-  let { fen } = props
-  let music_model = read_fen(fen || '')
-
-  if (music_model) {
-    let { grandstaff } = music_model
-    let { staffs } = music_model
-  
-    return (<div class='m-wrap'>
-      <Switch fallback={
-        <For each={staffs}>{ (staff) =>
-          <Staff playback={props.playback} staff={staff}/>
-         
-        }</For>
-      }>
-      <Match when={!!grandstaff}>
-        <grand>
-          <For each={grandstaff.staffs}>{ (staff) =>
-            <Staff staff={staff}/>
-          }</For>
-          <span class='staff-line'/>
-          <span class='brace'>{g['brace']}</span>
-        </grand>
-      </Match>
-      </Switch>
-      </div>)
-
-  }
-}
-
-export const Playback = (props) => {
-
-  let style = () => ({
-      transform: `translate(calc(${2+props.playback.bm}em), -50%)` 
-    })
-
-  return (<div class='playback'>
-      <span class='cursor' style={style()}/>
+export const Sheet = (props) => {
+  return (<div class='m-wrap'>
+    <Staff playback={props.playback} notes={composer_sheet(props.composer)}/>
     </div>)
 }
 
 export const Staff = (props) => {
-  let { staff } = props
-
-  let notes = model_notes_to_free(staff.notes)
+  let { notes } = props
 
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
       <Playback playback={props.playback}/>
     </Show>
-    <For each={notes}>{ (note_or_chord_or_bar, i) =>
-      <Switch fallback={
-         <FullOnStaff note={note_or_chord_or_bar} i={i()}/>
-         }>
-        <Match when={!note_or_chord_or_bar}>
-          X
+
+    <For each={notes}>{ (note) =>
+      <Switch>
+        <Match when={note.pitch}>
+          <NoteOnStaff note={note}/>
         </Match>
-        <Match when={note_or_chord_or_bar==='|'}>
-          <Bar i={i()}/>
+        <Match when={note.rest}>
+          <RestOnStaff rest={note}/>
         </Match>
-        <Match when={note_or_chord_or_bar==='||'}>
-          <DoubleBar i={i()}/>
-        </Match>
-
-        <Match when={Array.isArray(note_or_chord_or_bar)}> 
-          <For each={note_or_chord_or_bar}>{ (note) =>
-            <FullOnStaff note={note} i={i()}/>
-          }</For>
-        </Match>
-         <Match when={!!note_or_chord_or_bar.clef}>
-           <FreeOnStaff klass='' pitch={clef_to_pitch(note_or_chord_or_bar.clef)} octave={4} ox={0.25}>{g[clef_to_code(note_or_chord_or_bar.clef)]}</FreeOnStaff>
-         </Match>
-
-         <Match when={!!note_or_chord_or_bar.time}>
-           <FreeOnStaff klass='' pitch={2} octave={5} ox={(i() + 1) * 2 + (time_nb_note_value(note_or_chord_or_bar.time)>=10 ? -0.25:0)}>
-             {g[nb_note_value_to_code(time_nb_note_value(note_or_chord_or_bar.time))]}
-           </FreeOnStaff>
-           <FreeOnStaff klass='' pitch={5} octave={4} ox={(i() + 1) * 2}>
-             {g[note_value_to_code(time_note_value(note_or_chord_or_bar.time))]}
-           </FreeOnStaff>
-         </Match>
-
-
-
       </Switch>
     }</For>
-   </staff>)
+  </staff>)
+}
+
+const NoteOnStaff = (props) => {
+  let { note } = props
+
+
+  let { pitch, octave, duration, ox, oy } = note
+
+  let x = (ox || 0)
+  let y = pitch_y(pitch, octave) + (oy || 0)
+
+  let dklass = duration_codes[duration]
+  let klass = ['note', dklass].join(' ')
+  let glyph = g[dklass + '_note']
+
+  let style = {
+   transform: `translate(${x}em, ${y}em) translateZ(0)`
+  }
+
+  return (<span class={klass} style={style}>{glyph}</span>)
+}
+
+const RestOnStaff = (props) => {
+  let { rest } = props
+
+  let { ox, oy } = rest
+
+  let x = (ox || 0)
+  let y = pitch_y(7, 4) + (oy || 0)
+
+  let duration = rest.rest
+  let dklass = duration_rest_codes[duration]
+  let klass = ['rest', dklass].join(' ')
+  let glyph = g[dklass + '_rest']
+
+  let style = {
+   transform: `translate(${x}em, ${y}em) translateZ(0)`
+  }
+
+  return (<span class={klass} style={style}>{glyph}</span>)
 }
 
 const Bar = (props) => {
@@ -560,3 +399,20 @@ export const PianoKeys = (props) => {
       </Show>
     </div>)
 }
+
+export const Playback = (props) => {
+
+  let style = () => ({
+      transform: `translate(calc(${2+props.playback.bm}em), -50%)` 
+    })
+
+  return (<div class='playback'>
+      <span class='cursor' style={style()}/>
+    </div>)
+} 
+
+export const Zoom = (props) => {
+  return (<div class={['zoom', props.klass].join(' ')} style={`font-size: ${props.zoom}em`}>
+    {props.children}
+    </div>)
+} 

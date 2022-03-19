@@ -1,5 +1,8 @@
-import { time_nb_note_value, time_note_value, make_note } from './music/types'
+import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave } from './music/types'
+import { BeatMeasure, time_bm_duration, duration_bm } from './music/types'
+
 import { note_uci } from './music/format/uci'
+
 
 export class Playback {
 
@@ -13,13 +16,20 @@ export class Playback {
 
 export class Piano {
 
-  keys: Map<PianoKey, Timestamp> = new Map()
+  keys: Map<PianoKey, BeatMeasure> = new Map()
 
   get actives() {
     return this.keys.keys()
   }
 
-  toggle(key: PianoKey, at: Timestamp) {
+  active_notes(now: BeatMeasure) {
+    [...this.keys.keys()].map(key => {
+
+    })
+
+  }
+
+  toggle(key: PianoKey, at: BeatMeasure) {
     if (!this.keys.has(key)) {
       this.keys.set(key, at)
     } else {
@@ -28,7 +38,7 @@ export class Piano {
     return this
   }
 
-  release(key: PianoKey, at: Timestamp) {
+  release(key: PianoKey, at: BeatMeasure) {
     let _begin = this.keys.get(key)
     if (_begin) {
       this.keys.delete(key)
@@ -40,19 +50,7 @@ export class Piano {
 
 export class ComposeInTime {
 
-  nrs: Array<NoteOrRest> = []
-
-  get fen() {
-
-    let notes = this.nrs.map(note_uci).join(' ')
-
-    return `{ 
-    /clef treble
-    /time 2/2
-    ${notes}
-  }`
-
-  } 
+  nrs: Array<ChordOrNoteOrRest> = []
 
   get nb_beats() {
     return time_nb_note_value(this.time_signature)
@@ -81,8 +79,9 @@ export class ComposeInTime {
   constructor(readonly time_signature: TimeSignature) {}
 
 
+  /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log */ 
   quanti_note_value(quanti: BeatQuanti): Duration {
-    return this.note_value - Math.log(quanti / 8) / Math.log(2) as Duration
+    return time_bm_duration(this.time_signature, quanti) 
   }
 
   quanti_in_subs(quanti: BeatQuanti) {
@@ -181,4 +180,85 @@ export class ComposeInTime {
              this.nrs.push(this.note_value)) 
   }
 
+}
+
+function chord_note_rest_duration(note: ChordOrNoteOrRest) {
+  if (Array.isArray(note)) {
+    return note_duration(note[0])
+  } else if (is_note(note)) {
+    return note_duration(note)
+  } else {
+    return note
+  }
+}
+
+export type ComposeSheetContext = {
+  x: number,
+  quanti: BeatQuanti
+}
+
+function composer_context(composer: ComposeInTime) {
+  return { x: 0, quanti: 0 }
+}
+
+function composer_context_note_add(composer: ComposeInTime, ctx: ComposeSheetContext, note: ChordOrNoteOrRest) {
+  ctx.x += 1
+  
+  ctx.quanti += duration_bm(chord_note_rest_duration(note))
+}
+
+export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatMeasure) {
+  let { nb_beats, note_value, nrs } = composer
+
+  let ctx: ComposeSheetContext = composer_context(composer)
+
+
+  nrs.find(nr => {
+    if (ctx.quanti + duration_bm(nr) > bm) {
+      return true
+    }
+
+    composer_context_note_add(composer, ctx, nr)
+    return false
+  })
+
+  return ctx
+}
+
+export function composer_sheet(composer: ComposeInTime) {
+  let { nb_beats, note_value, nrs } = composer
+
+  let ctx: ComposeSheetContext = composer_context(composer)
+
+  return nrs.map(nr => {
+    let res
+    if (Array.isArray(nr)) {
+      res = nr.map(_ => nr_free(_, ctx))
+    } else {
+      res = nr_free(nr, ctx)
+    }
+    composer_context_note_add(composer, ctx, nr)
+    return res
+  })
+}
+
+function nr_free(nr: NoteOrRest, ctx: Context) {
+  if (is_note(nr)) {
+    let pitch = note_pitch(nr),
+      octave = note_octave(nr),
+      duration = note_duration(nr)
+
+    return {
+      ox: ctx.x,
+      pitch,
+      octave,
+      duration
+    } 
+
+  } else {
+    return {
+      ox: ctx.x,
+      rest: nr
+    }
+  }
 }

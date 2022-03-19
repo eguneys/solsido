@@ -33,53 +33,60 @@ const note_1 = make_note(1, 1, 1)
 const note_n = make_note(7, 7, 8, 2)
 
 export function is_note(n: number): n is Note {
-    return n >= note_1 && n <= note_n
+  return n >= note_1 && n <= note_n
 }
 
 export function is_rest(n: number): n is Rest {
-    return n >= 1 && n <= 8
+  return n >= 1 && n <= 8
 }
 
 export function make_note(pitch: Pitch, octave: Octave, duration: Duration, accidental?: Accidental) {
-    return pitch | (octave << 4) | (duration << 8) | ((accidental || 0) << 12)
+  return pitch | (octave << 4) | (duration << 8) | ((accidental || 0) << 12)
 }
 
 export function note_pitch(note: Note): Pitch {
-    return (note & pitch_mask) as Pitch
+  return (note & pitch_mask) as Pitch
 }
 
 export function note_octave(note: Note): Octave {
-    return (note & octave_mask) >> 4 as Octave
+  return (note & octave_mask) >> 4 as Octave
 }
 
 export function note_duration(note: Note): Duration {
-    return (note & duration_mask) >> 8 as Duration
+  return (note & duration_mask) >> 8 as Duration
 }
 
 export function note_accidental(note: Note): Accidental | undefined {
-    return (note & accidental_mask) >> 12 as Accidental
+  return (note & accidental_mask) >> 12 as Accidental
 }
 
 
 
 export function make_time_signature(nb_note_value: NbNoteValuePerMeasure, note_value: NoteValue) {
 
-    return nb_note_value * 16 + note_value
+  return nb_note_value * 16 + note_value
 }
 
 export function time_nb_note_value(signature: TimeSignature): NbNoteValuePerMeasure {
-    return Math.floor(signature / 16) as NbNoteValuePerMeasure
+  return Math.floor(signature / 16) as NbNoteValuePerMeasure
 }
 
 export function time_note_value(signature: TimeSignature): NoteValue {
-    return signature % 16 as NoteValue
+  return signature % 16 as NoteValue
 }
 
 export function tempo_tempo(tempo: Tempo) {
-    return tempos[tempo - 1]
+  return tempos[tempo - 1]
 }
 
 export function is_tempo(tempo: number): tempo is Tempo {
-    return tempo >= 1 && tempo <= 8
+  return tempo >= 1 && tempo <= 8
 }
 
+export function duration_bm(duration: Duration, time_signature: TimeSignature) {
+  return Math.max(1, Math.pow(2, duration - time_note_value(time_signature)) * 8)
+}
+
+export function time_bm_duration(time: TimeSignature, quanti: BeatMeasure) {
+  return time_note_value(time) - Math.log(quanti / 8) / Math.log(2) as Duration
+}

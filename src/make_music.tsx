@@ -1,5 +1,5 @@
 import { splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
-import { Zoom, PianoKeys, Music as _Music } from './music'
+import { Zoom, PianoKeys, Sheet as _Sheet } from './music'
 
 import { eventPosition, point_in_rect } from './util'
 
@@ -90,31 +90,21 @@ const Music = () => {
     
   })
 
-  createEffect(() => {
-    console.log(composer())
-      })
-
   add_measure()
 
   return (<div class='make-music'>
-      <MusicPlay fen={composer().fen}/>
+      <Sheet/>
       <PianoPlay/>
     </div>) 
 }
 
 
-const MusicWrap = () => {
-  return (<MusicProvider>
-      <Music/>
-    </MusicProvider>)
-}
+const Sheet = (props) => {
 
-const MusicPlay = (props) => {
-
-  let [[piano, playback], { quanti }] = useMusic()
+  let [[piano, playback, composer], { quanti }] = useMusic()
 
   return (<Zoom zoom={4}>
-      <_Music playback={playback()} fen={props.fen}/>
+      <_Sheet playback={playback()} composer={composer()}/>
     </Zoom>)
 }
 
@@ -170,5 +160,8 @@ const PianoPlay = () => {
     </Zoom>)
 }
 
-
-export default MusicWrap
+export default () => {
+  return (<MusicProvider>
+    <Music/>
+    </MusicProvider>)
+}
