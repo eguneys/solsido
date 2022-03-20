@@ -43,7 +43,6 @@ let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
 let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
 export const Sheet = (props) => {
-
   return (<div class='m-wrap'>
     <Staff 
     playback={props.playback} 
@@ -65,19 +64,24 @@ export const Staff = (props) => {
     }</For>
 
     <For each={props.notes}>{ (note) =>
-      <NoteOrRestOnStaff note={note}/>
+      <ChordNoteOrRestOnStaff note={note}/>
     }</For>
 
     <For each={props.active_notes}>{ (note) =>
-      <NoteOnStaff klass='active' note={note}/>
+      <ChordNoteOrRestOnStaff klass='active' note={note}/>
     }</For>
   </staff>)
 }
 
-const NoteOrRestOnStaff = (props) => {
+const ChordNoteOrRestOnStaff = (props) => {
   let { note, klass } = props
 
   return (<Switch>
+      <Match when={Array.isArray(note)}>
+        <For each={note}>{ note =>
+          <NoteOnStaff klass={[klass, 'chord'].join(' ')} note={note}/> 
+        }</For>
+      </Match>
       <Match when={note.pitch}>
         <NoteOnStaff klass={klass} note={note}/>
       </Match>
@@ -391,7 +395,7 @@ export const PianoKeys = (props) => {
 
     function key_style(i: number) {
       return {
-        transform: `translate(calc((${n} * 4em * 203/125) * ${i/(n*7)}), calc(2.5em))`
+transform: `translate(calc((${n} * 4em * 203/125) * ${i/(n*7)}), calc(2.5em))`
       }
     }
 
@@ -413,6 +417,7 @@ export const PianoKeys = (props) => {
       }
     }
 
+
     return (
     <div ref={ref} class='p-wrap'>
        <div class='background' style={style}></div>
@@ -421,14 +426,16 @@ export const PianoKeys = (props) => {
        }</Index>
 
       <Show when={!!props.piano}>
-        <For each={[...props.piano.actives]}>{ active =>
-           <Switch fallback= {
-             <span class='active white' style={white_style(white_index(active))}/>
-           }>
-             <Match when={is_black(active)}>
-               <span class='active black' style={black_style(black_index(active))}/>
-             </Match>
-           </Switch>
+        <For each={[...props.piano.all]}>{ ([t0, actives]) =>
+           <For each={actives}>{ active =>
+             <Switch fallback= {
+               <span class='active white' style={white_style(white_index(active))}/>
+             }>
+               <Match when={is_black(active)}>
+                 <span class='active black' style={black_style(black_index(active))}/>
+               </Match>
+             </Switch>
+             }</For>
            }</For>
       </Show>
     </div>)
@@ -437,11 +444,16 @@ export const PianoKeys = (props) => {
 export const Playback = (props) => {
 
   let style = () => ({
-      transform: `translate(calc(${2+props.playback.bm}em), -50%)` 
+      transform: `translate(calc(${2+props.playback.bm}em), 0)` 
     })
 
-  return (<div class='playback'>
-      <span class='cursor' style={style()}/>
+  return (<div class='playback' style={style()}>
+      <div class='measure'>
+        <span>{props.playback.measure} m.</span>
+        <span>{props.playback.beat} beat</span>
+        <span>{props.playback.sub_beat} sub</span>
+      </div>
+      <span class='cursor'/>
     </div>)
 } 
 

@@ -154,4 +154,18 @@ staff span.active {
   width: 1em;
   height: 2em;
   border-left: 0.03em solid orange;
+  transform: translate(0, -50%);
+}
+
+.playback .measure {
+  position: absolute;
+  top: 2em;
+  padding-left: 0.25em;
+  font-size: 0.25em;
+  display: flex;
+  gap: 0.25em;
+}
+
+.playback .measure span {
+
 }

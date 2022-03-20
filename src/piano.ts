@@ -1,11 +1,41 @@
-import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave } from './music/types'
-import { BeatMeasure, time_bm_duration, duration_bm } from './music/types'
-import { pianokey_pitch_octave } from './music/piano'
+import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave, note_accidental } from './music/types'
+import { BeatMeasure, time_bm_duration, time_duration_bm } from './music/types'
 
 import { note_uci } from './music/format/uci'
 
 
 export class Playback {
+
+  get sub_beat() {
+    return this.bm % this.beat_quanti
+  }
+
+  get beat() {
+    return Math.floor((this.bm % this.measure_quanti) / this.beat_quanti)
+  }
+
+  get measure() {
+
+    return Math.floor(this.bm / this.measure_quanti) + 1
+  }
+
+  get beat_quanti() {
+    return 8
+  }
+
+  get measure_quanti() {
+    return this.nb_beats * this.beat_quanti
+  }
+
+  get nb_beats() {
+    return time_nb_note_value(this.time_signature)
+  }
+
+  get note_value() {
+    return time_note_value(this.time_signature)
+  }
+
+  constructor(readonly time_signature: TimeSignature) {}
 
   bm: BeatMeasure = 0
 
@@ -15,52 +45,44 @@ export class Playback {
   }
 }
 
+export  type NbVoice = 1 | 2 | 3 | 4
+
 export class Piano {
 
-  keys: Map<PianoKey, BeatMeasure> = new Map()
+  keys: Map<BeatMeasure, Array<PianoKey>> = new Map()
 
-  get actives() {
-    return this.keys.keys()
+  constructor(readonly voices: NbVoice) {}
+
+  get all() {
+    return [...this.keys]
   }
 
-  active_notes(time_signature: time, t: BeatMeasure) {
-    return [...this.keys.keys()].flatMap(key => {
-      let t0 = this.keys.get(key)!
-      if (t - t0 > 0) {
-        let [pitch, octave] = pianokey_pitch_octave(key)
-        return make_note(pitch, octave, time_bm_duration(time_signature, t - t0))
+  zero(t: BeatMeasure) {
+    return this.keys.get(t)
+  }
+
+
+  push(key: PianoKey, t: BeatMeasure) {
+    if (!this.keys.has(t)) {
+      this.keys.set(t, [])
+    }
+    let res = this.keys.get(t)
+    if (res.includes(key)) {
+      this.keys.set(t, [])
+      return
+    }
+    res.push(key)
+  }
+
+  release_previous(t: BeatMeasure) {
+    let res = []
+    for (let t0 of this.keys.keys()) {
+      if (t0 < t) {
+        res.push([t0, this.keys.get(t0)])
+        this.keys.delete(t0)
       }
-      return []
-    })
-  }
-
-  zero_notes(t: BeatMeasure) {
-    return [...this.keys.keys()].flatMap(key => {
-      let t0 = this.keys.get(key)!
-        if (t - t0 <= 0) {
-          return [pianokey_pitch_octave(key)]
-        }
-      return []
-    })
-  }
-
-
-  toggle(key: PianoKey, at: BeatMeasure) {
-    if (!this.keys.has(key)) {
-      this.keys.set(key, at)
-    } else {
-      this.keys.delete(key, at)
     }
-    return this
-  }
-
-  release(key: PianoKey, at: BeatMeasure) {
-    let _begin = this.keys.get(key)
-    if (_begin) {
-      this.keys.delete(key)
-      return at - _begin
-    }
-    return this
+    return res
   }
 }
 
@@ -120,7 +142,8 @@ export class ComposeInTime {
     for (let i = 0; i < this.nrs.length; i++) {
 
       let nr = this.nrs[i]
-      let _bm = nr_bm(nr, this.time_signature)
+      let _is_note = is_note(nr)
+      let _bm = time_duration_bm(this.time_signature, _is_note?note_duration(nr):nr)
 
       if (start_i === undefined) {
 
@@ -143,19 +166,20 @@ export class ComposeInTime {
     return [start_i, end_i, off_start, off_end]
   }
 
-  add_note(bm: BeatMeasure, nb_quanti: BeatQuanti, po?: [Pitch, Octave, Accidental|undefined]) {
+  add_notes(t0: BeatMeasure, notes: Array<NoteOrRest>) {
 
-    if (nb_quanti === 0) {
-      return
-    }
+    let note = notes[0]
+    let _is_chord = notes.length > 1
+    let _is_note = is_note(note)
+    let _note_duration = note_duration(note)
+    let _nb_quanti = time_duration_bm(this.time_signature, _note_duration)
 
-    let [quantized_left, quantized_subs] = this.quanti_in_subs(nb_quanti)
+    let [quantized_left, quantized_subs] = this.quanti_in_subs(_nb_quanti)
 
-    nb_quanti = nb_quanti - quantized_left as BeatQuanti
-    let note_duration = this.quanti_note_value(nb_quanti)
+    _nb_quanti = _nb_quanti - quantized_left as BeatQuanti 
 
-    let start_quanti = bm,
-      end_quanti = start_quanti + nb_quanti as BeatQuanti
+    let start_quanti = t0,
+      end_quanti = start_quanti + _nb_quanti as BeatQuanti
 
     let [start_i, end_i, off_start, off_end] = this.scan_data(start_quanti, end_quanti)
 
@@ -176,19 +200,19 @@ export class ComposeInTime {
 
       let i_notes = quantized_subs
       .flatMap((_, i) => [...Array(_)]
-               .map(() => po?
-                    make_note(po[0], po[1], 
-                              this.quanti_note_value(this.sub_quanties_for_note_values[i]), po[2]) :
+               .map(() => _is_note ? 
+                    make_note(note_pitch(note), note_octave(note),
+                              this.quanti_note_value(this.sub_quanties_for_note_values[i]), note_accidental(note)) :
                                 this.quanti_note_value(this.sub_quanties_for_note_values[i])
                     ))
 
+                    console.log(b_notes, i_notes, e_notes)
       let removed = this.nrs.splice(start_i, end_i - start_i + 1, ...b_notes, ...i_notes, ...e_notes)
       return true
     }
 
     return false
   }
-
 
   add_measure() {
     [...Array(this.nb_beats)]
@@ -220,7 +244,7 @@ function composer_context(composer: ComposeInTime) {
 function composer_context_note_add(composer: ComposeInTime, ctx: ComposeSheetContext, note: ChordOrNoteOrRest) {
   ctx.x += 1
   
-  ctx.quanti += duration_bm(chord_note_rest_duration(note), composer.time_signature)
+  ctx.quanti += time_duration_bm(composer.time_signature, chord_note_rest_duration(note))
 }
 
 export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatMeasure) {
@@ -230,7 +254,7 @@ export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatM
 
 
   nrs.find(nr => {
-    if (ctx.quanti + duration_bm(nr, composer.time_signature) > bm) {
+    if (ctx.quanti + time_duration_bm(composer.time_signature, nr) > bm) {
       return true
     }
 

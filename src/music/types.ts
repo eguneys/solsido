@@ -83,7 +83,7 @@ export function is_tempo(tempo: number): tempo is Tempo {
   return tempo >= 1 && tempo <= 8
 }
 
-export function duration_bm(duration: Duration, time_signature: TimeSignature) {
+export function time_duration_bm(time_signature: TimeSignature, duration: Duration) {
   return Math.max(1, Math.pow(2, duration - time_note_value(time_signature)) * 8)
 }
 

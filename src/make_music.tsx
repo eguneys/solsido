@@ -4,8 +4,8 @@ import { Zoom, PianoKeys, Sheet as _Sheet } from './music'
 import { eventPosition, point_in_rect } from './util'
 
 import { Black, White, index_black, index_white } from './music/piano'
-import { make_time_signature } from './music/types'
-
+import { pianokey_pitch_octave } from './music/piano'
+import { make_note, make_time_signature, time_bm_duration } from './music/types'
 import { Piano as OPiano, Playback as OPlayback, ComposeInTime as OComposeInTime } from './piano'
 import { composer_sheet, composer_sheet_context_intime, nr_free } from './piano'
 
@@ -35,37 +35,39 @@ const useMusic = () => { return useContext(MusicContext) }
 
 const MusicProvider = (props) => {
 
-  let time_signature = make_time_signature(2, 2)
+  let _time_signature = make_time_signature(2, 2)
 
-  let [playback, setPlayback] = createSignal(new OPlayback(), { equals: false })
+  let [playback, setPlayback] = createSignal(new OPlayback(_time_signature), { equals: false })
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
-  let [composer, setComposer] = createSignal(new OComposeInTime(time_signature), { equals: false })
+  let [composer, setComposer] = createSignal(new OComposeInTime(_time_signature), { equals: false })
 
   const composer_ctx = () => {
     return composer_sheet_context_intime(composer(), playback().bm)
   }
 
+  const bm = () => playback().bm
+  const time_signature = () => composer().time_signature
+
   const store = [
     [piano, playback, composer],
     {
+      bm,
+      time_signature,
       composer_ctx,
       zero_notes() {
-        return piano()
-          .zero_notes(playback().bm)
+        return piano().zero(bm())
       },
       active_notes() {
-        let ctx = composer_sheet_context_intime(composer(), playback().bm)
-        return piano()
-          .active_notes(
-            composer().time_signature,
-            playback().bm).map(nr => {
-              let res
-              if (Array.isArray(nr)) {
-                res = nr.map(_ => nr_free(_, ctx))
-              } else {
-                res = nr_free(nr, ctx)
-              }
-              return res
+        return piano().all.flatMap(([t0, keys]) => {
+            if (t0 >= bm()) {
+              return []
+            }
+            let ctx = composer_sheet_context_intime(composer(), t0)
+
+            return [keys.map(key => {
+                let nr = make_note(...pianokey_pitch_octave(key), time_bm_duration(time_signature(), bm() - t0))
+                return nr_free(nr, ctx)
+                })]
             })
       },
       composer_sheet() {
@@ -82,11 +84,24 @@ const MusicProvider = (props) => {
             return playback })
       },
       press(key: PianoKey) {
-        setPiano(piano => piano.toggle(key, playback().bm))
+        setPiano(piano => {
+            let adds = piano.release_previous(bm())
+            adds.forEach(([t0, keys]) => {
+                let duration = bm() - t0
+                let res = keys.map(key => make_note(...pianokey_pitch_octave(key), duration))
+                setComposer(composer => { 
+                  composer.add_notes(t0, res)
+                  return composer
+                  })
+                })
+
+            let res = piano.push(key, bm())
+            return piano
+            })
       },
       release(key: PianoKey) {
         setPiano(piano => {
-          let quanti = piano.release(key, playback().bm)
+          let [t0, note] = piano.release(key, playback().bm)
           return piano
         })
       }
@@ -105,7 +120,7 @@ const Music = () => {
 
   createEffect(() => {
     let _input = input()
-    let ix = 0
+    let ix = 1
     if (_input.btn('left')) {
       ix = -1
     } else if (_input.btn('right')) {
@@ -113,10 +128,18 @@ const Music = () => {
     }
 
     if (_input.btnp('1')) {
-     quanti(ix) 
+      quanti(ix) 
+    }    
+
+    if (_input.btnp('!', true)) {
+      quanti(ix * -1)
     }
-    
   })
+
+
+createEffect(() => {
+console.log(composer().nrs)
+})
 
   add_measure()
 

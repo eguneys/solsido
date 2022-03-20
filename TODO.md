@@ -26,6 +26,7 @@
 
 ## Fix
 
+- [ ] Piano play handle resize
 - [ ] Typescript Errors
 - [ ] Review Explanation
 - [ ] Multiple staffs vertical spacing

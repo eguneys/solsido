@@ -1,9 +1,10 @@
 import { ticks } from './shared'
 
 let RE = /^[A-Za-z0-9\+\-;'\\\[\]]$/
-let RE2 = /^(\s|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Backspace|Enter|Tab|\*)$/
+let RE2 = /^(\s|Shift|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Backspace|Enter|Tab|\*)$/
+let RE3 = /^(\!)$/
 function capture_key(key: string) {
-  return key.match(RE) || key.match(RE2)
+  return key.match(RE) || key.match(RE2) || key.match(RE3)
 }
 
 function appr(value: number, target: number, dt: number)  {
@@ -18,6 +19,7 @@ type ButtonState = {
   just_pressed: boolean,
   just_released: boolean,
   ctrl: boolean,
+  shift: boolean,
   t: number,
   t0: number
 }
@@ -40,12 +42,17 @@ export default class Input {
   _last_released?: string
   _btnpp?: string
 
-  private press = (key: string, ctrl: boolean) => {
+  private press = (key: string, e: KeyEvent) => {
+    
+    let ctrl = e.ctrlKey,
+      shift = e.shiftKey
+
     if (!this._btn.has(key)) {
       this._btn.set(key, {
         just_pressed: true,
         just_released: false,
         ctrl,
+        shift,
         t: 0,
         t0: 0
       })
@@ -62,17 +69,29 @@ export default class Input {
     }
   }
 
-  btn = (key: string) => {
-    return this._btn.get(key)?.t || 0
+  btn = (key: string, shift?: boolean, ctrl?: boolean) => {
+    let btn = this._btn.get(key)
+
+    if (btn && !!shift === !!btn.shift) {
+      return btn.t
+    } else {
+      return 0
+    }
   }
 
-  btn0 = (key: string) => {
-    return this._btn.get(key)?.t0 || 0
+  btn0 = (key: string, shift?: boolean, ctrl?: boolean) => {
+    let btn = this._btn.get(key)
+
+    if (btn && !!shift === !!btn.shift) {
+      return btn.t0
+    } else {
+      return 0
+    }
   }
 
 
-  btnp = (key: string) => {
-    return this.btn(key) > 0 && this.btn0(key) === 0
+  btnp = (key: string, shift?: boolean, ctrl?: boolean) => {
+    return this.btn(key, shift, ctrl) > 0 && this.btn0(key, shift, ctrl) === 0
   }
 
   btnpp = (key: string) => {
@@ -119,19 +138,19 @@ export default class Input {
       e.preventDefault()
       switch(e.key) {
         case 'ArrowUp':
-          press('up', e.ctrlKey);
+          press('up', e);
           break;
         case 'ArrowDown':
-          press('down', e.ctrlKey);
+          press('down', e);
           break;
         case 'ArrowLeft':
-          press('left', e.ctrlKey);
+          press('left', e);
           break;
         case 'ArrowRight':
-          press('right', e.ctrlKey);
+          press('right', e);
           break;
         default:
-          press(e.key, e.ctrlKey)
+          press(e.key, e)
           break
       }
     });
