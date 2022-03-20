@@ -46,21 +46,21 @@ export const Sheet = (props) => {
   return (<div class='m-wrap'>
     <Staff 
     playback={props.playback} 
-    context0={props.composer_ctx}
+    playback_pos={props.playback_pos}
     active_notes={props.active_notes}
     zero_notes={props.zero_notes} 
-    notes={props.composer_sheet}/>
+    notes={props.notes}/>
     </div>)
 }
 
 export const Staff = (props) => {
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
-      <Playback playback={props.playback}/>
+      <Playback playback_pos={props.playback_pos} playback={props.playback}/>
     </Show>
 
     <For each={props.zero_notes}>{ note =>
-      <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} context={props.context0}/>
+      <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} playback_pos={props.playback_pos}/>
     }</For>
 
     <For each={props.notes}>{ (note) =>
@@ -76,25 +76,26 @@ export const Staff = (props) => {
 const ChordNoteOrRestOnStaff = (props) => {
   let { note, klass } = props
 
-  return (<Switch>
-      <Match when={Array.isArray(note)}>
-        <For each={note}>{ note =>
-          <NoteOnStaff klass={[klass, 'chord'].join(' ')} note={note}/> 
+  let { x, cnr } = note
+
+  return (<Switch fallback={ 
+      <NoteOnStaff klass={klass} note={cnr}/>
+    }>
+      <Match when={Array.isArray(cnr)}>
+        <For each={cnr}>{ note =>
+          <NoteOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
         }</For>
       </Match>
-      <Match when={note.pitch}>
-        <NoteOnStaff klass={klass} note={note}/>
-      </Match>
-      <Match when={note.rest}>
-        <RestOnStaff klass={klass} rest={note}/>
+      <Match when={typeof cnr === 'number'}>
+        <RestOnStaff x={x} klass={klass} rest={cnr}/>
       </Match>
     </Switch>)
 }
 
 const ZeroNoteOnStaff = (props) => {
-  let { pitch, octave, klass, context } = props
+  let { pitch, octave, klass, playback_pos } = props
 
-  let x = context.x
+  let x = playback_pos
   let y = pitch_y(pitch, octave)
 
   let style = {
@@ -108,13 +109,12 @@ const ZeroNoteOnStaff = (props) => {
 }
 
 const NoteOnStaff = (props) => {
-  let { note, klass } = props
+  let { x, note, klass } = props
 
 
-  let { pitch, octave, duration, ox, oy } = note
+  let { pitch, octave, duration } = note
 
-  let x = (ox || 0)
-  let y = pitch_y(pitch, octave) + (oy || 0)
+  let y = pitch_y(pitch, octave)
 
   let dklass = duration_codes[duration]
   klass = ['note', dklass, klass || ''].join(' ')
@@ -128,14 +128,12 @@ const NoteOnStaff = (props) => {
 }
 
 const RestOnStaff = (props) => {
-  let { rest } = props
+  let { x, rest } = props
 
-  let { ox, oy } = rest
+  let y = pitch_y(7, 4)
 
-  let x = (ox || 0)
-  let y = pitch_y(7, 4) + (oy || 0)
+  let duration = rest
 
-  let duration = rest.rest
   let dklass = duration_rest_codes[duration]
   let klass = ['rest', dklass].join(' ')
   let glyph = g[dklass + '_rest']
@@ -146,6 +144,24 @@ const RestOnStaff = (props) => {
 
   return (<span class={klass} style={style}>{glyph}</span>)
 }
+
+export const Playback = (props) => {
+
+  let style = () => ({
+      transform: `translate(calc(${props.playback_pos}em), 0)` 
+    })
+
+  return (<div class='playback' style={style()}>
+      <div class='measure'>
+        <span>{props.playback.measure} m.</span>
+        <span>{props.playback.beat} beat</span>
+        <span>{props.playback.sub_beat} sub</span>
+      </div>
+      <span class='cursor'/>
+    </div>)
+} 
+
+
 
 const Bar = (props) => {
   let { i, ox } = props
@@ -440,23 +456,6 @@ transform: `translate(calc((${n} * 4em * 203/125) * ${i/(n*7)}), calc(2.5em))`
       </Show>
     </div>)
 }
-
-export const Playback = (props) => {
-
-  let style = () => ({
-      transform: `translate(calc(${2+props.playback.bm}em), 0)` 
-    })
-
-  return (<div class='playback' style={style()}>
-      <div class='measure'>
-        <span>{props.playback.measure} m.</span>
-        <span>{props.playback.beat} beat</span>
-        <span>{props.playback.sub_beat} sub</span>
-      </div>
-      <span class='cursor'/>
-    </div>)
-} 
-
 export const Zoom = (props) => {
   return (<div class={['zoom', props.klass].join(' ')} style={`font-size: ${props.zoom}em`}>
     {props.children}

@@ -1,5 +1,6 @@
 import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { BeatMeasure, time_bm_duration, time_duration_bm } from './music/types'
+import { pianokey_pitch_octave } from './music/piano'
 
 import { note_uci } from './music/format/uci'
 
@@ -59,6 +60,27 @@ export class Piano {
 
   zero(t: BeatMeasure) {
     return this.keys.get(t)
+  }
+
+  actives(time_signature: TimeSignature, t: BeatMeasure) {
+    return this.all.flatMap(([t0, keys]) => {
+
+      let _duration_bm = t - t0
+
+      if (_duration_bm <= 0) {
+        return []
+      }
+
+      let duration = time_bm_duration(time_signature, _duration_bm)
+
+      let cnr = keys.map(key => {
+        let po = pianokey_pitch_octave(key)
+        return make_note(...po, duration)
+      })
+
+      if (cnr.length === 1) { cnr = cnr[0] }
+      return [[t0, cnr]]
+    })
   }
 
 
@@ -206,7 +228,6 @@ export class ComposeInTime {
                                 this.quanti_note_value(this.sub_quanties_for_note_values[i])
                     ))
 
-                    console.log(b_notes, i_notes, e_notes)
       let removed = this.nrs.splice(start_i, end_i - start_i + 1, ...b_notes, ...i_notes, ...e_notes)
       return true
     }
@@ -230,21 +251,6 @@ function chord_note_rest_duration(note: ChordOrNoteOrRest) {
   } else {
     return note
   }
-}
-
-export type ComposeSheetContext = {
-  x: number,
-  quanti: BeatQuanti
-}
-
-function composer_context(composer: ComposeInTime) {
-  return { x: 0, quanti: 0 }
-}
-
-function composer_context_note_add(composer: ComposeInTime, ctx: ComposeSheetContext, note: ChordOrNoteOrRest) {
-  ctx.x += 1
-  
-  ctx.quanti += time_duration_bm(composer.time_signature, chord_note_rest_duration(note))
 }
 
 export function composer_sheet_context_intime(composer: ComposeInTime, bm: BeatMeasure) {
