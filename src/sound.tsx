@@ -114,9 +114,6 @@ export const PianoPlay = (props) => {
     ]
   }
 
-  createEffect(() => {
-    console.log(bounds())
-  })
 
   let $piano
   onMount(() => {

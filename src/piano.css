@@ -1,6 +1,7 @@
 .p-wrap {
   position: relative;
   user-select: none;
+  /* https://stackoverflow.com/a/33722030/3994249 */
   display: inline-flex;
 }
 

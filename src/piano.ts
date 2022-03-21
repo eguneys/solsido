@@ -47,6 +47,7 @@ export class Playback {
 }
 
 export  type NbVoice = 1 | 2 | 3 | 4
+type PianoBind = (key: PianoKey) => () => void
 
 export class Piano {
 
@@ -56,6 +57,10 @@ export class Piano {
 
   get all() {
     return [...this.keys]
+  }
+
+  get all_keys() {
+    return [...this.keys.values()]
   }
 
   zero(t: BeatMeasure) {
@@ -83,15 +88,14 @@ export class Piano {
     })
   }
 
-
   push(key: PianoKey, t: BeatMeasure) {
     if (!this.keys.has(t)) {
       this.keys.set(t, [])
     }
     let res = this.keys.get(t)
     if (res.includes(key)) {
-      this.keys.set(t, [])
-      return
+      this.keys.delete(t)
+      return [t, res]
     }
     res.push(key)
   }

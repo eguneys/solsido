@@ -6,6 +6,7 @@ import { PianoPlay } from './sound'
 import { make_adsr, PlayerController } from './audio/player'
 import { Zoom, PianoKeys } from './music'
 import { make_note } from './music/types'
+import { pianokey_pitch_octave } from './music/piano'
 
 import { Piano as OPiano } from './piano'
 
@@ -41,10 +42,32 @@ export const Sound = () => {
     filter_adsr: make_adsr(0, 0, 1, 0)
   })
 
-    let i = player.attack(make_note(1, 4, 2), player.currentTime)
-    player.release(i, player.currentTime)
-
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
+
+  let keys0 = [],
+    keys
+
+  let key_instrument_map = new Map<PianoKey, number>()
+  createEffect(() => {
+    keys = piano().all_keys.flat()
+    
+    let added = keys.filter(_ => !keys0.includes(_))
+    let removed = keys0.filter(_ => !keys.includes(_))
+
+    added.forEach(key => {
+      let po = pianokey_pitch_octave(key)
+      let i = player.attack(make_note(...po, 2), player.currentTime)
+      key_instrument_map.set(key, i)
+    })
+    removed.forEach(key => {
+      let i = key_instrument_map.get(key)
+      player.release(i, player.currentTime)
+      key_instrument_map.delete(key)
+    })
+
+    keys0 = keys
+  })
+
 
   const press = (key: PianoKey) => {
     setPiano(piano => {
