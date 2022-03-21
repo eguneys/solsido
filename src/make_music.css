@@ -7,3 +7,25 @@
 .make-music .p-wrap {
   cursor: pointer;
 }
+
+.make-music .controls {
+  display: flex;
+  padding: 1em;
+  gap: 0.5em;
+}
+
+.make-music .controls span {
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.75em;
+  font-weight: bold;
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0.03em 0.03em 0.01em black;
+  padding: 0.5em;
+}
+
+.make-music .controls span:hover {
+  background: var(--color-secondary);
+  color: black;
+}

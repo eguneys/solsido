@@ -5,12 +5,18 @@
   Music editor
   Music Theory Learning Material
   
-- Coming soon
+- Wanted Features
   MIDI Support
   Pro mode music making
   Pro mode audio synthesis
   Audio Visualizer
 
+- Bugs
+  Note doesn't tie when overflows a measure
+  
+
+
+- Project is open source, I would appreciate any help on this project.
 
 ### Input
 

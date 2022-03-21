@@ -49,6 +49,7 @@ export const Sheet = (props) => {
     playback_pos={props.playback_pos}
     active_notes={props.active_notes}
     zero_notes={props.zero_notes} 
+    bars={props.bars}
     notes={props.notes}/>
     </div>)
 }
@@ -63,6 +64,10 @@ export const Staff = (props) => {
       <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} playback_pos={props.playback_pos}/>
     }</For>
 
+    <For each={props.bars}>{ (bar) =>
+      <BarOnStaff bar={bar}/>
+    }</For>
+
     <For each={props.notes}>{ (note) =>
       <ChordNoteOrRestOnStaff note={note}/>
     }</For>
@@ -73,13 +78,24 @@ export const Staff = (props) => {
   </staff>)
 }
 
+const BarOnStaff = (props) => {
+  let { bar: { x, bar } } = props
+
+  let style = {
+    transform: `translate(${x}em, -50%) translateZ(0)`
+  }
+
+  return (<span class='bar' style={style}/>)
+
+}
+
 const ChordNoteOrRestOnStaff = (props) => {
   let { note, klass } = props
 
   let { x, cnr } = note
 
   return (<Switch fallback={ 
-      <NoteOnStaff klass={klass} note={cnr}/>
+      <NoteOnStaff x={x} klass={klass} note={cnr}/>
     }>
       <Match when={Array.isArray(cnr)}>
         <For each={cnr}>{ note =>
@@ -153,9 +169,9 @@ export const Playback = (props) => {
 
   return (<div class='playback' style={style()}>
       <div class='measure'>
-        <span>{props.playback.measure} m.</span>
-        <span>{props.playback.beat} beat</span>
-        <span>{props.playback.sub_beat} sub</span>
+        <span>{props.playback.measure + 1} m.</span>
+        <span>{props.playback.beat + 1} beat</span>
+        <span>{props.playback.sub_beat + 1} sub</span>
       </div>
       <span class='cursor'/>
     </div>)

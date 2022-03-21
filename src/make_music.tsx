@@ -9,6 +9,8 @@ import { is_note, make_note, make_time_signature, time_bm_duration } from './mus
 import { Piano as OPiano, Playback as OPlayback } from './piano'
 import { ComposeSheet as OComposeSheet, note_free } from './sheet'
 
+import { PianoPlay } from './sound'
+
 import { useApp } from './loop'
 
 const MusicContext = createContext()
@@ -17,12 +19,16 @@ const useMusic = () => { return useContext(MusicContext) }
 
 const MusicProvider = (props) => {
 
-  let _time_signature = make_time_signature(2, 2)
+  let _time_signature = make_time_signature(4, 4)
 
   let [playback, setPlayback] = createSignal(new OPlayback(_time_signature), { equals: false })
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
   let [composer, setComposer] = createSignal(new OComposeSheet(_time_signature), { equals: false })
 
+
+createEffect(() => {
+console.log(composer().notes)
+})
 
   const bm = () => playback().bm
   const time_signature = () => composer().time_signature
@@ -39,8 +45,12 @@ const MusicProvider = (props) => {
       notes() {
         return composer().notes
       },
+      bars() {
+        return composer().bars
+      },
       zero_notes() {
-        return piano().zero(bm())
+        return piano().zero(bm()).map(pianokey_pitch_octave)
+
       },
       active_notes() {
         return piano().actives(time_signature(), bm()).map(([t0, note]) => {
@@ -95,9 +105,30 @@ const MusicProvider = (props) => {
       },
       release(key: PianoKey) {
         setPiano(piano => {
-          let [t0, note] = piano.release(key, playback().bm)
           return piano
         })
+      },
+      dup_beat() {
+        // TODO make this a function
+        let _calc_measures = new OPlayback(time_signature())
+          _calc_measures.bm = bm()
+          let { measure, beat, sub_beat } = _calc_measures
+
+        setComposer(composer => {
+            composer.dup_beat(measure, beat)
+            return composer
+            })
+      },
+      dup_measure() {
+        // TODO make this a function
+        let _calc_measures = new OPlayback(time_signature())
+          _calc_measures.bm = bm()
+          let { measure, beat, sub_beat } = _calc_measures
+
+        setComposer(composer => {
+            composer.dup_measure(measure)
+            return composer
+            })
       }
     }
   ]
@@ -109,7 +140,12 @@ const MusicProvider = (props) => {
 
 const Music = () => {
 
-  let [[piano, playback, composer], { add_measure, quanti }] = useMusic()
+  let [[piano, playback, composer], { 
+    add_measure, 
+    quanti,
+    press,
+    release
+  }] = useMusic()
   let [input] = useApp()
 
   createEffect(() => {
@@ -123,20 +159,45 @@ const Music = () => {
 
     if (_input.btnp('1')) {
       quanti(ix) 
+    } else if (_input.btnp('4')) {
+      quanti(ix * 4)
     }    
 
     if (_input.btnp('!', true)) {
       quanti(ix * -1)
+    } else if (_input.btnp('$', true)) {
+      quanti(ix * 4 * -1)
     }
   })
 
 
   add_measure()
+  add_measure()
+  add_measure()
+  add_measure()
+  add_measure()
 
   return (<div class='make-music'>
       <Sheet/>
-      <PianoPlay/>
+      <Controls/>
+      <Zoom zoom={2}>
+        <PianoPlay piano={piano} press={press} release={release}/>
+      </Zoom>
     </div>) 
+}
+
+const Controls = () => {
+
+  let [_, { 
+    dup_beat,
+      dup_measure
+  }] = useMusic()
+ 
+
+  return (<div class='controls'>
+      <span class='dup-beat' onClick={dup_beat}>Dup Beat</span>
+      <span class='dup-measure' onClick={dup_measure}>Dup Measure</span>
+      </div>)
 }
 
 
@@ -147,67 +208,17 @@ const Sheet = (props) => {
     playback_pos,
     active_notes,
     zero_notes,
-    notes
+    notes,
+    bars
   }] = useMusic()
 
   return (<Zoom zoom={4}>
       <_Sheet playback={playback()} piano={piano()} 
       playback_pos={playback_pos()}
       notes={notes()}
+      bars={bars()}
       zero_notes={zero_notes()}
       active_notes={active_notes()}/>
-    </Zoom>)
-}
-
-const PianoPlay = () => {
-
-  let [bounds, setBounds] = createSignal()
-
-  let key_xys = createMemo(() => {
-    let _bounds = bounds()
-
-    if (!_bounds) {
-      return [[], []]
-    }
-
-    let { width, height } = _bounds
-
-    let black_xs = [0, 1, 3, 4, 5]
-    let nb_keys = 7 * 4
-    let white_xs = [...Array(nb_keys).keys()]
-    let key_w = width /  nb_keys
-    let black_y = height * 0.6
-
-    let black_x0 = key_w * 0.6
-    let black_key_w = key_w * 0.8
-
-    let octave_w = key_w * 7
-
-    return [
-      [0, 1, 2, 3].flatMap(k => 
-        black_xs.map(_ => [octave_w * k + black_x0 + _ * key_w, 0, black_key_w, black_y])),
-      white_xs.map(_ => [0 + _ * key_w, 0, key_w, height])
-    ]
-  })
-
-  let [[piano], { press, release }] = useMusic()
-
-  let $piano
-  onMount(() => {
-
-    setBounds($piano.getBoundingClientRect())
-
-    $piano.addEventListener('click', e => {
-      let pos = eventPosition(e)
-      let _bounds = bounds()
-
-      press(getKeyAtDomPos(pos, _bounds, key_xys()))
-    })
-  })
-
-
-  return (<Zoom klass="p-zoom" zoom={2}>
-      <PianoKeys ref={$piano} piano={piano()} key_xys={key_xys()} n={4}/>
     </Zoom>)
 }
 
