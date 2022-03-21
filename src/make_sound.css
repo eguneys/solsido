@@ -1,0 +1,60 @@
+.group {
+  display: flex;
+  flex-flow:column;
+  gap: 0.2em;
+  box-shadow: 0.03em 0.03em 0.01em black;
+}
+
+.group .values {
+  display: flex;
+  flex-flow:row;
+  justify-content: center;
+}
+
+.group.vertical .values {
+  flex-flow:column;
+}
+
+.knobs {
+  display: flex;
+}
+
+.knob {
+  padding: 0.2em;
+  display:flex;
+  align-items: center;
+}
+
+.knob.vertical {
+  flex-flow: column;
+}
+
+.knob.vertical input {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  width: 0.2em;
+  height: 6em;
+  padding: 0 0.02em;
+}
+
+.knob input {
+  min-width: 1em;
+  flex: 1 0 0;
+}
+
+.knob.vertical input {
+  min-height: 4em;
+}
+
+.knob span {
+  text-align: right;
+  min-width: 4em;
+}
+.knob .name {
+  text-align: center;
+}
+
+.knob span.value {
+  text-align: center;
+}
+

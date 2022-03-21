@@ -1,7 +1,7 @@
 .p-wrap {
   position: relative;
   user-select: none;
-  display: flex;
+  display: inline-flex;
 }
 
 .p-wrap .background {

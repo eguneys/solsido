@@ -2,7 +2,7 @@ import { useRouter, RouterProvider, Link } from './router'
 import { AppProvider } from './loop'
 
 import Learn from './learn'
-import Sound from './sound'
+import Sound from './make_sound'
 import Music from './make_music'
 
 

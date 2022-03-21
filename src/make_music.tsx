@@ -1,7 +1,7 @@
 import { splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
 import { Zoom, PianoKeys, Sheet as _Sheet } from './music'
 
-import { eventPosition, point_in_rect } from './util'
+import { getKeyAtDomPos, eventPosition, point_in_rect } from './util'
 
 import { Black, White, index_black, index_white } from './music/piano'
 import { pianokey_pitch_octave } from './music/piano'
@@ -10,24 +10,6 @@ import { Piano as OPiano, Playback as OPlayback } from './piano'
 import { ComposeSheet as OComposeSheet, note_free } from './sheet'
 
 import { useApp } from './loop'
-
-
-export const getKeyAtDomPos = (epos: NumberPair, bounds: ClientRect, key_xys: [Array<NumberRect>, Array<NumberRect>]) => {
-  let x = epos[0] - bounds.left,
-    y = epos[1] - bounds.top
-
-
-  let [bxys, wxys] = key_xys
-
-  let b_key = bxys.findIndex(_ => point_in_rect(_, x, y))
-  if (b_key >= 0) {
-    return index_black(b_key)
-  }
-
-  let w_key = wxys.findIndex(_ => point_in_rect(_, x, y))
-
-  return index_white(w_key)
-}
 
 const MusicContext = createContext()
 

@@ -1,3 +1,5 @@
+- [ ] Variable piano size
+
 - [ ] Table of note divisions
 - [ ] Beams with irregular divisions
 - [ ] Display Common time signature when none given
