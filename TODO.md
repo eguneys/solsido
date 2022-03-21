@@ -1,3 +1,5 @@
+- [ ] Click to navigate playback
+
 - [ ] Variable piano size
 
 - [ ] Table of note divisions

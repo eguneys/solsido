@@ -92,6 +92,9 @@ const BarOnStaff = (props) => {
 const ChordNoteOrRestOnStaff = (props) => {
   let { note, klass } = props
 
+    if (note === 0) {
+      return (<></>)
+    }
   let { x, cnr } = note
 
   return (<Switch fallback={ 
@@ -126,7 +129,6 @@ const ZeroNoteOnStaff = (props) => {
 
 const NoteOnStaff = (props) => {
   let { x, note, klass } = props
-
 
   let { pitch, octave, duration } = note
 

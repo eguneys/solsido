@@ -110,6 +110,12 @@ export class Piano {
     }
     return res
   }
+
+  release_all() {
+    let res = [...this.keys]
+    this.keys = new Map()
+    return res
+  }
 }
 
 export function chord_note_rest_duration(note: ChordOrNoteOrRest) {

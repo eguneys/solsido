@@ -27,11 +27,19 @@ const MusicProvider = (props) => {
 
 
 createEffect(() => {
-console.log(composer().notes)
+    console.log(composer().notes)
 })
 
   const bm = () => playback().bm
   const time_signature = () => composer().time_signature
+
+
+  const quanti = (quanti: BeatMeasure) => {
+    setPlayback(playback => {
+        playback.bm += quanti
+        return playback })
+  }
+
   const store = [
     [piano, playback, composer],
     {
@@ -76,11 +84,6 @@ console.log(composer().notes)
             composer.add_measure()
             return composer})
       },
-      quanti(quanti: BeatMeasure) {
-        setPlayback(playback => {
-            playback.bm += quanti
-            return playback })
-      },
       press(key: PianoKey) {
         setPiano(piano => {
 
@@ -107,6 +110,19 @@ console.log(composer().notes)
         setPiano(piano => {
           return piano
         })
+      },
+      quanti,
+      fw_beat() {
+        quanti(1)
+      },
+      bw_beat() {
+        quanti(-1)
+      },
+      rel_piano() {
+        setPiano(piano => {
+          piano.release_all()
+          return piano
+            })
       },
       dup_beat() {
         // TODO make this a function
@@ -190,13 +206,19 @@ const Controls = () => {
 
   let [_, { 
     dup_beat,
-      dup_measure
+    dup_measure,
+    rel_piano,
+    fw_beat,
+    bw_beat
   }] = useMusic()
  
 
   return (<div class='controls'>
-      <span class='dup-beat' onClick={dup_beat}>Dup Beat</span>
-      <span class='dup-measure' onClick={dup_measure}>Dup Measure</span>
+      <span class='dup-beat' title='Duplicate Beat' onClick={dup_beat}>Dup Beat</span>
+      <span class='dup-measure' title='Duplicate Measure' onClick={dup_measure}>Dup Measure</span>
+      <span class='rel-piano' title='Cancel Piano Press' onClick={rel_piano}>Cancel Press</span>
+      <span class='bw-beat' title='Go Backward' onClick={bw_beat}>Backward</span>
+      <span class='fw-beat' title='Go Forward' onClick={fw_beat}>Forward</span>
       </div>)
 }
 
@@ -212,7 +234,7 @@ const Sheet = (props) => {
     bars
   }] = useMusic()
 
-  return (<Zoom zoom={4}>
+  return (<Zoom zoom={3}>
       <_Sheet playback={playback()} piano={piano()} 
       playback_pos={playback_pos()}
       notes={notes()}

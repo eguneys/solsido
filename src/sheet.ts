@@ -24,6 +24,9 @@ export const note_free = note => {
   }
 }
 
+
+const beat_widths = [0, 1, 1.5, 3, 2, 5, 6, 7, 3]
+
 export class BeatSheet {
   subs: Array<ChordNoteOrRest>
 
@@ -34,13 +37,17 @@ export class BeatSheet {
   }
 
   get w() {
-    return this.subs.length * this.sub_w
+     return beat_widths[this.division]
   }
 
   // 1 2 4 8
-  // 1 0.5 0.25 0.125
+  // 1 2 4 8
   get sub_w() {
-    return (1/this.subs.length) * 1.5
+    return this.w / this.division
+  }
+
+  get division() {
+    return this.subs.filter(_ => _ !== 0).length
   }
 
   get time_signature() {
@@ -101,7 +108,7 @@ export class BeatSheet {
 
     let division = sub_divisions[_sub]
 
-    if (this.subs.length < division) {
+    if (this.division < division) {
       let old_subs = this.subs
       this.subs = Array(division)
 
@@ -202,7 +209,9 @@ export class ComposeSheet {
         let b_res = beat.subs.map(sub => {
           let x = m_x + b_x + s_x
           let cnr
-          if (Array.isArray(sub)) {
+          if (sub === 0) {
+            return 0
+          } else if (Array.isArray(sub)) {
             cnr = sub.map(note_free)
           } else if (is_note(sub)) {
             cnr = note_free(sub)
@@ -244,10 +253,9 @@ export class ComposeSheet {
       pre_beats = measure.beats.slice(0, _beat),
       pre_subs = beat.subs.slice(0, _sub)
 
-
-    return pre_measures.map(_ => _.w).reduce(fsum, 0.25) +
+    return pre_measures.map(_ => _.w).reduce(fsum, 0) +
       pre_beats.map(_ => _.w).reduce(fsum, 0) +
-      pre_subs.map(_ => beat.sub_w).reduce(fsum, pre_subs.length === 0 ? 0 : -beat.sub_w / 2)
+      pre_subs.filter(_ => _ !== 0).map(_ => beat.sub_w).reduce(fsum, pre_subs.length === 0 ? 0 : -beat.sub_w / 2)
   }
 
   add_cnr(_measure: number, _beat: number, _sub: number, notes: ChordNoteOrRest) {
