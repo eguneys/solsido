@@ -52,16 +52,17 @@ function ads(param: AudioParam, now: number, { a,d,s,r }: Adsr, start: number, m
 
   param.setValueAtTime(start, now)
   param.linearRampToValueAtTime(max, now + a)
-  param.linearRampToValueAtTime(start + s, now + a + d)
+  param.linearRampToValueAtTime(s, now + a + d)
 
   /* not needed ? */
-  param.setValueAtTime(start + s, now + a + d)
+  //param.setValueAtTime(s, now + a + d)
 }
 
 function r(param: AudioParam, now: number, { r }: Adsr, min: number) {
   r /= 1000
   param.cancelScheduledValues(now)
   param.linearRampToValueAtTime(min, now + (r || 0))
+  console.log(r, min)
 }
 
 export class PlayerController {
@@ -128,7 +129,7 @@ abstract class HasAudioAnalyser {
     this.gain = context.createGain()
     this.analyser = context.createAnalyser()
 
-    this.gain.gain.setValueAtTime(0.6, time)
+    this.gain.gain.setValueAtTime(1, time)
     this.gain!.connect(this.analyser)
     this.analyser.connect(context.destination)
 
@@ -154,6 +155,7 @@ export class MidiPlayer extends HasAudioAnalyser {
   osc1!: OscillatorNode
   osc2!: OscillatorNode
   envelope!: GainNode
+  filter!: BiquadFilterNode
 
   _set_data(data: MidiNote) {
     this.data = data
@@ -167,7 +169,7 @@ export class MidiPlayer extends HasAudioAnalyser {
 
     let { freq, synth } = this.data
 
-    let { cutoff, cutoff_max, amplitude, filter_adsr, amp_adsr } = synth
+    let { volume, cutoff, cutoff_max, amplitude, filter_adsr, amp_adsr } = synth
 
     let osc1 = new OscillatorNode(context, { type: 'sawtooth' })
     this.osc1 = osc1
@@ -187,9 +189,11 @@ export class MidiPlayer extends HasAudioAnalyser {
     osc2.detune.setValueAtTime(700, now)
 
     let filter = new BiquadFilterNode(context, { type: 'lowpass' })
+    this.filter = filter
     osc1_mix.connect(filter)
     osc2_mix.connect(filter)
 
+    out_gain.gain.setValueAtTime(volume, now)
 
     let envelope = new GainNode(context)
     this.envelope = envelope
@@ -199,23 +203,19 @@ export class MidiPlayer extends HasAudioAnalyser {
     osc1.frequency.setValueAtTime(freq, now)
     osc2.frequency.setValueAtTime(freq, now)
 
-    let _filter_adsr = { ...filter_adsr, s: filter_adsr.s * (cutoff * maxFilterFreq * 0.5 + cutoff_max * maxFilterFreq * 0.5) }
+    /* Syntorial */
+    let _filter_adsr = { ...filter_adsr, s: 
+      cutoff * maxFilterFreq * 0.4 + 
+      filter_adsr.s * cutoff_max * maxFilterFreq * 0.6 }
     ads(filter.frequency,
          now,
          _filter_adsr,
-         cutoff * maxFilterFreq * 0.5,
-         cutoff * maxFilterFreq * 0.5 + cutoff_max * maxFilterFreq * 0.5)
+         cutoff * maxFilterFreq * 0.4,
+         cutoff * maxFilterFreq * 0.4 + cutoff_max * maxFilterFreq * 0.6)
 
-    r(filter.frequency,
-      now,
-      _filter_adsr,
-      cutoff * maxFilterFreq * 0.5 * filter_adsr.s)
-
-
-    let _amp_adsr = { ...amp_adsr, s: amp_adsr.s * amplitude * 0.5 }
     ads(envelope.gain,
          now,
-         _amp_adsr,
+         amp_adsr,
          0,
          amplitude * 0.5)
 
@@ -226,7 +226,7 @@ export class MidiPlayer extends HasAudioAnalyser {
 
   _release(now: number) {
 
-    let { synth: { amp_adsr }  } = this.data
+    let { synth: { cutoff, amp_adsr, filter_adsr }  } = this.data
 
     let { a, d, r: _r } = amp_adsr
 
@@ -235,6 +235,10 @@ export class MidiPlayer extends HasAudioAnalyser {
     _r /= 1000
 
     r(this.envelope.gain, now, amp_adsr, 0)
+    r(this.filter.frequency,
+      now,
+      filter_adsr,
+      cutoff * this.maxFilterFreq * 0.4)
     this.osc1.stop(now + a + d + _r)
     this.osc2.stop(now + a + d + _r)
   }

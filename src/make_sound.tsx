@@ -55,17 +55,18 @@ const useSound = () => { return useContext(SoundContext) }
 const SoundProvider = (props) => {
 
   let synth = {
+    volume: 0.3,
     amplitude: 0.5,
     cutoff: 0.7,
     cutoff_max: 0.0,
     amp_adsr: make_adsr(0, 0, 1, 0),
-    filter_adsr: make_adsr(0, 0, 0, 0)
+    filter_adsr: make_adsr(0, 0, 0.5, 0)
   }
 
   let amp_envelope = createEnvelope(synth.amp_adsr, make_adsr(
     [0, 2000, 70],
     [0, 2000, 70], 
-    [0, 1, 0.2], 
+    [0, 1, 0.1], 
     [0, 2000, 70]))
 
   let _amp = createSignal(synth.amplitude)
@@ -74,12 +75,13 @@ const SoundProvider = (props) => {
   let filter_envelope = createEnvelope(synth.filter_adsr, make_adsr(
     [0, 2000, 70],
     [0, 2000, 70], 
-    [0, 1, 0.1], 
+    [0, 1, 0.5], 
     [0, 2000, 70]))
 
 
   let _cutoff = createSignal(synth.cutoff)
   let _cutoff_max = createSignal(synth.cutoff_max)
+  let _volume = createSignal(synth.volume)
 
   createEffect(() => {
     synth.amplitude = parseFloat(_amp[0]())
@@ -93,6 +95,9 @@ const SoundProvider = (props) => {
     synth.cutoff_max = parseFloat(_cutoff_max[0]())
   })
 
+  createEffect(() => {
+    synth.volume = parseFloat(_volume[0]())
+  })
 
 
   let player = new PlayerController(synth)
@@ -115,7 +120,7 @@ const SoundProvider = (props) => {
 
 
   const store = [
-    [amp_envelope, _amp, filter_envelope, _cutoff, _cutoff_max],
+    [amp_envelope, _amp, filter_envelope, _cutoff, _cutoff_max, _volume],
     [piano, player], {
       press,
       release
@@ -177,7 +182,6 @@ export const ZoomedPiano = () => {
       let x = _input.btn(button),
         x0 = _input.btn0(button)
 
-
       if (x > 0) {
         if (x0 === 0) {
           press(keys_by_button.get(button))
@@ -201,7 +205,7 @@ export const ZoomedPiano = () => {
 export const Knobs = () => {
   
 
-  let [[_amp_envelope, _amp, _filter_envelope, _cutoff, _cutoff_max]] = useSound()
+  let [[_amp_envelope, _amp, _filter_envelope, _cutoff, _cutoff_max, _volume]] = useSound()
 
   let [[amp_envelope, amp_envelope_range], amp_env_api] = _amp_envelope
 
@@ -212,6 +216,7 @@ export const Knobs = () => {
 
   let [cutoff, setCutoff] = _cutoff
   let [cutoff_max, setCutoffMax] = _cutoff_max
+  let [volume, setVolume] = _volume
 
   return (<div class='knobs'>
     <Envelope unit="ms" unit_s="n" range={filter_envelope_range()} envelope={filter_envelope()} {...filter_env_api } name="filter_envelope"/>
@@ -224,6 +229,8 @@ export const Knobs = () => {
     <Group name='amplitude'>
     <Knob klass='vertical' unit="n" range={[0, 1, 0.1]} value={amp()} setValue={setAmp}/>
     </Group>
+
+    <Knob name='Volume' klass='vertical' unit="n" range={[0, 1, 0.1]} value={volume()} setValue={setVolume}/>
     </div>)
 }
 
