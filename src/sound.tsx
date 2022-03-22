@@ -24,25 +24,25 @@ export const createEnvelope = (_env, _env_range) => {
     [env, env_range], {
       setAttack(a) {
         setEnv(env => {
-          env.a = a
+          env.a = parseFloat(a)
           return env
         })
       },
       setDecay(d) {
         setEnv(env => {
-          env.d = d
+          env.d = parseFloat(d)
           return env
         })
       },
       setSustain(s) {
         setEnv(env => {
-          env.s = s
+          env.s = parseFloat(s)
           return env
         })
       },
       setRelease(r) {
         setEnv(env => {
-          env.r = r
+          env.r = parseFloat(r)
           return env
         })
       }
@@ -58,7 +58,7 @@ export const Envelope = (props) => {
     <Group name={props.name} klass='vertical'>
       <Knob name='attack' range={props.range.a} unit={props.unit} value={props.envelope.a} setValue={setAttack}/>
       <Knob name='decay' range={props.range.d} unit={props.unit} value={props.envelope.d} setValue={setDecay}/>
-      <Knob name='sustain' range={props.range.s} unit={props.unit} value={props.envelope.s} setValue={setSustain}/>
+      <Knob name='sustain' range={props.range.s} unit={props.unit_s} value={props.envelope.s} setValue={setSustain}/>
       <Knob name='release' range={props.range.r} unit={props.unit} value={props.envelope.r} setValue={setRelease}/>
     </Group>
   </div>)

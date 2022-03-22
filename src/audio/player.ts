@@ -3,6 +3,7 @@ import { Note, note_pitch, note_octave, note_accidental } from '../music/types'
 export type Synth = {
   amplitude: number,
   cutoff: number,
+  cutoff_max: number,
   amp_adsr: Adsr,
   filter_adsr: Adsr
 }
@@ -44,16 +45,23 @@ function note_freq(note: Note) {
   return 440 * Math.pow(2, (n - 57) / 12)
 }
 
-function ads(param: AudioParam, now: number, { a,d,s,r }: Adsr, start: number, max: number, min: number) {
+function ads(param: AudioParam, now: number, { a,d,s,r }: Adsr, start: number, max: number) {
+  a /= 1000
+  d /= 1000
+  r /= 1000
+
+  // param.cancelScheduledValues(now)
   param.setValueAtTime(start, now)
   param.linearRampToValueAtTime(max, now + a)
-  param.linearRampToValueAtTime(min, now + a + d)
+  param.linearRampToValueAtTime(start + s, now + a + d)
 
   /* not needed ? */
-  //param.setValueAtTime(min, now + a + d + s)
+  param.setValueAtTime(start + s, now + a + d)
+
 }
 
 function r(param: AudioParam, now: number, { r }: Adsr, min: number) {
+  r /= 1000
   param.cancelScheduledValues(now)
   param.linearRampToValueAtTime(min, now + (r || 0))
 }
@@ -110,6 +118,10 @@ abstract class HasAudioAnalyser {
 
   gain?: GainNode
 
+  get maxFilterFreq(): number {
+    return this.context.sampleRate / 2
+  }
+
   constructor(readonly context: AudioContext) {}
 
   attack(time: number = this.context.currentTime) {
@@ -118,7 +130,7 @@ abstract class HasAudioAnalyser {
     this.gain = context.createGain()
     this.analyser = context.createAnalyser()
 
-    this.gain.gain.setValueAtTime(0.1, time)
+    this.gain.gain.setValueAtTime(0.3, time)
     this.gain!.connect(this.analyser)
     this.analyser.connect(context.destination)
 
@@ -152,12 +164,12 @@ export class MidiPlayer extends HasAudioAnalyser {
 
   _attack(now: number) {
 
-    let { context } = this
+    let { context, maxFilterFreq } = this
     let out_gain = this.gain!
 
     let { freq, synth } = this.data
 
-    let { cutoff, amplitude, filter_adsr, amp_adsr } = synth
+    let { cutoff, cutoff_max, amplitude, filter_adsr, amp_adsr } = synth
 
     let osc1 = new OscillatorNode(context, { type: 'sawtooth' })
     this.osc1 = osc1
@@ -192,16 +204,14 @@ export class MidiPlayer extends HasAudioAnalyser {
     ads(filter.frequency,
          now,
          filter_adsr,
-         cutoff,
-         cutoff * 3,
-         cutoff)
+         cutoff * maxFilterFreq * 0.5,
+         cutoff * maxFilterFreq * 0.5 + cutoff_max * maxFilterFreq * 0.5)
 
     ads(envelope.gain,
          now,
          amp_adsr,
          0,
-         1,
-         1)
+         amplitude)
 
          osc1.start(now)
          osc2.start(now)
@@ -212,8 +222,14 @@ export class MidiPlayer extends HasAudioAnalyser {
 
     let { synth: { amp_adsr }  } = this.data
 
+    let { a, d, r: _r } = amp_adsr
+
+    a /= 1000
+    d /= 1000
+    _r /= 1000
+
     r(this.envelope.gain, now, amp_adsr, 0)
-    this.osc1.stop(now + 0.2)
-    this.osc2.stop(now + 0.2)
+    this.osc1.stop(now + a + d + _r)
+    this.osc2.stop(now + a + d + _r)
   }
 }

@@ -53,20 +53,49 @@ const SoundContext = createContext()
 const useSound = () => { return useContext(SoundContext) }
 
 const SoundProvider = (props) => {
-  let amp_envelope = createEnvelope(make_adsr(0, 0, 1, 0), make_adsr(
-    [0, 0.5, 0.1],
-    [0, 0.5, 0.1], 
-    [0, 1, 0.2], 
-    [0, 1, 0.2]))
 
-  let _amp = createSignal(1)
-
-  let player = new PlayerController({
-    amplitude: 1,
-    cutoff: 2000,
+  let synth = {
+    amplitude: 0.5,
+    cutoff: 0.7,
+    cutoff_max: 0.0,
     amp_adsr: make_adsr(0, 0, 1, 0),
-    filter_adsr: make_adsr(0, 0, 1, 0)
+    filter_adsr: make_adsr(0, 0, 600, 0)
+  }
+
+  let amp_envelope = createEnvelope(synth.amp_adsr, make_adsr(
+    [0, 2000, 70],
+    [0, 2000, 70], 
+    [0, 1, 0.2], 
+    [0, 2000, 70]))
+
+  let _amp = createSignal(synth.amplitude)
+
+
+  let filter_envelope = createEnvelope(synth.filter_adsr, make_adsr(
+    [0, 2000, 70],
+    [0, 2000, 70], 
+    [0, 2000, 200], 
+    [0, 2000, 70]))
+
+
+  let _cutoff = createSignal(synth.cutoff)
+  let _cutoff_max = createSignal(synth.cutoff_max)
+
+  createEffect(() => {
+    synth.amplitude = parseFloat(_amp[0]())
   })
+
+  createEffect(() => {
+    synth.cutoff = parseFloat(_cutoff[0]())
+  })
+
+  createEffect(() => {
+    synth.cutoff_max = parseFloat(_cutoff_max[0]())
+  })
+
+
+
+  let player = new PlayerController(synth)
 
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
 
@@ -86,7 +115,7 @@ const SoundProvider = (props) => {
 
 
   const store = [
-    [amp_envelope, _amp],
+    [amp_envelope, _amp, filter_envelope, _cutoff, _cutoff_max],
     [piano, player], {
       press,
       release
@@ -172,20 +201,26 @@ export const ZoomedPiano = () => {
 export const Knobs = () => {
   
 
-  let [[_amp_envelope, _amp]] = useSound()
+  let [[_amp_envelope, _amp, _filter_envelope, _cutoff, _cutoff_max]] = useSound()
 
   let [[amp_envelope, amp_envelope_range], amp_env_api] = _amp_envelope
 
+  let [[filter_envelope, filter_envelope_range], filter_env_api] = _filter_envelope
+
+
   let [amp, setAmp] = _amp
 
+  let [cutoff, setCutoff] = _cutoff
+  let [cutoff_max, setCutoffMax] = _cutoff_max
+
   return (<div class='knobs'>
-    <Envelope unit="ms" range={amp_envelope_range()} envelope={amp_envelope()} {...amp_env_api } name="filter_envelope"/>
+    <Envelope unit="ms" unit_s="hz" range={filter_envelope_range()} envelope={filter_envelope()} {...filter_env_api } name="filter_envelope"/>
     <Group name='cutoff'>
-    <Knob klass='vertical' unit="freq" range={[0, 1, 0.1]} value={amp()} setValue={setAmp}/>
-    <Knob name="max" klass='vertical' unit="freq" range={[0, 1, 0.1]} value={amp()} setValue={setAmp}/>
+    <Knob klass='vertical' unit="n" range={[0, 1, 0.1]} value={cutoff()} setValue={setCutoff}/>
+    <Knob name="max" klass='vertical' unit="n" range={[0, 1, 0.1]} value={cutoff_max()} setValue={setCutoffMax}/>
     </Group>
 
-    <Envelope unit="ms" range={amp_envelope_range()} envelope={amp_envelope()} {...amp_env_api } name="amp_envelope"/>
+    <Envelope unit="ms" unit_s="n" range={amp_envelope_range()} envelope={amp_envelope()} {...amp_env_api } name="amp_envelope"/>
     <Group name='amplitude'>
     <Knob klass='vertical' unit="n" range={[0, 1, 0.1]} value={amp()} setValue={setAmp}/>
     </Group>

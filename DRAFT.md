@@ -8,8 +8,9 @@
 - Wanted Features
   MIDI Support
   Pro mode music making
-  Pro mode audio synthesis
+  Pro mode sound synthesis
   Audio Visualizer
+  Music, Sound, Piano Challenges
 
 - Bugs
   Note doesn't tie when overflows a measure
@@ -33,3 +34,8 @@ Dup Measure: Duplicate the measure the cursor is on
 Cancel: Cancel active piano presses
 Backward: Move the cursor backward one sub beat
 Forward: Move the cursor forward one sub beat
+
+
+### References
+
+- WebAudio Youtube https://www.youtube.com/watch?v=uasGsHf7UYA
