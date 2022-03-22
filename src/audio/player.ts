@@ -50,14 +50,12 @@ function ads(param: AudioParam, now: number, { a,d,s,r }: Adsr, start: number, m
   d /= 1000
   r /= 1000
 
-  // param.cancelScheduledValues(now)
   param.setValueAtTime(start, now)
   param.linearRampToValueAtTime(max, now + a)
   param.linearRampToValueAtTime(start + s, now + a + d)
 
   /* not needed ? */
   param.setValueAtTime(start + s, now + a + d)
-
 }
 
 function r(param: AudioParam, now: number, { r }: Adsr, min: number) {
@@ -130,7 +128,7 @@ abstract class HasAudioAnalyser {
     this.gain = context.createGain()
     this.analyser = context.createAnalyser()
 
-    this.gain.gain.setValueAtTime(0.3, time)
+    this.gain.gain.setValueAtTime(0.6, time)
     this.gain!.connect(this.analyser)
     this.analyser.connect(context.destination)
 
@@ -201,17 +199,25 @@ export class MidiPlayer extends HasAudioAnalyser {
     osc1.frequency.setValueAtTime(freq, now)
     osc2.frequency.setValueAtTime(freq, now)
 
+    let _filter_adsr = { ...filter_adsr, s: filter_adsr.s * (cutoff * maxFilterFreq * 0.5 + cutoff_max * maxFilterFreq * 0.5) }
     ads(filter.frequency,
          now,
-         filter_adsr,
+         _filter_adsr,
          cutoff * maxFilterFreq * 0.5,
          cutoff * maxFilterFreq * 0.5 + cutoff_max * maxFilterFreq * 0.5)
 
+    r(filter.frequency,
+      now,
+      _filter_adsr,
+      cutoff * maxFilterFreq * 0.5 * filter_adsr.s)
+
+
+    let _amp_adsr = { ...amp_adsr, s: amp_adsr.s * amplitude * 0.5 }
     ads(envelope.gain,
          now,
-         amp_adsr,
+         _amp_adsr,
          0,
-         amplitude)
+         amplitude * 0.5)
 
          osc1.start(now)
          osc2.start(now)

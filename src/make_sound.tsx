@@ -59,7 +59,7 @@ const SoundProvider = (props) => {
     cutoff: 0.7,
     cutoff_max: 0.0,
     amp_adsr: make_adsr(0, 0, 1, 0),
-    filter_adsr: make_adsr(0, 0, 600, 0)
+    filter_adsr: make_adsr(0, 0, 0, 0)
   }
 
   let amp_envelope = createEnvelope(synth.amp_adsr, make_adsr(
@@ -74,7 +74,7 @@ const SoundProvider = (props) => {
   let filter_envelope = createEnvelope(synth.filter_adsr, make_adsr(
     [0, 2000, 70],
     [0, 2000, 70], 
-    [0, 2000, 200], 
+    [0, 1, 0.1], 
     [0, 2000, 70]))
 
 
@@ -214,7 +214,7 @@ export const Knobs = () => {
   let [cutoff_max, setCutoffMax] = _cutoff_max
 
   return (<div class='knobs'>
-    <Envelope unit="ms" unit_s="hz" range={filter_envelope_range()} envelope={filter_envelope()} {...filter_env_api } name="filter_envelope"/>
+    <Envelope unit="ms" unit_s="n" range={filter_envelope_range()} envelope={filter_envelope()} {...filter_env_api } name="filter_envelope"/>
     <Group name='cutoff'>
     <Knob klass='vertical' unit="n" range={[0, 1, 0.1]} value={cutoff()} setValue={setCutoff}/>
     <Knob name="max" klass='vertical' unit="n" range={[0, 1, 0.1]} value={cutoff_max()} setValue={setCutoffMax}/>

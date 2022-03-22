@@ -35,6 +35,12 @@ Cancel: Cancel active piano presses
 Backward: Move the cursor backward one sub beat
 Forward: Move the cursor forward one sub beat
 
+Shortcuts:
+
+1: Forward one sub beat
+4: Forward 4 sub beats
+Shift + 1: Backward one sub beat
+Shift + 4: Backward 4 sub beats
 
 ### References
 
