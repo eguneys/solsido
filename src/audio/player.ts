@@ -62,7 +62,6 @@ function r(param: AudioParam, now: number, { r }: Adsr, min: number) {
   r /= 1000
   param.cancelScheduledValues(now)
   param.linearRampToValueAtTime(min, now + (r || 0))
-  console.log(r, min)
 }
 
 export class PlayerController {

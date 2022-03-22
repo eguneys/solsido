@@ -4,6 +4,7 @@ import g from './glyphs'
 import read_fen from './music/format/read'
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
+import { is_rest } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
 
 import { composer_sheet } from './piano'
@@ -95,6 +96,7 @@ const ChordNoteOrRestOnStaff = (props) => {
     if (note === 0) {
       return (<></>)
     }
+
   let { x, cnr } = note
 
   return (<Switch fallback={ 
@@ -105,7 +107,7 @@ const ChordNoteOrRestOnStaff = (props) => {
           <NoteOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
         }</For>
       </Match>
-      <Match when={typeof cnr === 'number'}>
+      <Match when={is_rest(cnr)}>
         <RestOnStaff x={x} klass={klass} rest={cnr}/>
       </Match>
     </Switch>)

@@ -1,4 +1,4 @@
-import { time_nb_note_value, time_note_value, make_note, is_note, note_pitch, note_duration, note_octave, note_accidental } from './music/types'
+import { time_nb_note_value, time_note_value, make_note_po, is_note, note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { BeatMeasure, time_bm_duration, time_duration_bm } from './music/types'
 import { pianokey_pitch_octave } from './music/piano'
 
@@ -80,7 +80,7 @@ export class Piano {
 
       let cnr = keys.map(key => {
         let po = pianokey_pitch_octave(key)
-        return make_note(...po, duration)
+        return make_note_po(po, duration)
       })
 
       if (cnr.length === 1) { cnr = cnr[0] }

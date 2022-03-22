@@ -5,10 +5,14 @@ import { getKeyAtDomPos, eventPosition, point_in_rect } from './util'
 
 import { Black, White, index_black, index_white } from './music/piano'
 import { pianokey_pitch_octave } from './music/piano'
+
+import { btn_pitches_all, keys_by_button, btn_pianokey } from './buttons'
 import { is_note, make_time_signature, time_bm_duration } from './music/types'
+import { make_note_po } from './music/types'
 import { Piano as OPiano, Playback as OPlayback } from './piano'
 import { ComposeSheet as OComposeSheet, note_free } from './sheet'
 
+import { make_adsr, PlayerController } from './audio/player'
 import { PianoPlay } from './sound'
 
 import { useApp } from './loop'
@@ -36,8 +40,12 @@ createEffect(() => {
 
   const quanti = (quanti: BeatMeasure) => {
     setPlayback(playback => {
+      if (quanti === 0) {
+        playback.bm = 0
+      } else {
         playback.bm += quanti
-        return playback })
+      }
+      return playback })
   }
 
   const store = [
@@ -157,6 +165,7 @@ createEffect(() => {
 const Music = () => {
 
   let [[piano, playback, composer], { 
+    bm,
     add_measure, 
     quanti,
     press,
@@ -173,7 +182,9 @@ const Music = () => {
       ix = 1
     }
 
-    if (_input.btnp('1')) {
+    if (_input.btnp('0')) {
+      quanti(0)
+    } else if (_input.btnp('1')) {
       quanti(ix) 
     } else if (_input.btnp('4')) {
       quanti(ix * 4)
@@ -197,9 +208,78 @@ const Music = () => {
       <Sheet/>
       <Controls/>
       <Zoom zoom={2}>
-        <PianoPlay piano={piano} press={press} release={release}/>
+        <PianoPlayWithKeyboard piano={piano} press={press} release={release}/>
       </Zoom>
     </div>) 
+}
+
+const PianoPlayWithKeyboard = (props) => {
+  
+  let { piano, press, release } = props
+  let [input] = useApp()
+
+  let synth = {
+    volume: 0.3,
+    amplitude: 0.5,
+    cutoff: 0.7,
+    cutoff_max: 0.0,
+    amp_adsr: make_adsr(0, 0, 1, 0),
+    filter_adsr: make_adsr(0, 0, 0.5, 0)
+  }
+
+
+  let player = new PlayerController(synth)
+
+  let keys0 = [],
+    keys
+
+  let key_instrument_map = new Map<PianoKey, number>()
+  createEffect(() => {
+    keys = piano().all_keys.flat()
+    
+    let added = keys.filter(_ => !keys0.includes(_))
+    let removed = keys0.filter(_ => !keys.includes(_))
+
+    added.forEach(key => {
+      let po = pianokey_pitch_octave(key)
+      let i = player.attack(make_note_po(po, 2), player.currentTime)
+      key_instrument_map.set(key, i)
+    })
+    removed.forEach(key => {
+      let i = key_instrument_map.get(key)
+      player.release(i, player.currentTime)
+      key_instrument_map.delete(key)
+    })
+
+    keys0 = keys
+  })
+
+  createEffect(() => {
+    let _input = input()
+
+
+    btn_pitches_all.forEach(button=> {
+      let x = _input.btn(button),
+        x0 = _input.btn0(button)
+
+      if (x > 0) {
+        if (x0 === 0) {
+          press(keys_by_button.get(button))
+        }
+      } else if (x === 0) {
+        if (x0 > 0) {
+          release(keys_by_button.get(button))
+        }
+      }
+      
+    })
+
+
+  })
+
+
+
+  return (<PianoPlay piano={piano} press={press} release={release}/>)
 }
 
 const Controls = () => {
