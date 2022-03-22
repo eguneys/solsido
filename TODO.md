@@ -9,6 +9,7 @@
 - [ ] Learn Assignments
 - [ ] Learn Section Circle of fifths
 - [ ]@An editor page where you can play notes
+- [ ]@An editor where you can synthesize sound
 
 - [ ] Responsive sheet width
 - [ ] Responsive note spacing

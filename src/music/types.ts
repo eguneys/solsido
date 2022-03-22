@@ -30,7 +30,7 @@ const duration_mask =   0x00000f00
 const accidental_mask = 0x0000f000
 
 const note_1 = make_note(1, 1, 1)
-const note_n = make_note(7, 7, 8, 2)
+const note_n = make_note(7, 7, 2, 8)
 
 export function is_note(n: number): n is Note {
   return n >= note_1 && n <= note_n
@@ -40,7 +40,7 @@ export function is_rest(n: number): n is Rest {
   return n >= 1 && n <= 8
 }
 
-export function make_note(pitch: Pitch, octave: Octave, duration: Duration, accidental?: Accidental) {
+export function make_note(pitch: Pitch, octave: Octave, accidental?: Accidental, duration: Duration) {
   return pitch | (octave << 4) | (duration << 8) | ((accidental || 0) << 12)
 }
 

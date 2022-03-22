@@ -1,14 +1,52 @@
 
 import { createEffect, createSignal, createContext, useContext } from 'solid-js'
+import { useApp } from './loop'
 import { createEnvelope, Envelope, Knob, Group } from './sound'
 import { PianoPlay } from './sound'
 
 import { make_adsr, PlayerController } from './audio/player'
 import { Zoom, PianoKeys } from './music'
 import { make_note } from './music/types'
-import { pianokey_pitch_octave } from './music/piano'
+import { pianokey_pitch_octave, black_key, white_key, black_c4, black_c5, white_c4, white_c5 } from './music/piano'
 
 import { Piano as OPiano } from './piano'
+
+let btn_accidentals = ['i', 'o', 'p','[',']']
+let btn_accidentals_octave_up = ['w', 'e', 'r','t','y']
+let btn_pitches = [' ', 'j', 'k', 'l', ';', '\'', '\\']
+let btn_pitches_octave_up = ['a', 's', 'd', 'f', 'g', 'h']
+let btn_rest = 'Backspace'
+
+let btn_pitches_all = [...btn_accidentals, ...btn_accidentals_octave_up, ...btn_pitches, ...btn_pitches_octave_up]
+
+let btn_reset = 'Enter'
+let btn_play = '*'
+
+let btn_tie = 't'
+
+const keys_by_button: Map<string, PianoKey> = new Map(btn_pitches_all.map(_ => [_, btn_pianokey(_)!]))
+
+function btn_pianokey(key: string): PianoKey | undefined {
+  let pitch = btn_pitches.indexOf(key) + 1
+  if (pitch > 0) {
+    console.log(white_c4, pitch)
+    return white_key(white_c4, pitch - 1)
+  }
+  pitch = btn_pitches_octave_up.indexOf(key) + 1
+  if (pitch > 0) {
+    return white_key(white_c5, pitch - 1)
+  }
+
+  pitch = btn_accidentals.indexOf(key) + 1
+  if (pitch > 0) {
+    return black_key(black_c4, pitch - 1)
+  }
+  pitch = btn_accidentals_octave_up.indexOf(key) + 1
+  if (pitch > 0) {
+    return black_key(black_c5, pitch - 1)
+  }
+}
+
 
 const SoundContext = createContext()
 
@@ -23,8 +61,36 @@ const SoundProvider = (props) => {
 
   let _amp = createSignal(1)
 
+  let player = new PlayerController({
+    amplitude: 1,
+    cutoff: 2000,
+    amp_adsr: make_adsr(0, 0, 1, 0),
+    filter_adsr: make_adsr(0, 0, 1, 0)
+  })
+
+  let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
+
+  const press = (key: PianoKey) => {
+    setPiano(piano => {
+      piano.push(key, 0)
+      return piano
+    })
+  }
+
+  const release = (key: PianoKey) => {
+    setPiano(piano => {
+      piano.release(key)
+      return piano
+    })
+  }
+
+
   const store = [
-    [amp_envelope, _amp]
+    [amp_envelope, _amp],
+    [piano, player], {
+      press,
+      release
+    }
   ]
 
   return (<SoundContext.Provider value={store}>
@@ -34,15 +100,21 @@ const SoundProvider = (props) => {
 
 
 export const Sound = () => {
+  return (<div class='make-sound'>
+    <Knobs/>
+    <ZoomedPiano/>
+  </div>)
+}
 
-  let player = new PlayerController({
-    amplitude: 1,
-    cutoff: 2000,
-    amp_adsr: make_adsr(0, 0, 1, 0),
-    filter_adsr: make_adsr(0, 0, 1, 0)
-  })
+export const ZoomedPiano = () => {
 
-  let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
+  let [input] = useApp()
+
+  let [[amp_envelope, amp],
+    [piano, player], {
+      press,
+      release
+    }] = useSound()
 
   let keys0 = [],
     keys
@@ -68,27 +140,33 @@ export const Sound = () => {
     keys0 = keys
   })
 
+  createEffect(() => {
+    let _input = input()
 
-  const press = (key: PianoKey) => {
-    setPiano(piano => {
-      piano.push(key, 0)
-      return piano
+
+    btn_pitches_all.forEach(button=> {
+      let x = _input.btn(button),
+        x0 = _input.btn0(button)
+
+
+      if (x > 0) {
+        if (x0 === 0) {
+          press(keys_by_button.get(button))
+        }
+      } else if (x === 0) {
+        if (x0 > 0) {
+          release(keys_by_button.get(button))
+        }
+      }
+      
     })
-  }
 
-  const release = () => {
-    setPiano(piano => {
-      piano.release_previous(1)
-      return piano
-    })
-  }
 
-  return (<div class='make-sound'>
-    <Knobs/>
-    <Zoom zoom={2}>
-      <PianoPlay piano={piano} press={press} release={release}/>
-    </Zoom>
-  </div>)
+  })
+
+  return (<Zoom zoom={2}>
+    <PianoPlay piano={piano} press={press} release={release}/>
+    </Zoom>)
 }
 
 export const Knobs = () => {

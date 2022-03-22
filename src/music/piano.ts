@@ -1,4 +1,4 @@
-import { make_note, Duration } from './types'
+import { Duration } from './types'
 
 export type Black = number
 export type White = number
@@ -6,6 +6,19 @@ export type White = number
 export type PianoKey = Black | White
 
 export const nb_white = 5 * 7
+
+export const black_c4 = index_black(5)
+export const black_c5 = index_black(5 + 5)
+export const white_c4 = index_white(7)
+export const white_c5 = index_white(7 + 7)
+
+export function white_key(key: White, index: number) {
+  return index_white(white_index(key) + index)
+}
+
+export function black_key(key: Black, index: number) {
+  return index_black(black_index(key) + index)
+}
 
 export function index_black(idx: number): Black {
   return idx + 1 + nb_white + 1
@@ -39,7 +52,7 @@ export function pianokey_pitch_octave(key: PianoKey) {
     }
 
     octave += 2
-    return [pitch, octave]
+    return [pitch, octave, 1]
   } else {
     let idx = white_index(key)
 
@@ -48,6 +61,6 @@ export function pianokey_pitch_octave(key: PianoKey) {
 
     octave += 2
 
-    return [pitch, octave]
+    return [pitch, octave, undefined]
   }
 }

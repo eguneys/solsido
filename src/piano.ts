@@ -100,6 +100,12 @@ export class Piano {
     res.push(key)
   }
 
+  release(key: PianoKey) {
+    for (let [t, keys] of this.keys) {
+      this.keys.set(t, keys.filter(_ => _ !== key))
+    }
+  }
+
   release_previous(t: BeatMeasure) {
     let res = []
     for (let t0 of this.keys.keys()) {

@@ -5,7 +5,7 @@ import { getKeyAtDomPos, eventPosition, point_in_rect } from './util'
 
 import { Black, White, index_black, index_white } from './music/piano'
 import { pianokey_pitch_octave } from './music/piano'
-import { is_note, make_note, make_time_signature, time_bm_duration } from './music/types'
+import { is_note, make_time_signature, time_bm_duration } from './music/types'
 import { Piano as OPiano, Playback as OPlayback } from './piano'
 import { ComposeSheet as OComposeSheet, note_free } from './sheet'
 
