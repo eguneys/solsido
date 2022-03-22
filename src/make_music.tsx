@@ -31,7 +31,7 @@ const MusicProvider = (props) => {
 
 
 createEffect(() => {
-    console.log(composer().notes)
+    console.log(composer().pretty)
 })
 
   const bm = () => playback().bm
@@ -120,6 +120,9 @@ createEffect(() => {
         })
       },
       quanti,
+      go_beat_0() {
+        quanti(0)
+      },
       fw_beat() {
         quanti(1)
       },
@@ -198,9 +201,6 @@ const Music = () => {
   })
 
 
-  add_measure()
-  add_measure()
-  add_measure()
   add_measure()
   add_measure()
 
@@ -289,7 +289,8 @@ const Controls = () => {
     dup_measure,
     rel_piano,
     fw_beat,
-    bw_beat
+    bw_beat,
+    go_beat_0
   }] = useMusic()
  
 
@@ -297,6 +298,7 @@ const Controls = () => {
       <span class='dup-beat' title='Duplicate Beat' onClick={dup_beat}>Dup Beat</span>
       <span class='dup-measure' title='Duplicate Measure' onClick={dup_measure}>Dup Measure</span>
       <span class='rel-piano' title='Cancel Piano Press' onClick={rel_piano}>Cancel Press</span>
+      <span class='bw-beat' title='Go to Start' onClick={go_beat_0}>Go Start</span>
       <span class='bw-beat' title='Go Backward' onClick={bw_beat}>Backward</span>
       <span class='fw-beat' title='Go Forward' onClick={fw_beat}>Forward</span>
       </div>)

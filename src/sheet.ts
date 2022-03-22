@@ -1,5 +1,6 @@
 import { time_note_value, time_nb_note_value } from './music/types'
 import { is_note, note_pitch, note_octave, note_duration, note_accidental } from './music/types'
+import { cnr_uci } from './music/format/uci'
 import { chord_note_rest_duration } from './piano'
 
 const fsum = (a, b) => a + b
@@ -29,6 +30,10 @@ const beat_widths = [0, 1, 1.5, 3, 2, 5, 6, 7, 3]
 
 export class BeatSheet {
   subs: Array<ChordNoteOrRest>
+
+  get pretty() {
+    return this.subs.map(_ => _ === 0 ? '-' : cnr_uci(_)).join(' ')
+  }
 
   get clone() {
     let res = new BeatSheet(this.measure)
@@ -133,6 +138,10 @@ export class MeasureSheet {
 
   beats: Array<BeatSheet>
 
+  get pretty() {
+    return this.beats.map(_ => _.pretty).join('  ')
+  }
+
   get clone() {
     let res = new MeasureSheet(this.sheet)
     res.beats = this.beats.map(_ => _.clone)
@@ -179,6 +188,10 @@ export class ComposeSheet {
 
   measures: Array<MeasureSheet> = []
 
+  get pretty() {
+    return 'S' + this.measures.map((_, i) => `${i+1}m. ${_.pretty}`).join('|')
+  }
+
   get w() {
     return this.measures.map(_ => _.w).reduce(fsum)
   }
@@ -203,7 +216,7 @@ export class ComposeSheet {
   get notes() {
     let m_x = 0
     return this.measures.flatMap(measure => {
-      let b_x = 0.25
+      let b_x = 0
       let m_res = measure.beats.flatMap(beat => {
         let s_x = 0
         let b_res = beat.subs.map(sub => {
@@ -251,11 +264,15 @@ export class ComposeSheet {
       beat = measure.beats[_beat]
     let pre_measures = this.measures.slice(0, _measure),
       pre_beats = measure.beats.slice(0, _beat),
-      pre_subs = beat.subs.slice(0, _sub)
+      _pre_subs = beat.subs.slice(0, _sub)
+
+    let pre_subs = _pre_subs.slice(0, -1),
+      on_sub = _pre_subs.slice(-1)
 
     return pre_measures.map(_ => _.w).reduce(fsum, 0) +
       pre_beats.map(_ => _.w).reduce(fsum, 0) +
-      pre_subs.filter(_ => _ !== 0).map(_ => beat.sub_w).reduce(fsum, pre_subs.length === 0 ? 0 : -beat.sub_w / 2)
+      pre_subs.filter(_ => _ !== 0).map(_ => beat.sub_w).reduce(fsum, 0) +
+      on_sub.filter(_ => _ !== 0).map(_ => beat.sub_w * 0.25).reduce(fsum, 0)
   }
 
   add_cnr(_measure: number, _beat: number, _sub: number, notes: ChordNoteOrRest) {
