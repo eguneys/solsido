@@ -26,13 +26,13 @@
 - [ ] Add README
 - [ ] Show error messages for music input
 
+
 - [ ] Apply for competition
 - [ ] Setup backup paypal account
 - [ ] Homepage patreon link, features to add
 
 ## Fix
 
-- [ ] Piano play handle resize
 - [ ] Typescript Errors
 - [ ] Review Explanation
 - [ ] Multiple staffs vertical spacing
@@ -42,7 +42,7 @@
 
 ## Done
 
-
+- [+] Piano play handle resize
 - [+] Display multiple staffs
 - [+] Display grand staff
 - [+] Learn Navigation Table of contents

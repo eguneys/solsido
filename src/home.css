@@ -1,0 +1,78 @@
+.home {
+  display: flex;
+  flex-flow: column;
+  font-family: 'Lato', sans-serif;
+  padding: 0.5em 1em;
+}
+
+.home .brand {
+  font-family: 'Fredoka', sans-serif;
+  color: var(--color-bg-accent);
+}
+
+.home section {
+  display: flex;
+  flex-flow: column;
+  gap: 0.2em;
+  margin-bottom: 1em;
+}
+
+.home .head-one,
+.home .head-two {
+  margin-left: 2em;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.home section.features {
+  display: flex;
+  flex-flow: row;
+  font-size: 2em;
+}
+
+.home section.features ul li {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.1em 0;
+}
+
+.home section.features ul li {
+  display: flex;
+  text-align: center;
+  background: var(--color-bg-accent);
+}
+
+.home section.features .left ul li {
+  cursor: pointer;
+  user-select: none;
+}
+
+.home section.features ul li div {
+  padding: 1em;
+  transition: color 0.1s, transform 0.5s;
+  transition-timing-function: ease-out;
+}
+
+.home section.features ul li div:before {
+  content: '';
+}
+
+.home section.features .left ul li div:hover {
+  transform: scale(1.2) rotateZ(1deg);
+  color: white;
+}
+
+.home section.features .left ul li {
+  background: var(--color-secondary);
+  color: black;
+}
+
+.home section.features .left ul li a {
+  color: inherit;
+}
+
+.home .manual h2 {
+  display: inline-block;
+  border-bottom: 0.2em solid var(--color-secondary);
+  padding-right: 2em;
+}
