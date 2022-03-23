@@ -5,17 +5,20 @@ const href_routes = [undefined, '', 'sound', 'music', 'learn',
 'learn/introduction',
 'learn/references']
 
+const internal_routes = [undefined, 'internal', 'internal/svg']
+
 const RouterContext = createContext()
 
 export function RouterProvider(props) {
   let _route = href_route(window.location.pathname)
 
-  const [route, setRoute] = createSignal(_route || 1)
+  const [route, setRoute] = createSignal(_route || internal_route(window.location.pathname) || 1)
 
   let _ignore = false
   createEffect(() => {
     // depend on route always
     route()
+    if (route() > 10) return
     !_ignore && window.history.pushState({}, "", '/' + href_routes[route()])
   })
 
@@ -47,8 +50,20 @@ export function useRouter() {
 }
 
 function href_route(href) {
-  return href_routes.indexOf(href.replace(/^(\/)/, ''))
+  let res = href_routes.indexOf(href.replace(/^(\/)/, ''))
+
+  if (res !== -1) {
+    return res
+  }
 }
+
+function internal_route(href) {
+  let res = internal_routes.indexOf(href.replace(/^(\/)/, ''))
+  if (res !== -1) {
+    return res + 10
+  }
+}
+
 
 
 export const Link = (props) => {
@@ -58,7 +73,6 @@ export const Link = (props) => {
 
   let _route = href_route(href)
 
-console.log(href, _route)
   let onClick = (e) => {
     e.preventDefault()
     setRoute(_route)

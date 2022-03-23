@@ -5,6 +5,8 @@ import Learn from './learn'
 import Sound from './make_sound'
 import Music from './make_music'
 
+import Svg from './internal/make_svg'
+
 
 const App = () => {
 
@@ -28,13 +30,22 @@ const route_components = [Home, Home,
 Sound, Music, 
 Learn, Learn, Learn, Learn, Learn]
 
+const internal_components = [Svg, Svg, Svg]
+
 const Main = (props) => {
 
   let [route] = useRouter()
 
   return (<div class='main-wrap'>
       <main>
-        <Dynamic component={route_components[route()]}/>
+        <Switch fallback={
+          <Dynamic component={route_components[route()]}/> }>
+          <Match when={route()>10}>
+            <div class='internal'>
+              <Dynamic component={internal_components[route()-10]}/>
+            </div>
+          </Match>
+          </Switch>
       </main>
     </div>)
 }
