@@ -10,12 +10,14 @@ import { btn_pitches_all, keys_by_button, btn_pianokey } from './buttons'
 import { is_note, make_time_signature, time_bm_duration } from './music/types'
 import { make_note_po } from './music/types'
 import { Piano as OPiano, Playback as OPlayback } from './piano'
-import { ComposeSheet as OComposeSheet, note_free } from './sheet'
+import { note_free } from './sheet'
 
 import { make_adsr, PlayerController } from './audio/player'
 import { PianoPlay } from './sound'
 
 import { useApp } from './loop'
+
+import { Composer } from './composer'
 
 const MusicContext = createContext()
 
@@ -27,11 +29,11 @@ const MusicProvider = (props) => {
 
   let [playback, setPlayback] = createSignal(new OPlayback(_time_signature), { equals: false })
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
-  let [composer, setComposer] = createSignal(new OComposeSheet(_time_signature), { equals: false })
 
+  let [composer, setComposer] = createSignal(new Composer(_time_signature), { equals: false })
 
 createEffect(() => {
-    console.log(composer().pretty)
+  console.log(_composer().subs)
 })
 
   const bm = () => playback().bm
@@ -55,6 +57,7 @@ createEffect(() => {
       time_signature,
       playback_pos() {
         let { measure, beat, sub_beat } = playback()
+        return 0
         return composer().measure_beat_sub_pos(
           measure, beat, sub_beat)
       },
