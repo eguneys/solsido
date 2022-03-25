@@ -69,8 +69,8 @@ export const Staff = (props) => {
       <BarOnStaff bar={bar}/>
     }</For>
 
-    <For each={props.notes}>{ (note) =>
-      <ChordNoteOrRestOnStaff note={note}/>
+    <For each={props.notes}>{ (group, i) =>
+      <NoteGroupOnStaff group={group} i={i()}/>
     }</For>
 
     <For each={props.active_notes}>{ (note) =>
@@ -79,14 +79,25 @@ export const Staff = (props) => {
   </staff>)
 }
 
-const BarOnStaff = (props) => {
-  let { bar: { x, bar } } = props
+const NoteGroupOnStaff = (props) => {
+  let { group: { group, sx, x }, i } = props
 
-  let style = {
-    transform: `translate(${x}em, -50%) translateZ(0)`
-  }
+  let klass = `group-${i}`
 
-  return (<span class='bar' style={style}/>)
+  return (<For each={group}>{ (cnr, i) =>
+     <Switch fallback={
+        <NoteOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
+        }>
+        <Match when={Array.isArray(cnr)}>
+          <For each={cnr}>{ note =>
+            <NoteOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
+          }</For>
+        </Match>
+        <Match when={is_rest(cnr)}>
+          <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
+        </Match>
+      </Switch>
+    }</For>)
 
 }
 
@@ -164,6 +175,19 @@ const RestOnStaff = (props) => {
 
   return (<span class={klass} style={style}>{glyph}</span>)
 }
+
+const BarOnStaff = (props) => {
+  let { bar: { x, bar } } = props
+
+  let style = {
+    transform: `translate(${x}em, -50%) translateZ(0)`
+  }
+
+  return (<span class='bar' style={style}/>)
+
+}
+
+
 
 export const Playback = (props) => {
 

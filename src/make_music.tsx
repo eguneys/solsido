@@ -7,9 +7,10 @@ import { Black, White, index_black, index_white } from './music/piano'
 import { pianokey_pitch_octave } from './music/piano'
 
 import { btn_pitches_all, keys_by_button, btn_pianokey } from './buttons'
-import { is_note, make_time_signature, time_bm_duration } from './music/types'
+import { is_note, make_time_signature, time_note_value, time_bm_duration } from './music/types'
 import { make_note_po } from './music/types'
 import { Piano as OPiano, Playback as OPlayback } from './piano'
+import { chord_note_rest_duration } from './piano'
 import { note_free } from './sheet'
 
 import { make_adsr, PlayerController } from './audio/player'
@@ -18,6 +19,32 @@ import { PianoPlay } from './sound'
 import { useApp } from './loop'
 
 import { Composer } from './composer'
+
+// 4
+// 8 4    12   16
+// 2 1    3    4
+// 1 0.8  1.2  1.4
+function group_sx(time_signature: TimeSignature, group: Array<ChordNoteOrRest>) {
+  let note_value = time_note_value(time_signature)
+  let duration = chord_note_rest_duration(group[0])
+
+  let length = Math.pow(2, note_value - duration)
+
+  
+  
+  return length
+}
+
+function chord_note_rest_free(note: ChordNoteOrRest) {
+  if (Array.isArray(note)) {
+    return note.map(note_free)
+  } else if (is_note(note)) {
+    return note_free(note)
+  } else {
+    return note
+  }
+}
+
 
 const MusicContext = createContext()
 
@@ -33,7 +60,7 @@ const MusicProvider = (props) => {
   let [composer, setComposer] = createSignal(new Composer(_time_signature), { equals: false })
 
 createEffect(() => {
-  console.log(_composer().subs)
+  console.log(composer().data, composer().dots)
 })
 
   const bm = () => playback().bm
@@ -62,7 +89,18 @@ createEffect(() => {
           measure, beat, sub_beat)
       },
       notes() {
-        return composer().notes
+        let group_x = 0
+        return composer().notes.map(group => {
+            let x = group_x,
+                sx = group_sx(composer().time_signature, group)
+            let res = {
+              x,
+              sx,
+              group: group.map(chord_note_rest_free)
+            }
+            group_x += (1 + sx) * group.length
+            return res
+          })
       },
       bars() {
         return composer().bars
@@ -72,6 +110,7 @@ createEffect(() => {
 
       },
       active_notes() {
+        return []
         return piano().actives(time_signature(), bm()).map(([t0, note]) => {
 
             let _calc_measures = new OPlayback(time_signature())
@@ -101,15 +140,10 @@ createEffect(() => {
 
           piano.actives(time_signature(), bm())
           .map(([t0, note]) => {
-              // TODO make this a function
-              let _calc_measures = new OPlayback(time_signature())
-              _calc_measures.bm = t0
-              let { measure, beat, sub_beat } = _calc_measures
-
-            setComposer(composer => { 
-              composer.add_cnr(measure, beat, sub_beat, note)
-              return composer
-            })
+              setComposer(composer => { 
+                composer.add_cnr(t0, note)
+                return composer
+              })
           })
 
           piano.release_previous(bm())
@@ -204,7 +238,6 @@ const Music = () => {
   })
 
 
-  add_measure()
   add_measure()
 
   return (<div class='make-music'>
