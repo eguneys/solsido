@@ -3,7 +3,7 @@ import g from './glyphs'
 
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
-import { is_rest, note_pitch, note_octave, note_duration } from './music/types'
+import { is_rest, note_pitch, note_octave, note_duration, note_accidental } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
 
 import { composer_sheet } from './piano'
@@ -194,9 +194,13 @@ const NoteOnStaff = (props) => {
 
   let pitch = note_pitch(note),
       octave = note_octave(note),
-      duration = note_duration(note)
+      duration = note_duration(note),
+      accidental = note_accidental(note)
 
   let y = pitch_y(pitch, octave)
+
+
+  let ledger_oys = pitch_octave_ledgers(pitch, octave).map(_ => pitch_y(..._))
 
   let dklass = duration_codes[duration]
   klass = ['note', dklass, klass || ''].join(' ')
@@ -206,7 +210,25 @@ const NoteOnStaff = (props) => {
    transform: `translate(${x}em, ${y}em) translateZ(0)`
   }
 
-  return (<span class={klass} style={style}>{glyph}</span>)
+  return (<>
+      <span class={klass} style={style}>{glyph}</span>
+      <Index each={ledger_oys}>{ (_oy) =>
+        <span class='ledger' style={transform_style(x, _oy())}/>
+      }</Index>
+      <Show when={accidental}>
+        <Accidental klass={klass} pitch={pitch} octave={octave} x={x} accidental={accidental}/>
+      </Show>
+      </>)
+}
+
+const Accidental = (props) => {
+  let { klass, pitch, octave, x, accidental } = props;
+
+  let oy = pitch_y(pitch, octave)
+  let style = transform_style(x - accidental_offset[accidental], oy)
+  
+  return (<span class={klass} style={style}>{g[accidental_code[accidental] + '_accidental']}</span>)
+
 }
 
 const RestOnStaff = (props) => {

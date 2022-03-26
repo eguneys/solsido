@@ -140,7 +140,7 @@ g'"G" <a'"A" f'"F"> <b'"B" e'"E"> <c''"C" d'"D"> d''"D" e''"E" f''"F" g''"G"
 
     <Music zoom='2' fen={`{
 /clef treble
-<gis'1 g"G Sharp"> <ges'1 g"G Flat"> <gisis'1 g"G Double Sharp"> <geses'1 g"G Double Flat">
+<gis'1 g"G Sharp"> || <ges'1 g"G Flat"> || <gisis'1 g"G Double Sharp"> || <geses'1 g"G Double Flat">
 }`}/>
     <Subtitle>A note can have sharps, flats or natural</Subtitle>
 

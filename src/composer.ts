@@ -104,7 +104,13 @@ export function fen_composer(fen: Fen) {
           if (command === 'clef') {
             clef = model_clef(rest)
           } else if (command === 'time') {
-            time = model_time(rest)
+            if (!time) {
+              time = model_time(rest)
+            } else {
+              notes.push({
+                time: model_time(rest)
+              })
+            }
           } else {
             notes.push(model.map(model_chord))
           }
@@ -135,6 +141,9 @@ export function fen_composer(fen: Fen) {
         let bm = 0
         notes.forEach(note => {
           if (typeof note === 'string') {
+            if (note === '||') {
+              bm = (m + 1) * res.beats_per_measure * 8
+            }
           } else if (Array.isArray(note) || typeof note === 'number') {
             let duration = chord_note_rest_duration(note)
 
@@ -145,6 +154,9 @@ export function fen_composer(fen: Fen) {
               res.add_cnr(bm, note)
               bm += duration
           } else {
+            if (note.time) {
+
+            }
           }
         })
 
@@ -185,7 +197,7 @@ export function grouped_no_time(notes: Array<ChordNoteRest>) {
       sx,
       group: [note]
     }
-    group_x += (1 + sx)
+    group_x += (1.25 + sx)
     return res
   })
 }
@@ -239,7 +251,6 @@ function is_group(group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
 */
 
 export class Composer {
-
 
   data: Array<ChordNoteOrRest>
 
