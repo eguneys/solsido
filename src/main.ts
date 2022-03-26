@@ -7,6 +7,7 @@ import './learn.css'
 import './solsido.css'
 import './music.css'
 import './piano.css'
+import './home.css'
 import { render } from 'solid-js/web'
 
 import App from './view'

@@ -1,21 +1,16 @@
 ## Home page
 
-- Features
+- Features on the Agenda
   Sound Synthesizer
   Music editor
   Music Theory Learning Material
   
-- Wanted Features
+- Features on Plan
   MIDI Support
   Pro mode music making
   Pro mode sound synthesis
   Audio Visualizer
   Music, Sound, Piano Challenges
-
-- Bugs
-  Note doesn't tie when overflows a measure
-  
-
 
 - Project is open source, I would appreciate any help on this project.
 
