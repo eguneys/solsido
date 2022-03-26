@@ -3,7 +3,7 @@ import g from './glyphs'
 
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
-import { is_rest } from './music/types'
+import { is_rest, note_pitch, note_octave, note_duration } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
 
 import { composer_sheet } from './piano'
@@ -50,9 +50,8 @@ export const FenSheet = (props) => {
   if (fen) {
     let _frees = fen_composer(fen)
     if (_frees) {
-console.log(fen, _frees)
       return (<For each={_frees}>{ free =>
-          <Sheet notes={free.frees}/>
+          <Sheet clef={free.clef} notes={free.frees}/>
         }</For>)
     }
   }
@@ -65,6 +64,7 @@ export const Sheet = (props) => {
 
   return (<div class='m-wrap'>
     <Staff 
+    clef={props.clef}
     playback={props.playback} 
     playback_pos={props.playback_pos}
     active_notes={props.active_notes}
@@ -75,9 +75,20 @@ export const Sheet = (props) => {
 }
 
 export const Staff = (props) => {
+ 
+  let ox = 0
+
+  if (props.clef) {
+    ox += 1.5
+  }
+
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
       <Playback playback_pos={props.playback_pos} playback={props.playback}/>
+    </Show>
+
+    <Show when={props.clef}>
+      <ClefOnStaff klass="clef" x={0.25} clef={props.clef}/>
     </Show>
 
     <For each={props.zero_notes}>{ note =>
@@ -89,59 +100,78 @@ export const Staff = (props) => {
     }</For>
 
     <For each={props.notes}>{ (group, i) =>
-      <NoteGroupOnStaff group={group} i={i()}/>
-    }</For>
-
-    <For each={props.active_notes}>{ (note) =>
-      <ChordNoteOrRestOnStaff klass='active' note={note}/>
+      <NoteGroupOnStaff ox={ox} group={group} i={i()}/>
     }</For>
   </staff>)
 }
 
 const NoteGroupOnStaff = (props) => {
-  let { group: { group, sx, x }, i } = props
+  let { group: { group, sx, x: _x }, i, ox } = props
 
   let klass = `group-${i}`
 
+  let x = _x + sx * i + ox
+
   return (<For each={group}>{ (cnr, i) =>
      <Switch fallback={
-        <NoteOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
+        <NoteOrTextOnStaff x={x} klass={klass} note={cnr}/>
         }>
         <Match when={Array.isArray(cnr)}>
           <For each={cnr}>{ note =>
-            <NoteOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
+            <NoteOrTextOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
           }</For>
         </Match>
         <Match when={is_rest(cnr)}>
-          <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
+          <RestOnStaff x={x} klass={klass} rest={cnr}/>
         </Match>
       </Switch>
     }</For>)
 
 }
 
-const ChordNoteOrRestOnStaff = (props) => {
-  let { note, klass } = props
 
-    if (note === 0) {
-      return (<></>)
-    }
+const ClefOnStaff = (props) => {
+  let { klass, x, clef } = props
 
-  let { x, cnr } = note
+  let y = pitch_y(clef_to_pitch(clef), 4)
 
-  return (<Switch fallback={ 
-      <NoteOnStaff x={x} klass={klass} note={cnr}/>
-    }>
-      <Match when={Array.isArray(cnr)}>
-        <For each={cnr}>{ note =>
-          <NoteOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
-        }</For>
-      </Match>
-      <Match when={is_rest(cnr)}>
-        <RestOnStaff x={x} klass={klass} rest={cnr}/>
-      </Match>
-    </Switch>)
+  let style = {
+    transform: `translate(${x}em, ${y}em) translateZ(0)`
+  }
+
+
+  let code = clef_to_code(clef)
+
+  return (<span class={klass} style={style}>{g[code]}</span>)
 }
+
+const NoteOrTextOnStaff = (props) => {
+  let { note, x, klass } = props
+
+  return (<Switch fallback={
+      <TextOnStaff x={x} klass={klass} note={note}/>
+      }>
+      <Match when={typeof note === 'number'}>
+        <NoteOnStaff x={x} klass={klass} note={note}/> 
+      </Match>
+      </Switch>)
+}
+
+const TextOnStaff = (props) => {
+  let { note, x, klass } = props
+
+  let { text, pitch, octave } = note
+
+  let y = pitch_y(pitch, octave)
+
+
+  let style = {
+    transform: `translate(${x}em, ${y}em) translateZ(0)`
+  }
+
+  return (<span class={[klass].join(' ')} style={style}><span class='text'>{text}</span></span>)
+}
+
 
 const ZeroNoteOnStaff = (props) => {
   let { pitch, octave, klass, playback_pos } = props
@@ -162,7 +192,9 @@ const ZeroNoteOnStaff = (props) => {
 const NoteOnStaff = (props) => {
   let { x, note, klass } = props
 
-  let { pitch, octave, duration } = note
+  let pitch = note_pitch(note),
+      octave = note_octave(note),
+      duration = note_duration(note)
 
   let y = pitch_y(pitch, octave)
 

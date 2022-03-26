@@ -93,7 +93,6 @@ export function fen_composer(fen: Fen) {
     return staffs.map(staff => {
       let { notes: _notes } = staff
 
-
       let clef,
       time,
       notes = []
@@ -122,16 +121,12 @@ export function fen_composer(fen: Fen) {
         let res = new FreeComposer()
 
         notes.forEach(note => {
-          if (typeof note === 'string') {
-          } else if (Array.isArray(note) || typeof note === 'number') {
-            res.add_cnr(note)
-          } else {
-          }
+          res.add_cnr(note)
         })
 
         return {
           clef,
-          frees: res.notes
+          frees: grouped_no_time(res.notes)
         }
       } else {
         let res = new Composer(time)
@@ -180,7 +175,22 @@ export function group_sx(time_signature: TimeSignature, group: Array<ChordNoteOr
   return length
 }
 
-export function grouped_free(time_signature: TimeSignature, notes: Array<ChordNoteRest>) { 
+export function grouped_no_time(notes: Array<ChordNoteRest>) {
+  let group_x = 0
+  return notes.map(note => {
+    let x = group_x,
+      sx = 0
+    let res = {
+      x,
+      sx,
+      group: [note]
+    }
+    group_x += (1 + sx)
+    return res
+  })
+}
+
+export function grouped_free(time_signature: TimeSignature, notes: Array<Array<ChordNoteRest>>) { 
   let group_x = 0
   return notes.map(group => {
     let x = group_x,
