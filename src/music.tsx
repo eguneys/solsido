@@ -1,13 +1,13 @@
 import { createEffect } from 'solid-js'
 import g from './glyphs'
 
-import read_fen from './music/format/read'
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
 import { is_rest } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
 
 import { composer_sheet } from './piano'
+import { notes_grouped, fen_composer } from './composer'
 
 function pitch_y(pitch: Pitch, octave: Octave) {
   return ((4 - octave) * 7 + 7 - pitch) * 0.25 / 2
@@ -43,7 +43,26 @@ let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
 
 let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
+export const FenSheet = (props) => {
+  let { fen } = props
+
+
+  if (fen) {
+    let _frees = fen_composer(fen)
+    if (_frees) {
+console.log(fen, _frees)
+      return (<For each={_frees}>{ free =>
+          <Sheet notes={free.frees}/>
+        }</For>)
+    }
+  }
+
+  return (<Sheet/>)
+
+}
+
 export const Sheet = (props) => {
+
   return (<div class='m-wrap'>
     <Staff 
     playback={props.playback} 

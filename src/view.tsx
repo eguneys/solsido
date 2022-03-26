@@ -59,7 +59,7 @@ const Header = (props) => {
         <section> <Link href='/'> Home </Link> </section>
         <section> <Link href='sound'> Sound </Link> </section>
         <section> <Link href='music'> Music </Link> </section>
-        <section> <Link href='learn'> Learn </Link> </section>
+        <section> <Link href='learn/introduction'> Learn </Link> </section>
       </nav>
     </div>
     </header>)

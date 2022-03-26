@@ -20,32 +20,6 @@ import { useApp } from './loop'
 
 import { Composer } from './composer'
 
-// 4
-// 8 4    12   16
-// 2 1    3    4
-// 1 0.8  1.2  1.4
-function group_sx(time_signature: TimeSignature, group: Array<ChordNoteOrRest>) {
-  let note_value = time_note_value(time_signature)
-  let duration = chord_note_rest_duration(group[0])
-
-  let length = Math.pow(2, note_value - duration)
-
-  
-  
-  return length
-}
-
-function chord_note_rest_free(note: ChordNoteOrRest) {
-  if (Array.isArray(note)) {
-    return note.map(note_free)
-  } else if (is_note(note)) {
-    return note_free(note)
-  } else {
-    return note
-  }
-}
-
-
 const MusicContext = createContext()
 
 const useMusic = () => { return useContext(MusicContext) }
@@ -89,18 +63,7 @@ createEffect(() => {
           measure, beat, sub_beat)
       },
       notes() {
-        let group_x = 0
-        return composer().notes.map(group => {
-            let x = group_x,
-                sx = group_sx(composer().time_signature, group)
-            let res = {
-              x,
-              sx,
-              group: group.map(chord_note_rest_free)
-            }
-            group_x += (1 + sx) * group.length
-            return res
-          })
+        return notes_grouped(composer().notes)
       },
       bars() {
         return composer().bars

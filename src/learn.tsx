@@ -1,5 +1,5 @@
 import { useRouter, Link } from './router'
-import { Zoom, Sheet, PianoKeys, NotesDurationTable } from './music'
+import { Zoom, FenSheet, PianoKeys, NotesDurationTable } from './music'
 
 
 const Learn = () => {
@@ -332,7 +332,7 @@ const ReferencesSection = () => {
 
 const Music = (props) => {
   return (<Zoom zoom={props.zoom}>
-    <Sheet fen={props.fen}/>
+    <FenSheet fen={props.fen}/>
     </Zoom>)
 }
 
