@@ -134,7 +134,7 @@ const TimeAndNotes = (props) => {
       <For each={group}>{ (group, _i) =>
         <NoteGroupOnStaff ox={1 + x + ox} group={group} i={_i()}/>
       }</For>
-      <DoubleBar ox={width + x + ox}/>
+      <DoubleBar ox={width + x + ox + 2}/>
     </>)
 }
 
@@ -169,15 +169,15 @@ const NoteGroupOnStaff = (props) => {
 
   return (<For each={group}>{ (cnr, i) =>
      <Switch fallback={
-        <NoteOrTextOnStaff x={x} klass={klass} note={cnr}/>
+        <NoteOrTextOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
         }>
         <Match when={Array.isArray(cnr)}>
           <For each={cnr}>{ note =>
-            <NoteOrTextOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
+            <NoteOrTextOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
           }</For>
         </Match>
         <Match when={is_rest(cnr)}>
-          <RestOnStaff x={x} klass={klass} rest={cnr}/>
+          <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
         </Match>
       </Switch>
     }</For>)

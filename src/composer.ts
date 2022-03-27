@@ -1,15 +1,39 @@
 import { is_note, make_time_signature, time_note_value, time_nb_note_value } from './music/types'
+import { note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { chord_note_rest_duration } from './piano'
 import { is_rest, make_note } from './music/types'
 import read_fen from './music/format/read'
+import { time_fen, cnr_fen } from './music/format/write'
 
-import { note_free } from './sheet'
+export const note_free = note => {
+  let pitch = note_pitch(note),
+    octave = note_octave(note),
+    duration = note_duration(note),
+    accidental = note_accidental(note)
+
+  return {
+    pitch,
+    octave,
+    duration,
+    accidental
+  }
+}
+
+export const text_note_free = (note: Note | TextNote) => {
+  if (typeof note === 'object' && !!note.text) {
+    return note
+  } else {
+    return note
+  }
+}
 
 function chord_note_rest_free(note: ChordNoteOrRest) {
   if (Array.isArray(note)) {
-    return note.map(note_free)
+    return note.map(text_note_free)
+  } else if (typeof note === 'object' && !!note.text) {
+    return text_note_free(note)
   } else if (is_note(note)) {
-    return note_free(note)
+    return note
   } else {
     return note
   }
@@ -239,6 +263,10 @@ export class ComposerMoreTimes {
 
   data: Array<Composer> = []
 
+  get fen() {
+    return this.data.map(_ => _.fen).join('\n')
+  }
+
 
   get notes() {
     return this.data.map(_ => [_.time_signature, _.notes])
@@ -298,6 +326,15 @@ export class ComposerMoreTimes {
 export class Composer {
 
   data: Array<ChordNoteOrRest>
+
+
+
+  get fen() {
+
+    return [time_fen(this.time_signature),
+      this.data.map(cnr => cnr_fen(cnr))].join('\n')
+
+  }
 
   get dots() {
 
@@ -484,16 +521,16 @@ export class Composer {
 
 }
 
+function is(a, b) {
+  if (a === b) {
+    console.log('ok')
+  } else {
+    console.error(a, '!==\n', b)
+  }
+}
 
 function test() {
 
-  function is(a, b) {
-    if (a === b) {
-      console.log('ok')
-    } else {
-      console.error(a, '!==\n', b)
-    }
-  }
   let w = 2,
     h = 3,
     q = 4,
@@ -535,6 +572,24 @@ function test() {
 }
 
 // test()
+
+function test2() {
+
+  let composer = new ComposerMoreTimes()
+
+  composer.add_time(make_time_signature(3,4))
+  is(composer.fen, '/time 3/4\n')
+
+
+  composer.add_cnr(0, make_note(7, 4, undefined, 4))
+  composer.add_cnr(8, make_note(7, 4, undefined, 4))
+  composer.add_cnr(16, make_note(7, 4, undefined, 4))
+
+  console.log(composer.fen)
+}
+
+
+test2()
 
 
 
