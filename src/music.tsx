@@ -88,7 +88,7 @@ export const Staff = (props) => {
   let time_and_note_xs = (props.time_and_notes || []).map(([time, group]) => {
       let res = i_x
       i_x += 2
-      i_x += group.reduce((acc, _) => acc + _.w, 0)
+      i_x += group.reduce((acc, _) => acc + _.w + 2, 0)
       return res
     })
 
@@ -103,10 +103,6 @@ export const Staff = (props) => {
 
     <For each={props.zero_notes}>{ note =>
       <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} playback_pos={props.playback_pos}/>
-    }</For>
-
-    <For each={props.bars}>{ (bar) =>
-      <BarOnStaff bar={bar}/>
     }</For>
 
     <For each={props.frees}>{ (group, i) =>
@@ -127,14 +123,14 @@ const TimeAndNotes = (props) => {
 
   let [time_signature, group] = time_and_note
   
-  let width = group.reduce((acc, _) => _.w + acc, 0) + 1
+  let width = group.reduce((acc, _) => _.w + acc + 1, 0) + 1
 
   return (<>
       <TimeSignatureOnStaff time_signature={time_signature} x={x + ox}/>
       <For each={group}>{ (group, _i) =>
         <NoteGroupOnStaff ox={1 + x + ox} group={group} i={_i()}/>
       }</For>
-      <DoubleBar ox={width + x + ox + 2}/>
+      <DoubleBar ox={width + x + ox}/>
     </>)
 }
 

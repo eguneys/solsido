@@ -1,11 +1,13 @@
 
 ## 2022-03-27
 
-- [ ] Active links on learn
 - [ ] Fix as much as possible on introduction
 - [ ] Fix as much as possible on music editor
 - [ ] Push and submit
 
+### Done
+
+- [+] Active links on learn
 
 ## Later
 
