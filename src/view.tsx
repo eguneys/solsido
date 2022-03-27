@@ -125,6 +125,7 @@ const Home = () => {
       <div class='manual'>
       <h2> Notice and Manual </h2>
 
+      <p class='red'> Playing the piano might sound loud, beware of your volume. If the keys stick try pressing the piano key again, or refresh the page. </p>
       <p class='red'> The material in Learn section is not reviewed and may be inaccurate. </p>
       <p> Although project is not near completion, and in progress, this is some manual: </p>
 

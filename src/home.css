@@ -76,3 +76,13 @@
   border-bottom: 0.2em solid var(--color-secondary);
   padding-right: 2em;
 }
+
+.home .red {
+  display: inline-block;
+  border-bottom: 0.03em solid var(--color-primary);
+}
+
+.home .red:after {
+  content: '!';
+  color: var(--color-primary);
+}
