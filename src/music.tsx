@@ -4,6 +4,7 @@ import g from './glyphs'
 import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
 
 import { is_rest, note_pitch, note_octave, note_duration, note_accidental } from './music/types'
+import { time_nb_note_value, time_note_value } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
 
 import { composer_sheet } from './piano'
@@ -46,12 +47,11 @@ let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eig
 export const FenSheet = (props) => {
   let { fen } = props
 
-
   if (fen) {
     let _frees = fen_composer(fen)
     if (_frees) {
       return (<For each={_frees}>{ free =>
-          <Sheet clef={free.clef} notes={free.frees}/>
+          <Sheet clef={free.clef} frees={free.frees} time_and_notes={free.notes}/>
         }</For>)
     }
   }
@@ -70,7 +70,8 @@ export const Sheet = (props) => {
     active_notes={props.active_notes}
     zero_notes={props.zero_notes} 
     bars={props.bars}
-    notes={props.notes}/>
+    frees={props.frees}
+    time_and_notes={props.time_and_notes}/>
     </div>)
 }
 
@@ -81,6 +82,15 @@ export const Staff = (props) => {
   if (props.clef) {
     ox += 1.5
   }
+
+
+  let i_x = 0
+  let time_and_note_xs = (props.time_and_notes || []).map(([time, group]) => {
+      let res = i_x
+      i_x += 2
+      i_x += group.reduce((acc, _) => acc + _.w, 0)
+      return res
+    })
 
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
@@ -99,30 +109,75 @@ export const Staff = (props) => {
       <BarOnStaff bar={bar}/>
     }</For>
 
-    <For each={props.notes}>{ (group, i) =>
+    <For each={props.frees}>{ (group, i) =>
       <NoteGroupOnStaff ox={ox} group={group} i={i()}/>
     }</For>
+
+    <For each={props.time_and_notes}>{ (time_and_note, i) =>
+      <TimeAndNotes ox={ox} x={time_and_note_xs[i()]} time_and_note={time_and_note}/>
+    }</For>
+
+
   </staff>)
 }
 
+
+const TimeAndNotes = (props) => {
+  let { ox, time_and_note, x } = props
+
+  let [time_signature, group] = time_and_note
+  
+  let width = group.reduce((acc, _) => _.w + acc, 0) + 1
+
+  return (<>
+      <TimeSignatureOnStaff time_signature={time_signature} x={x + ox}/>
+      <For each={group}>{ (group, _i) =>
+        <NoteGroupOnStaff ox={1 + x + ox} group={group} i={_i()}/>
+      }</For>
+      <DoubleBar ox={width + x + ox + 2}/>
+    </>)
+}
+
+const TimeSignatureOnStaff = (props) => {
+  let { x, time_signature } = props
+
+  let up_y = pitch_y(2, 5) 
+  let down_y = pitch_y(5, 4)
+  let up_ox= x + (time_nb_note_value(time_signature)>=10 ? -0.25:0)
+  let down_ox = x
+
+  let up_style = {
+    transform: `translate(${up_ox}em, ${up_y}em)`
+  }
+  let down_style = {
+    transform: `translate(${down_ox}em, ${down_y}em)`
+  }
+
+  return (<>
+      <span style={up_style}>{g[nb_note_value_to_code(time_nb_note_value(time_signature))]}</span>
+      <span style={down_style}>{g[note_value_to_code(time_note_value(time_signature))]}</span>
+      </>)
+}
+
 const NoteGroupOnStaff = (props) => {
-  let { group: { group, sx, x: _x }, i, ox } = props
+  let { group: { group, w, x: _x }, i, ox } = props
 
   let klass = `group-${i}`
 
+  let sx = w / group.length
   let x = _x + sx * i + ox
 
   return (<For each={group}>{ (cnr, i) =>
      <Switch fallback={
-        <NoteOrTextOnStaff x={x} klass={klass} note={cnr}/>
+        <NoteOrTextOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
         }>
         <Match when={Array.isArray(cnr)}>
           <For each={cnr}>{ note =>
-            <NoteOrTextOnStaff x={x} klass={[klass, 'chord'].join(' ')} note={note}/> 
+            <NoteOrTextOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
           }</For>
         </Match>
         <Match when={is_rest(cnr)}>
-          <RestOnStaff x={x} klass={klass} rest={cnr}/>
+          <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
         </Match>
       </Switch>
     }</For>)
@@ -283,7 +338,7 @@ export const Playback = (props) => {
 const Bar = (props) => {
   let { i, ox } = props
 
-  let x = (i+1) * 2 + (ox || 0),
+  let x = (ox || 0),
       y = 0;
 
   let style = {
@@ -293,10 +348,10 @@ const Bar = (props) => {
 }
 
 const DoubleBar = (props) => {
-  let { i } = props
+  let { ox } = props
   return (<>
-      <Bar i={i} ox={0}/>
-      <Bar i={i} ox={0.1}/>
+      <Bar ox={ox + 0}/>
+      <Bar ox={ox + 0.1}/>
       </>)
 }
 

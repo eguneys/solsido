@@ -1,15 +1,39 @@
 import { is_note, make_time_signature, time_note_value, time_nb_note_value } from './music/types'
+import { note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { chord_note_rest_duration } from './piano'
 import { is_rest, make_note } from './music/types'
 import read_fen from './music/format/read'
+import { time_fen, cnr_fen } from './music/format/write'
 
-import { note_free } from './sheet'
+export const note_free = note => {
+  let pitch = note_pitch(note),
+    octave = note_octave(note),
+    duration = note_duration(note),
+    accidental = note_accidental(note)
+
+  return {
+    pitch,
+    octave,
+    duration,
+    accidental
+  }
+}
+
+export const text_note_free = (note: Note | TextNote) => {
+  if (typeof note === 'object' && !!note.text) {
+    return note
+  } else {
+    return note
+  }
+}
 
 function chord_note_rest_free(note: ChordNoteOrRest) {
   if (Array.isArray(note)) {
-    return note.map(note_free)
+    return note.map(text_note_free)
+  } else if (typeof note === 'object' && !!note.text) {
+    return text_note_free(note)
   } else if (is_note(note)) {
-    return note_free(note)
+    return note
   } else {
     return note
   }
@@ -104,13 +128,10 @@ export function fen_composer(fen: Fen) {
           if (command === 'clef') {
             clef = model_clef(rest)
           } else if (command === 'time') {
-            if (!time) {
-              time = model_time(rest)
-            } else {
-              notes.push({
-                time: model_time(rest)
-              })
-            }
+            time = time || model_time(rest)
+            notes.push({
+              time: model_time(rest)
+            })
           } else {
             notes.push(model.map(model_chord))
           }
@@ -135,8 +156,7 @@ export function fen_composer(fen: Fen) {
           frees: grouped_no_time(res.notes)
         }
       } else {
-        let res = new Composer(time)
-        res.add_measure()
+        let res = new ComposerMoreTimes()
         let m = 0
         let bm = 0
         notes.forEach(note => {
@@ -145,17 +165,12 @@ export function fen_composer(fen: Fen) {
               bm = (m + 1) * res.beats_per_measure * 8
             }
           } else if (Array.isArray(note) || typeof note === 'number') {
-            let duration = chord_note_rest_duration(note)
-
-            if ((bm + duration) / res.beats_per_measure * 8 > m) {
-              res.add_measure()
-              m++
-            }
-              res.add_cnr(bm, note)
-              bm += duration
+            res.add_cnr(bm, note)
+            let duration = res.last.note_length_in_subs(note)
+            bm += duration
           } else {
             if (note.time) {
-
+              res.add_time(note.time)
             }
           }
         })
@@ -163,7 +178,7 @@ export function fen_composer(fen: Fen) {
         return {
           clef,
           time,
-          frees: grouped_free(res.time_signature, res.notes)
+          notes: grouped_frees_with_times(res.notes)
         }
       }
     })
@@ -171,48 +186,50 @@ export function fen_composer(fen: Fen) {
 
 }
 
-
-// 4
-// 8 4    12   16
-// 2 1    3    4
-// 1 0.8  1.2  1.4
-export function group_sx(time_signature: TimeSignature, group: Array<ChordNoteOrRest>) {
-  let note_value = time_note_value(time_signature)
-  let duration = chord_note_rest_duration(group[0])
-
-  let length = Math.pow(2, note_value - duration)
-
-  
-  
-  return length
+export function grouped_frees_with_times(composer_notes: any) {
+  let last_time_signature
+  return composer_notes.map(([time_signature, notes]) => {
+    return [
+      last_time_signature === time_signature ? undefined : (last_time_signature = time_signature),
+        grouped_free(time_signature, notes)
+    ]
+  })
 }
+
 
 export function grouped_no_time(notes: Array<ChordNoteRest>) {
   let group_x = 0
   return notes.map(note => {
     let x = group_x,
-      sx = 0
+      w = 0.75
     let res = {
       x,
-      sx,
+      w,
       group: [note]
     }
-    group_x += (1.25 + sx)
+    group_x += w
     return res
   })
+}
+
+let dur_lengths = [0, 4, 2, 1, 1, 1, 1, 1, 1]
+export function group_w(group: Array<ChordNoteRest>) {
+  let duration = chord_note_rest_duration(group[0])
+
+  return group.length * dur_lengths[duration]
 }
 
 export function grouped_free(time_signature: TimeSignature, notes: Array<Array<ChordNoteRest>>) { 
   let group_x = 0
   return notes.map(group => {
-    let x = group_x,
-      sx = group_sx(time_signature, group)
+    let x = group_x
+    let w = group_w(group)
     let res = {
       x,
-      sx,
+      w,
       group: group.map(chord_note_rest_free)
     }
-    group_x += (1 + sx) * group.length
+    group_x += w
     return res
   })
 }
@@ -241,6 +258,62 @@ function is_group(group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
   return false
 }
 
+
+export class ComposerMoreTimes {
+
+  data: Array<Composer> = []
+
+  get fen() {
+    return this.data.map(_ => _.fen).join('\n')
+  }
+
+
+  get notes() {
+    return this.data.map(_ => [_.time_signature, _.notes])
+  }
+
+
+  get last() {
+    return this.data[this.data.length - 1]
+  }
+
+  seek_composer(bm: BeatMeasure) {
+    let seek = 0
+    let res = this.data.find(_ => {
+      if (seek + _.nb_subs >= bm) {
+        return true
+      }
+      seek += _.nb_subs
+    })
+    return [res, seek]
+  }
+
+  add_cnr(bm: BeatMeasure, on_note: ChordNoteOrRest) {
+
+    let [composer, bm_start] = this.seek_composer(bm)
+    if (composer) {
+      composer.add_cnr(bm - bm_start, on_note) 
+    } else {
+      this.add_measure()
+      this.add_cnr(bm, on_note)
+    }
+  }
+
+  add_time(time_signature: TimeSignature) {
+    this.data.push(new Composer(time_signature))
+  }
+
+  add_measure(time_signature?: TimeSignature) {
+    if (!this.last || this.last.time_signature !== time_signature) {
+      this.data.push(new Composer(time_signature || this.last.time_signature))
+    }
+
+    this.last.add_measure()
+  }
+
+}
+
+
 /*
   // time signature 4/4
   // method call  // logs
@@ -253,6 +326,15 @@ function is_group(group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
 export class Composer {
 
   data: Array<ChordNoteOrRest>
+
+
+
+  get fen() {
+
+    return [time_fen(this.time_signature),
+      this.data.map(cnr => cnr_fen(cnr))].join('\n')
+
+  }
 
   get dots() {
 
@@ -346,6 +428,12 @@ export class Composer {
     return [...Array(4).keys()].map(_ => this.note_value + _)
   }
 
+  get nb_subs() {
+    return this.data
+    .reduce((acc, _) =>
+            this.note_length_in_subs(_) + acc, 0)
+  }
+
   constructor(readonly time_signature: TimeSignature) { this.data = [] }
 
 
@@ -412,7 +500,9 @@ export class Composer {
 
       let [start_i, off_start, end_i, off_end] = res
 
-      if (start_i === undefined) {
+      if (start_i === undefined || end_i === undefined) {
+        this.add_measure()
+        this.add_cnr(bm, on_note)
         return
       }
 
@@ -431,16 +521,16 @@ export class Composer {
 
 }
 
+function is(a, b) {
+  if (a === b) {
+    console.log('ok')
+  } else {
+    console.error(a, '!==\n', b)
+  }
+}
 
 function test() {
 
-  function is(a, b) {
-    if (a === b) {
-      console.log('ok')
-    } else {
-      console.error(a, '!==\n', b)
-    }
-  }
   let w = 2,
     h = 3,
     q = 4,
@@ -482,6 +572,24 @@ function test() {
 }
 
 // test()
+
+function test2() {
+
+  let composer = new ComposerMoreTimes()
+
+  composer.add_time(make_time_signature(3,4))
+  is(composer.fen, '/time 3/4\n')
+
+
+  composer.add_cnr(0, make_note(7, 4, undefined, 4))
+  composer.add_cnr(8, make_note(7, 4, undefined, 4))
+  composer.add_cnr(16, make_note(7, 4, undefined, 4))
+
+  console.log(composer.fen)
+}
+
+
+test2()
 
 
 
