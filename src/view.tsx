@@ -125,6 +125,7 @@ const Home = () => {
       <div class='manual'>
       <h2> Notice and Manual </h2>
 
+      <p class='red'> The material in Learn section is not reviewed and may be inaccurate. </p>
       <p> Although project is not near completion, and in progress, this is some manual: </p>
 
         Compose music and draw notes on the sheet by playing notes on the piano.

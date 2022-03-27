@@ -60,6 +60,36 @@
   color: var(--color-secondary);
 }
 
+.learn .table-of-contents h3:nth-child(even) {
+  color: black;
+}
+
+.learn .table-of-contents h3:hover {
+  animation: shake 1s ease infinite;
+}
+
+@keyframes shake {
+  0% {
+    margin-left: 0em;
+    transform: rotate(0deg);
+  }
+  15% {
+    margin-left: -0.5em;
+  }
+  30% {
+    margin-left: -1em;
+  }
+  50% {
+    margin-left: 0.5em;
+  }
+  75% {
+    margin-left: 1.8em;
+  }
+  100% {
+    margin-left: -1em;
+  }
+}
+
 .learn .content {
   display: flex;
   flex-flow: column;
