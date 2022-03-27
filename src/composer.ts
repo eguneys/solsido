@@ -584,12 +584,10 @@ function test2() {
   composer.add_cnr(0, make_note(7, 4, undefined, 4))
   composer.add_cnr(8, make_note(7, 4, undefined, 4))
   composer.add_cnr(16, make_note(7, 4, undefined, 4))
-
-  console.log(composer.fen)
 }
 
 
-test2()
+// test2()
 
 
 

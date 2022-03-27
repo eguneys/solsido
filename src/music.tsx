@@ -69,7 +69,6 @@ export const Sheet = (props) => {
     playback_pos={props.playback_pos}
     active_notes={props.active_notes}
     zero_notes={props.zero_notes} 
-    bars={props.bars}
     frees={props.frees}
     time_and_notes={props.time_and_notes}/>
     </div>)

@@ -18,7 +18,7 @@ import { PianoPlay } from './sound'
 
 import { useApp } from './loop'
 
-import { Composer } from './composer'
+import { ComposerMoreTimes, grouped_frees_with_times } from './composer'
 
 const MusicContext = createContext()
 
@@ -31,14 +31,14 @@ const MusicProvider = (props) => {
   let [playback, setPlayback] = createSignal(new OPlayback(_time_signature), { equals: false })
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
 
-  let [composer, setComposer] = createSignal(new Composer(_time_signature), { equals: false })
+  let [composer, setComposer] = createSignal(new ComposerMoreTimes(), { equals: false })
 
 createEffect(() => {
   console.log(composer().data, composer().dots)
 })
 
   const bm = () => playback().bm
-  const time_signature = () => composer().time_signature
+  const time_signature = () => _time_signature
 
 
   const quanti = (quanti: BeatMeasure) => {
@@ -62,8 +62,8 @@ createEffect(() => {
         return composer().measure_beat_sub_pos(
           measure, beat, sub_beat)
       },
-      notes() {
-        return notes_grouped(composer().notes)
+      time_and_notes() {
+        return grouped_frees_with_times(composer().notes)
       },
       bars() {
         return composer().bars
@@ -94,7 +94,7 @@ createEffect(() => {
       },
       add_measure() {
         setComposer(composer => {
-            composer.add_measure()
+            composer.add_measure(time_signature())
             return composer})
       },
       press(key: PianoKey) {
@@ -109,8 +109,8 @@ createEffect(() => {
               })
           })
 
-          piano.release_previous(bm())
           let res = piano.push(key, bm())
+          piano.release_previous(bm())
           return piano
         })
       },
@@ -189,12 +189,16 @@ const Music = () => {
       quanti(0)
     } else if (_input.btnp('1')) {
       quanti(ix) 
+    } else if (_input.btnp('2')) {
+      quanti(ix * 2)
     } else if (_input.btnp('4')) {
       quanti(ix * 4)
     }    
 
     if (_input.btnp('!', true)) {
       quanti(ix * -1)
+    } else if (_input.btnp('@', true)) {
+      quanti(ix * -2)
     } else if (_input.btnp('$', true)) {
       quanti(ix * 4 * -1)
     }
@@ -311,15 +315,13 @@ const Sheet = (props) => {
     playback_pos,
     active_notes,
     zero_notes,
-    notes,
-    bars
+    time_and_notes,
   }] = useMusic()
 
   return (<Zoom zoom={3}>
       <_Sheet playback={playback()} piano={piano()} 
       playback_pos={playback_pos()}
-      notes={notes()}
-      bars={bars()}
+      time_and_notes={time_and_notes()}
       zero_notes={zero_notes()}
       active_notes={active_notes()}/>
     </Zoom>)

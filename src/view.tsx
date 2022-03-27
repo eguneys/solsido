@@ -16,7 +16,7 @@ const App = () => {
         <div class='app-wrap'>
           <Header/>
           <ErrorBoundary fallback={(err, reset) =>
-              <ErrorRecovery reset={reset}/>
+              <ErrorRecovery err={err} reset={reset}/>
             }>
             <Main/>
           </ErrorBoundary>
@@ -31,10 +31,13 @@ let i = Math.random() * word.length
 }
 
 const ErrorRecovery = (props) => {
-  let { reset } = props
+  let { err, reset } = props
   let [i_reload, set_i] = createSignal(4)
   let [route, { home }] = useRouter()
   let [pops, setPops] = createSignal([], { equals: false })
+
+
+  console.error(err)
 
   createEffect(() => {
     if (i_reload() === 0) {
