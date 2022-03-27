@@ -1,3 +1,4 @@
+import { ErrorBoundary, createSignal, createEffect } from 'solid-js'
 import { useRouter, RouterProvider, Link } from './router'
 import { AppProvider } from './loop'
 
@@ -10,14 +11,81 @@ import Svg from './internal/make_svg'
 
 const App = () => {
 
-  return (<RouterProvider>
+  return (    <RouterProvider>
       <AppProvider>
         <div class='app-wrap'>
           <Header/>
-          <Main/>
+          <ErrorBoundary fallback={(err, reset) =>
+              <ErrorRecovery reset={reset}/>
+            }>
+            <Main/>
+          </ErrorBoundary>
         </div>
       </AppProvider>
     </RouterProvider>)
+}
+
+const random = (word) => {
+let i = Math.random() * word.length
+  return word.slice(i, i + Math.random() * 4)
+}
+
+const ErrorRecovery = (props) => {
+  let { reset } = props
+  let [i_reload, set_i] = createSignal(4)
+  let [route, { home }] = useRouter()
+  let [pops, setPops] = createSignal([], { equals: false })
+
+  createEffect(() => {
+    if (i_reload() === 0) {
+    reset()
+    home()
+    }
+  })
+
+  setInterval(() => {
+    set_i(p => Math.max(0, p - 1))
+      }, 1000)
+
+  let words = 'App crashed$@%^Dont go there#*)(+_!'
+
+  setInterval(() => {
+setPops(p => {
+    p.forEach(_ => {
+        _.siy[1](iy => iy + Math.random()/ 10)
+        })
+return p
+    })
+
+    if (Math.random() < 0.7) {
+      let six = createSignal(-1 + 2 * Math.random()),
+          siy = createSignal(-1 + 2 * Math.random())
+      setPops(p => {
+        p.push({
+          word: random(words) + random(words),
+          six,
+          siy,
+          })
+        p.splice(20, 1)
+        for (let i = 0; i < 5; i++) {
+          if (Math.random() < 0.1) {
+            p.shift()
+          }
+        }
+
+        return p
+        })
+    }
+  }, 80)
+
+  return (<div class="error">
+    <For each={pops()}>{ pop =>
+      <span class="pop" style={{transform: `translate(${pop.six[0]()*100}%, ${pop.siy[0]()*100}%)` }}>{pop.word}</span>
+    }</For>
+     <section>
+       <h2> <span class="glitch" title="App crashed">App crashed. </span> <small>Returning home page in {i_reload} seconds...</small> </h2>
+     </section>
+     </div>)
 }
 
 const Home = () => {
@@ -49,7 +117,7 @@ const Home = () => {
     </section>
     
     <section class='extra'>
-      <p> Project is open source, you are welcome to help. </p>
+      <p> Project is open source, you are welcome to help. <small> See <Link href="learn/preface"> Preface </Link></small> </p>
     </section>
 
     <section class='extra'>
@@ -74,6 +142,10 @@ const Home = () => {
         If you press a piano key again at the same point you activated it, it will deactivate without putting a note on the sheet.
     <br/>
 
+    <h2> Piano Keys </h2>
+    <p> One octave of keys: <strong>Space j k l ; ' \</strong> </p>
+    <p> Another octave of keys: <strong>a s d f g h</strong> </p>
+    <p> Black keys are one row up on the keyboard </p>
     <h2> Buttons </h2>
     <ul>
       <li>  <strong>Dup Beat:</strong> Duplicate the beat the cursor is on

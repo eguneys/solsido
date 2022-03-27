@@ -37,6 +37,17 @@ Shortcuts:
 Shift + 1: Backward one sub beat
 Shift + 4: Backward 4 sub beats
 
+### Preface
+
+ This project is a tribute to lichess.org and many thanks to it's main contributors.
+ 
+ Lasolsido started as a hobby project, while learning about music. Most resources about music is not even behind ads but heavy paywalls. To every humble game developer, who want's to access this kind of resources, this is completely, and forever will be free. 
+
+
+ Lasolsido is under MIT License, and open source.
+
+ Though donations are appreciated <3.
+
 ### References
 
 - WebAudio Youtube https://www.youtube.com/watch?v=uasGsHf7UYA

@@ -50,3 +50,16 @@ nav section a {
 nav section a:hover {
   color: var(--color-bg-accent);
 }
+
+.error {
+  position: relative;
+  padding: 2em;
+  font-size: 2em;
+  font-family: Lato, sans-serif;
+}
+
+.error .pop {
+  color: black;
+  position: absolute;
+}
+

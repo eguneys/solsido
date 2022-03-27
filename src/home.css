@@ -20,14 +20,14 @@
 .home .head-one,
 .home .head-two {
   margin-left: 2em;
-  font-size: 3em;
+  font-size: 2em;
   font-weight: bold;
 }
 
 .home section.features {
   display: flex;
   flex-flow: row;
-  font-size: 2em;
+  font-size: 1em;
 }
 
 .home section.features ul li {
@@ -48,7 +48,7 @@
 }
 
 .home section.features ul li div {
-  padding: 1em;
+  padding: 2em;
   transition: color 0.1s, transform 0.5s;
   transition-timing-function: ease-out;
 }

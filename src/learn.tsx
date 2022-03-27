@@ -48,8 +48,15 @@ const TocSection = (props) => {
 }
 
 const PrefaceSection = () => {
-  return (<Section title="Preface">
-     Preface Hello
+  return (<Section class='preface' title="Preface">
+
+      <p> This project is a tribute to <strong>lichess.org</strong> and many thanks to it's main contributors.  </p>
+
+      <p><strong>Lasolsido</strong> started as a hobby project, while learning about music. Most resources about music is not even behind ads but heavy paywalls. To every humble game developer, who want's to access this kind of resources, this is completely, and forever will be free.  </p>
+
+ <p>Lasolsido is under MIT License, and open source. <a href="https://github.com/eguneys/solsido">Github</a></p>
+
+ <p>Though donations are appreciated {"<3."} <a href="https://www.patreon.com/eguneys">Patreon</a> </p>
       </Section>)
 }
 

@@ -1,4 +1,4 @@
-- [ ] Default learn route learn/introduction
+- [+] Default learn route learn/introduction
 - [ ] More measures wrap on newline
 
 - [ ] Click to navigate playback
@@ -24,13 +24,11 @@
 - [ ] Accidental natural
 - [ ] Bass clef to adjust notes
 
-- [ ] Add README
 - [ ] Show error messages for music input
 
 
 - [ ] Apply for competition
 - [ ] Setup backup paypal account
-- [ ] Homepage patreon link, features to add
 
 ## Fix
 
@@ -42,6 +40,9 @@
 
 
 ## Done
+
+- [+] Add README
+- [+] Homepage patreon link, features to add
 
 - [+] Piano play handle resize
 - [+] Display multiple staffs
