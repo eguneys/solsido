@@ -83,3 +83,27 @@ export const Link = (props) => {
     href={href}
     onClick={onClick}>{children}</a>)
 }
+
+
+
+export const DivLink = (props) => {
+  let { href, children } = props;
+
+  let [route, { setRoute }] = useRouter()
+
+  let _route = href_route(href)
+
+  let onClick = (e) => {
+    e.preventDefault()
+    setRoute(_route)
+  }
+
+  let klass = () => {
+    if (route() === _route) {
+     return 'active'
+    }
+  }
+
+  return (
+    <div class={['link', klass()].join(' ')} onClick={onClick}>{children}</div>)
+}

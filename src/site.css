@@ -63,3 +63,8 @@ nav section a:hover {
   position: absolute;
 }
 
+
+.link {
+  cursor: pointer;
+}
+

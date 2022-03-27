@@ -1,4 +1,4 @@
-import { useRouter, Link } from './router'
+import { useRouter, Link, DivLink } from './router'
 import { Zoom, FenSheet, PianoKeys, NotesDurationTable } from './music'
 
 
@@ -56,10 +56,9 @@ const TocSection = (props) => {
 
   return (<section>
       <h3>{i}</h3>
-      <div>
-        <Link href={"learn/"+title.toLowerCase()}>{title}</Link>
-        {children}
-      </div>
+      <DivLink href={"learn/"+title.toLowerCase()}>
+      <h2 title={title} class='title'>{title}</h2>
+      {children}</DivLink>
     </section>)
 }
 

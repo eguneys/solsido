@@ -19,7 +19,7 @@
   font-weight: bold;
 }
 
-.learn .table-of-contents h2 {
+.learn .table-of-contents > h2 {
   /* https://stackoverflow.com/a/40911154/3994249 */
   writing-mode: tb-rl;
   transform: rotate(-180deg);
@@ -56,15 +56,11 @@
   font-weight: bold;
 }
 
-.learn .table-of-contents section a:hover {
-  color: var(--color-secondary);
-}
-
 .learn .table-of-contents h3:nth-child(even) {
   color: black;
 }
 
-.learn .table-of-contents h3:hover {
+.learn .table-of-contents div > h3:hover {
   animation: shake 1s ease infinite;
 }
 
@@ -139,4 +135,30 @@
   text-align: center;
   font-weight: bold;
   font-style: italic;
+}
+
+.learn .link {
+  position: relative;
+}
+
+.learn .link:hover {
+}
+
+.learn .link::after {
+  content: '';
+  background: var(--color-secondary);
+  width: 0;
+  height: 100%;
+  margin-left: -3em;
+  transition: all 0.3s;
+}
+
+.learn .link:hover::after {
+  width: calc(100% + 3em);
+}
+
+
+.learn .link.active::after {
+  width: calc(100% + 3em);
+  background: var(--color-primary);
 }

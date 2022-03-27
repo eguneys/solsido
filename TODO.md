@@ -43,6 +43,7 @@
 
 ## Fix
 
+- [ ] Persist learn navigation on route changes
 - [ ] Typescript Errors
 - [ ] Review Explanation
 - [ ] Multiple staffs vertical spacing
