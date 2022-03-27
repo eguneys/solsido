@@ -47,6 +47,8 @@ const nine_time = ''
 const ten_time = one_time + zero_time
 const twelve_time = one_time + two_time
 
+const common_time = ''
+const cut_time = ''
 
 const quarter_text = ''
 
@@ -97,4 +99,6 @@ export default {
   nine_time,
   ten_time,
   twelve_time,
+  common_time,
+  cut_time
 } as GlyphMap

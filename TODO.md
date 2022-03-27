@@ -28,7 +28,6 @@
 
 - [ ] Responsive sheet width
 - [ ] Responsive note spacing
-- [ ] Display common and cut time with according glyphs
 - [ ] Explain notes scientific notation
 - [ ] Explain difference between semitone and step
 - [ ] View source for sheet
@@ -58,6 +57,7 @@
 - [+] Add README
 - [+] Homepage patreon link, features to add
 
+- [+] Display common and cut time with according glyphs
 - [+] Piano play handle resize
 - [+] Display multiple staffs
 - [+] Display grand staff

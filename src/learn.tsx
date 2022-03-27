@@ -1,6 +1,6 @@
 import { useRouter, Link, DivLink } from './router'
 import { Zoom, FenSheet, PianoKeys, NotesDurationTable } from './music'
-
+import g from './glyphs'
 
 const Learn = () => {
 
@@ -304,8 +304,8 @@ a'2. | a'2~ a'4
     <p>Any time signature where the top number is 2, 3, or 4 is a <strong>simple meter</strong>.
       For simple meters, top number indicates the number of beats per measure (duple, triple, or quadruple), and bottom number indicates the beat value.
       In a time signature of 3/4, 3 indicates that there are three beats per measure, and 4 indicates that each beat is the length of a quarter note.
-      C is a time signature shorthand for 4/4 or <strong>common time</strong>.
-      C/ is a time signature shorthand for 2/2 or <strong>cut time</strong>.</p>
+      <span class='bravura'>{g['common_time']}</span> is a time signature shorthand for 4/4 or <strong>common time</strong>.
+      <span class='bravura'>{g['cut_time']}</span> is a time signature shorthand for 2/2 or <strong>cut time</strong>.</p>
 
       <Music zoom='2' fen={`{
 /clef treble

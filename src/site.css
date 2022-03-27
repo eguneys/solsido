@@ -68,3 +68,13 @@ nav section a:hover {
   cursor: pointer;
 }
 
+.bravura {
+  font-family: Bravura, sans-serif;
+  font-size: 1.5em;
+  line-height: 1.5em;
+  vertical-align: super;
+}
+
+.bravura::before {
+  content: ' ';
+}
