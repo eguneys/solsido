@@ -40,7 +40,10 @@ function note_value_to_code(note_value: NoteValue) {
 
 let duration_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'quarter', 'quarter', 'quarter']
 
+let flag_codes = [undefined, 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
+
 let duration_stems = [undefined, undefined, undefined, 1, 1, 2, 3, 4]
+let duration_flags = [undefined, undefined, undefined, undefined, undefined, 1, 2, 3, 4]
 
 let duration_rest_codes = [undefined, 'double', 'whole', 'half', 'quarter', 'eighth', 'sixteenth', 'thirtysecond', 'sixtyfourth']
 
@@ -275,6 +278,10 @@ const NoteOnStaff = (props) => {
   let stem_dir = Math.sign(y===0?-1:y) * -1
   let stem = duration_stems[duration] * stem_dir
 
+
+  let flag = duration_flags[duration]
+
+
   let ledger_oys = pitch_octave_ledgers(pitch, octave).map(_ => pitch_y(..._))
 
   let dklass = duration_codes[duration]
@@ -296,8 +303,34 @@ const NoteOnStaff = (props) => {
       <Show when={stem}>
         <Stem klass={note.klass} pitch={pitch} octave={octave} ox={x} stem={stem}/>
       </Show>
+      <Show when={flag}>
+        <Flag klass={note.klass} pitch={pitch} octave={octave} ox={x} flag={flag} stem={stem}/>
+      </Show>
       </>)
 }
+
+const Flag = (props) => {
+  let { klass, pitch, octave, ox, flag, stem } = props;
+
+  let oy = pitch_y(pitch, octave)
+  
+
+  let direction = Math.sign(stem)
+
+  let up_down = direction === -1 ? 'up' : 'down'
+ 
+  let x_off = direction === -1 ? 0.25 : 0
+
+  let style = {
+    transform: `translate(${ox + x_off}em, ${oy + direction}em)`
+  }
+
+  let code = flag_codes[flag] + '_flag_' + up_down
+ 
+  return (<span class={['flag', klass].join(' ')} style={style}>{g[code]}</span>)
+}
+
+
 
 const Accidental = (props) => {
   let { klass, pitch, octave, x, accidental } = props;
@@ -436,8 +469,13 @@ export const FullOnStaff = (props) => {
        <Show when={note.stem}>
           <Stem klass={note.klass} pitch={pitch} octave={octave} ox={ox} stem={note.stem}/>
        </Show>
+       <Show when={note.flag}>
+          <Flag klass={note.klass} pitch={pitch} octave={octave} ox={ox} flag={note.flag} stem={note.stem}/>
+       </Show>
       </>)
 }
+
+
 
 const Stem = (props) => {
   let { klass, pitch, octave, ox, stem } = props;
@@ -570,6 +608,7 @@ export const FullOnFreeStaff = (props: string) => {
   let octave = rest ? 7 : 6
   let code = rest ? duration_rest_codes[duration] + '_rest' : duration_codes[duration] + '_note'
   let stem = rest ? undefined : duration_stems[duration] * -1
+  let flag = stem ? duration_flags[duration] : undefined
 
   let _klass = rest ? 'rest' : 'note'
   let d_klass = duration_rest_codes[duration]
@@ -582,7 +621,8 @@ export const FullOnFreeStaff = (props: string) => {
     octave,
     klass,
     duration,
-    stem
+    stem,
+    flag
   }
 
   return (<div class='free-staff'>

@@ -310,20 +310,20 @@ a'2. | a'2~ a'4
       <Music zoom='2' fen={`{
 /clef treble
 /time 3/4
-<b' b''"Beats" a"1"> <b' a"2"> <b' a"3"> | <b'8 b''"Beats divided" a"1"> b'8 <b'8 a"2"> b'8 <b'16 b''"Beats subdivided" a"3"> b'16 b'16 b'16
+<b' b''"Beats" f"1"> <b' f"2"> <b' f"3"> | <b'8 b''"Beats divided" f"1"> b'8 <b'8 f"2"> b'8 <b'16 b''"Beats subdivided" f"3"> b'16 b'16 b'16
 
 } {
 /clef treble
 /time 3/2
-<b'2 b''"Beats" a"1"> <b'2 a"2"> <b'2 a"3"> | <b'4 b''"Beats divided" a"1"> b'4 <b'4 a"2"> b'4 <b'8 a"3"> b'8 b'8 b'8
+<b'2 b''"Beats" f"1"> <b'2 f"2"> <b'2 f"3"> | <b'4 b''"Beats divided" f"1"> b'4 <b'4 f"2"> b'4 <b'8 f"3"> b'8 b'8 b'8
 } {
 /clef treble
 /time 4/4
-<b'4 b''"Beats" a"1"> <b'4 a"2"> <b'4 a"3"> <b'4 a"4"> | <b'8 b''"Beats divided" a"1"> b'8 <b'8 a"2"> b'8 <b'16 a"3"> b'16 b'16 b'16 <b'16 a"4"> b'16 b'16 b'16
+<b'4 b''"Beats" f"1"> <b'4 f"2"> <b'4 f"3"> <b'4 f"4"> | <b'8 b''"Beats divided" f"1"> b'8 <b'8 f"2"> b'8 <b'16 f"3"> b'16 b'16 b'16 <b'16 f"4"> b'16 b'16 b'16
 } {
 /clef treble
 /time 4/2
-<b'2 b''"Beats" a"1"> <b'2 a"2"> <b'2 a"3"> <b'2 a"4"> | <b'4 b''"Beats divided" a"1"> b'4 <b'4 a"2"> b'4 <b'8 a"3"> b'8 b'8 b'8 <b'8 a"4"> b'8 b'8 b'8
+<b'2 b''"Beats" f"1"> <b'2 f"2"> <b'2 f"3"> <b'2 f"4"> | <b'4 b''"Beats divided" f"1"> b'4 <b'4 f"2"> b'4 <b'8 f"3"> b'8 b'8 b'8 <b'8 f"4"> b'8 b'8 b'8
 }
 `}/>
 

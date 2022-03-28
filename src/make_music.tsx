@@ -226,7 +226,7 @@ const PianoPlayWithKeyboard = (props) => {
     amplitude: 0.5,
     cutoff: 0.7,
     cutoff_max: 0.0,
-    amp_adsr: make_adsr(0, 0, 1, 0),
+    amp_adsr: make_adsr(0, 0, 0.2, 0),
     filter_adsr: make_adsr(0, 0, 0.5, 0)
   }
 
