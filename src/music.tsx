@@ -48,12 +48,8 @@ export const FenSheet = (props) => {
   let { fen } = props
 
   if (fen) {
-    let _frees = fen_composer(fen)
-    if (_frees) {
-      return (<For each={_frees}>{ free =>
-          <Sheet clef={free.clef} frees={free.frees} time_and_notes={free.notes}/>
-        }</For>)
-    }
+    let composer = fen_composer(fen)
+    return (<Sheet composer={composer}/>)
   }
 
   return (<Sheet/>)
@@ -61,16 +57,43 @@ export const FenSheet = (props) => {
 }
 
 export const Sheet = (props) => {
+ 
+  let { composer } = props
 
   return (<div class='m-wrap'>
-    <Staff 
-    clef={props.clef}
-    playback={props.playback} 
-    playback_pos={props.playback_pos}
-    active_notes={props.active_notes}
-    zero_notes={props.zero_notes} 
-    frees={props.frees}
-    time_and_notes={props.time_and_notes}/>
+    <Switch> 
+       <Match when={!composer}> <Staff/> </Match>
+       <Match when={Array.isArray(composer)}>
+         <For each={composer}>{ composer =>
+           <Staff 
+             clef={composer.clef}
+             playback={props.playback} 
+             playback_pos={props.playback_pos}
+             active_notes={props.active_notes}
+             zero_notes={props.zero_notes} 
+             frees={composer.frees}
+             time_and_notes={composer.notes}/>
+           }</For>
+       </Match>
+
+       <Match when={!!composer.grandstaff}>
+         <grand>
+         <For each={composer.grandstaff}>{ composer =>
+           <Staff 
+             clef={composer.clef}
+             playback={props.playback} 
+             playback_pos={props.playback_pos}
+             active_notes={props.active_notes}
+             zero_notes={props.zero_notes} 
+             frees={composer.frees}
+             time_and_notes={composer.notes}/>
+           }</For>
+           <span class='staff-line'/>
+           <span class='brace'>{g['brace']}</span>
+         </grand>
+       </Match>
+
+      </Switch>
     </div>)
 }
 
@@ -249,6 +272,8 @@ const NoteOnStaff = (props) => {
 
   let y = pitch_y(pitch, octave)
 
+  let stem_dir = Math.sign(y===0?-1:y) * -1
+  let stem = duration_stems[duration] * stem_dir
 
   let ledger_oys = pitch_octave_ledgers(pitch, octave).map(_ => pitch_y(..._))
 
@@ -267,6 +292,9 @@ const NoteOnStaff = (props) => {
       }</Index>
       <Show when={accidental}>
         <Accidental klass={klass} pitch={pitch} octave={octave} x={x} accidental={accidental}/>
+      </Show>
+      <Show when={stem}>
+        <Stem klass={note.klass} pitch={pitch} octave={octave} ox={x} stem={stem}/>
       </Show>
       </>)
 }

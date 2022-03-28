@@ -107,81 +107,86 @@ function model_chord(model: ClefTimeNoteOrChord) {
   }
 }
 
+function fen_staff(staff) {
+  let { notes: _notes } = staff
+
+  let clef,
+  time,
+  notes = []
+
+  _notes.map(model => {
+    if (Array.isArray(model)) {
+      let [command, rest] = model
+
+      if (command === 'clef') {
+        clef = model_clef(rest)
+      } else if (command === 'time') {
+        time = time || model_time(rest)
+        notes.push({
+          time: model_time(rest)
+        })
+      } else {
+        notes.push(model.map(model_chord))
+      }
+    } else if (model === '|') {
+      notes.push(model)
+    } else if (model === '||') {
+      notes.push(model)
+    } else {
+      notes.push(model_chord(model))
+    }
+  })
+
+  if (!time) {
+    let res = new FreeComposer()
+
+    notes.forEach(note => {
+      res.add_cnr(note)
+    })
+
+    return {
+      clef,
+      frees: grouped_no_time(res.notes)
+    }
+  } else {
+    let res = new ComposerMoreTimes()
+    let m = 0
+    let bm = 0
+    notes.forEach(note => {
+      if (typeof note === 'string') {
+        if (note === '||') {
+          bm = (m + 1) * res.beats_per_measure * 8
+        }
+      } else if (Array.isArray(note) || typeof note === 'number') {
+        res.add_cnr(bm, note)
+        let duration = res.last.note_length_in_subs(note)
+        bm += duration
+      } else {
+        if (note.time) {
+          res.add_time(note.time)
+        }
+      }
+    })
+
+    return {
+      clef,
+      time,
+      notes: grouped_frees_with_times(res.notes)
+    }
+  }
+}
+
+
 export function fen_composer(fen: Fen) {
 
   let { staffs, grandstaff } = read_fen(fen)
 
   if (grandstaff) {
-
+    return {
+      grandstaff: grandstaff.staffs.map(fen_staff)
+    }
   } else if (staffs) {
-    return staffs.map(staff => {
-      let { notes: _notes } = staff
-
-      let clef,
-      time,
-      notes = []
-
-      _notes.map(model => {
-        if (Array.isArray(model)) {
-          let [command, rest] = model
-
-          if (command === 'clef') {
-            clef = model_clef(rest)
-          } else if (command === 'time') {
-            time = time || model_time(rest)
-            notes.push({
-              time: model_time(rest)
-            })
-          } else {
-            notes.push(model.map(model_chord))
-          }
-        } else if (model === '|') {
-          notes.push(model)
-        } else if (model === '||') {
-          notes.push(model)
-        } else {
-          notes.push(model_chord(model))
-        }
-      })
-
-      if (!time) {
-        let res = new FreeComposer()
-
-        notes.forEach(note => {
-          res.add_cnr(note)
-        })
-
-        return {
-          clef,
-          frees: grouped_no_time(res.notes)
-        }
-      } else {
-        let res = new ComposerMoreTimes()
-        let m = 0
-        let bm = 0
-        notes.forEach(note => {
-          if (typeof note === 'string') {
-            if (note === '||') {
-              bm = (m + 1) * res.beats_per_measure * 8
-            }
-          } else if (Array.isArray(note) || typeof note === 'number') {
-            res.add_cnr(bm, note)
-            let duration = res.last.note_length_in_subs(note)
-            bm += duration
-          } else {
-            if (note.time) {
-              res.add_time(note.time)
-            }
-          }
-        })
-
-        return {
-          clef,
-          time,
-          notes: grouped_frees_with_times(res.notes)
-        }
-      }
-    })
+    return staffs.map(fen_staff)
   }
 
 }
