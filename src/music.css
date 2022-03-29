@@ -55,7 +55,7 @@ staff > span.ledger {
   top: 2em;
   left: -0.25em;
   border-top: 0.03em solid black;
-  width: 1em;
+  width: 0.75em;
 }
 
 staff > span.bar {

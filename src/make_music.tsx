@@ -1,4 +1,4 @@
-import { splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
+import { on, splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
 import { Zoom, PianoKeys, Sheet as _Sheet } from './music'
 
 import { getKeyAtDomPos, eventPosition, point_in_rect } from './util'
@@ -20,6 +20,8 @@ import { useApp } from './loop'
 
 import { ComposerMoreTimes, grouped_frees_with_times } from './composer'
 
+import { time_note_value_subs, fsum } from './composer'
+
 const MusicContext = createContext()
 
 const useMusic = () => { return useContext(MusicContext) }
@@ -34,7 +36,7 @@ const MusicProvider = (props) => {
   let [composer, setComposer] = createSignal(new ComposerMoreTimes(), { equals: false })
 
 createEffect(() => {
-  console.log(composer().data, composer().dots)
+  console.log(composer().data, composer().fen)
 })
 
   const bm = () => playback().bm
@@ -51,19 +53,59 @@ createEffect(() => {
       return playback })
   }
 
+  const _grouped_frees_with_times = () => {
+    return grouped_frees_with_times(composer().notes)
+  }
+
   const store = [
     [piano, playback, composer],
     {
       bm,
       time_signature,
       playback_pos() {
-        let { measure, beat, sub_beat } = playback()
-        return 0
-        return composer().measure_beat_sub_pos(
-          measure, beat, sub_beat)
+
+        // TODO streamline this asap
+
+
+
+        let i_x = 0
+        let time_and_note_xs = _grouped_frees_with_times().map(([time, group]) => {
+            let res = i_x
+            i_x += 2
+            i_x += group.reduce((acc, _) => acc + _.w + 2, 0)
+            return res
+            })
+
+        let res
+        let _bm = 0
+        _grouped_frees_with_times().find((_, i) => {
+          let _x = time_and_note_xs[i]
+          let _ox = 1.5
+          let [time, notes] = _
+          return notes.find(({ x, w, group}, i) => {
+            let ox = 1 + _x + _ox + x
+            return group.find((_, _i) => {
+                let dur = time_note_value_subs(time, chord_note_rest_duration(_))
+                _bm += dur
+                let sx = w / group.length
+                let x = _x + ox
+                //console.log(_bm, bm(), x + sx * _i, _, res)
+                if (_bm > bm()) {
+                  res = x + sx * _i
+                  return true
+                } else {
+                  res = x + sx * _i
+                }
+            })
+          })
+        })
+        return res
       },
       time_and_notes() {
-        return grouped_frees_with_times(composer().notes)
+        return [{
+          clef: 1,
+          notes: _grouped_frees_with_times()
+        }]
       },
       bars() {
         return composer().bars
@@ -120,6 +162,15 @@ createEffect(() => {
         })
       },
       quanti,
+      quanti_note(dir: Direction) {
+        let sbm = bm() + dir
+        let [_composer, bm_start] = composer().seek_composer(sbm) 
+        if (_composer) {
+          let [start_i] = _composer.scan_notes(sbm - bm_start, 1)
+            let fwd = _composer.note_length_in_subs(_composer.data[start_i])
+            quanti(fwd * dir)
+        }
+      },
       go_beat_0() {
         quanti(0)
       },
@@ -135,16 +186,17 @@ createEffect(() => {
           return piano
             })
       },
-      dup_beat() {
-        // TODO make this a function
-        let _calc_measures = new OPlayback(time_signature())
-          _calc_measures.bm = bm()
-          let { measure, beat, sub_beat } = _calc_measures
-
+      del_beat() {
         setComposer(composer => {
-            composer.dup_beat(measure, beat)
-            return composer
-            })
+          composer.del_beat(bm())
+          return composer
+        })
+      },
+      dup_beat() {
+        setComposer(composer => {
+          composer.dup_beat(bm())
+          return composer
+        })
       },
       dup_measure() {
         // TODO make this a function
@@ -171,20 +223,26 @@ const Music = () => {
     bm,
     add_measure, 
     quanti,
+    quanti_note,
+    del_beat,
     press,
     release
   }] = useMusic()
   let [input] = useApp()
 
-  createEffect(() => {
-    let _input = input()
-    let ix = 1
-    if (_input.btn('left')) {
-      ix = -1
-    } else if (_input.btn('right')) {
-      ix = 1
+  createEffect(on(input, (_input) => {
+
+    if (_input.btnp('Backspace')) {
+      del_beat()
     }
 
+    if (_input.btnp('left')) {
+      quanti_note(-1)
+    } else if (_input.btnp('right')) {
+      quanti_note(1)
+    }
+
+    let ix = 1
     if (_input.btnp('0')) {
       quanti(0)
     } else if (_input.btnp('1')) {
@@ -202,7 +260,7 @@ const Music = () => {
     } else if (_input.btnp('$', true)) {
       quanti(ix * 4 * -1)
     }
-  })
+  }))
 
 
   add_measure()
@@ -319,9 +377,11 @@ const Sheet = (props) => {
   }] = useMusic()
 
   return (<Zoom zoom={3}>
-      <_Sheet playback={playback()} piano={piano()} 
+      <_Sheet 
+      playback={playback()} 
+      piano={piano()} 
       playback_pos={playback_pos()}
-      time_and_notes={time_and_notes()}
+      composer={time_and_notes()}
       zero_notes={zero_notes()}
       active_notes={active_notes()}/>
     </Zoom>)

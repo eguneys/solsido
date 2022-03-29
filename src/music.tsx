@@ -61,13 +61,11 @@ export const FenSheet = (props) => {
 
 export const Sheet = (props) => {
  
-  let { composer } = props
-
   return (<div class='m-wrap'>
     <Switch> 
-       <Match when={!composer}> <Staff/> </Match>
-       <Match when={Array.isArray(composer)}>
-         <For each={composer}>{ composer =>
+       <Match when={!props.composer}> <Staff/> </Match>
+       <Match when={Array.isArray(props.composer)}>
+         <For each={props.composer}>{ composer =>
            <Staff 
              clef={composer.clef}
              playback={props.playback} 
@@ -79,17 +77,17 @@ export const Sheet = (props) => {
            }</For>
        </Match>
 
-       <Match when={!!composer.grandstaff}>
+       <Match when={!!props.composer.grandstaff}>
          <grand>
-         <For each={composer.grandstaff}>{ composer =>
+         <For each={props.composer.grandstaff}>{ composer =>
            <Staff 
-             clef={composer.clef}
+             clef={props.composer.clef}
              playback={props.playback} 
              playback_pos={props.playback_pos}
              active_notes={props.active_notes}
              zero_notes={props.zero_notes} 
-             frees={composer.frees}
-             time_and_notes={composer.notes}/>
+             frees={props.composer.frees}
+             time_and_notes={props.composer.notes}/>
            }</For>
            <span class='staff-line'/>
            <span class='brace'>{g['brace']}</span>
@@ -107,7 +105,6 @@ export const Staff = (props) => {
   if (props.clef) {
     ox += 1.5
   }
-
 
   let i_x = 0
   let time_and_note_xs = (props.time_and_notes || []).map(([time, group]) => {
@@ -181,27 +178,32 @@ const TimeSignatureOnStaff = (props) => {
 }
 
 const NoteGroupOnStaff = (props) => {
-  let { group: { group, w, x: _x }, i, ox } = props
+  let { group: { bar, group, w, x: _x }, i, ox } = props
 
   let klass = `group-${i}`
 
   let sx = w / group.length
-  let x = _x + sx * i + ox
+  let x = _x + ox
 
-  return (<For each={group}>{ (cnr, i) =>
-     <Switch fallback={
-        <NoteOrTextOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
+  return (<>
+      <Show when={bar}>
+        <Bar ox={x - 0.5}/>
+      </Show>
+      <For each={group}>{ (cnr, i) =>
+        <Switch fallback={
+          <NoteOrTextOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
         }>
-        <Match when={Array.isArray(cnr)}>
-          <For each={cnr}>{ note =>
-            <NoteOrTextOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
-          }</For>
-        </Match>
-        <Match when={is_rest(cnr)}>
-          <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
-        </Match>
-      </Switch>
-    }</For>)
+          <Match when={Array.isArray(cnr)}>
+            <For each={cnr}>{ note =>
+              <NoteOrTextOnStaff x={x + sx * i()} klass={[klass, 'chord'].join(' ')} note={note}/> 
+            }</For>
+          </Match>
+          <Match when={is_rest(cnr)}>
+            <RestOnStaff x={x + sx * i()} klass={klass} rest={cnr}/>
+          </Match>
+       </Switch>
+      }</For>
+    </>)
 
 }
 
@@ -278,9 +280,7 @@ const NoteOnStaff = (props) => {
   let stem_dir = Math.sign(y===0?-1:y) * -1
   let stem = duration_stems[duration] * stem_dir
 
-
   let flag = duration_flags[duration]
-
 
   let ledger_oys = pitch_octave_ledgers(pitch, octave).map(_ => pitch_y(..._))
 
@@ -359,19 +359,6 @@ const RestOnStaff = (props) => {
 
   return (<span class={klass} style={style}>{glyph}</span>)
 }
-
-const BarOnStaff = (props) => {
-  let { bar: { x, bar } } = props
-
-  let style = {
-    transform: `translate(${x}em, -50%) translateZ(0)`
-  }
-
-  return (<span class='bar' style={style}/>)
-
-}
-
-
 
 export const Playback = (props) => {
 

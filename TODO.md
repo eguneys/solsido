@@ -1,6 +1,7 @@
-
 ## 2022-03-27
 
+- [ ] Edit with dsl
+- [ ] Persist Editor
 - [ ] Playback
 - [ ] Fix as much as possible on introduction
 - [ ] Fix as much as possible on music editor
@@ -45,6 +46,7 @@
 
 ## Fix
 
+- [ ] Streamline note positioning
 - [ ] Persist learn navigation on route changes
 - [ ] Typescript Errors
 - [ ] Review Explanation
