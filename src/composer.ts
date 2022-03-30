@@ -168,7 +168,10 @@ function fen_staff(staff) {
       res.add_cnr(note)
     })
 
-    return grouped_frees_no_time(res.notes)
+    return {
+      no_time: res.notes,
+      clef
+    }
   } else {
     let res = new ComposerMoreTimes()
     let m = 0
@@ -201,51 +204,17 @@ export function grouped_lines_wrap(notes: Array<[TimeSignature, Array<ChordNoteO
 
   let res = new LinesWithWraps(time, clef)
 
-  console.log(time, clef, notes, res.lines)
-
   notes.forEach(([time, notes]) => {
     if (notes.length === 0) {
       res.add([], time, undefined, true)
+      return
     }
-    notes.forEach((notes, i) => res.add(notes, time, undefined, (i === notes.length - 1)))
+    notes.forEach((_notes, i) => {
+      res.add(_notes, time, undefined, (i === notes.length - 1))
+    })
   })
 
   return res
-}
-
-
-export function grouped_frees_with_times(composer_notes: any) {
-  let last_time_signature
-  return composer_notes.flatMap(([time_signature, notes]) =>
-    grouped_free(time_signature, notes).map(frees => [
-      1,
-      last_time_signature === time_signature ? undefined : (last_time_signature = time_signature),
-      frees
-    ])
-  )
-}
-
-
-export function grouped_frees_no_time(notes: Array<ChordNoteRest>) {
-  let lines = []
-  let line = []
-  let group_x = 0
-  return notes.forEach(note => {
-    let x = group_x,
-      w = 1.5
-    let res = {
-      x,
-      w,
-      group: [note]
-    }
-    group_x += w
-
-
-    line.push(res)
-  })
-
-  lines.push(line)
-  return [1, undefined, lines]
 }
 
 let dur_lengths = [0, 4, 2, 1, 1, 1, 1, 1, 1]
@@ -350,16 +319,8 @@ export class Measure {
 
   constructor(
     readonly time_signature: TimeSignature,
-    readonly clef: Clef,
-    notes: Array<ChordNoteRest>,
-    dbar?: true) {
-
-      this.notes = [{
-        x: 0,
-        width: group_w(notes, dbar),
-        notes,
-        dbar
-      }]
+    readonly clef: Clef) {
+      this.notes = []
     }
 
   maybe_add(notes: Array<ChordNoteRest>, dbar?: true) {
@@ -370,7 +331,7 @@ export class Measure {
                               .reduce(fsum, 0)
 
 
-     if (this.left_subs > duration) {
+     if (this.left_subs >= duration) {
        this.notes.push({
          x: this.width,
          width: group_w(notes, dbar),
@@ -427,9 +388,11 @@ export class LinesWithWraps {
         measure 
       })
 
-      if (_width + width > 30) {
+      if (_width + width > 18) {
         res.push(ns)
         ns = []
+        _width = 0
+        return
       }
 
       _width += width
@@ -444,9 +407,7 @@ export class LinesWithWraps {
               readonly clef: Clef) {
                 this.data = [new Measure(
                   time_signature,
-                  clef,
-                  []
-                )]
+                  clef)]
               }
 
   add(notes: Array<ChordNoteRest>, time_signature?: TimeSignature, clef?: Clef, dbar?: true) {
@@ -468,10 +429,8 @@ export class LinesWithWraps {
     if (add_new) {
       this.data.push(new Measure(
         time_signature || this.last.time_signature,
-        clef || this.last.clef,
-        notes,
-        dbar
-      ))
+        clef || this.last.clef))
+      this.last.maybe_add(notes, dbar)
     }
   }
 }
@@ -483,7 +442,7 @@ function replaceAt(self: string, index: number, replacement: string) {
 }
 
 
-function is_group(group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
+function is_group(note_value: Duration, group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
   if (group.length === 0) {
     return true
   }
@@ -492,10 +451,16 @@ function is_group(group: Array<ChordNoteOrRest>, cnr: ChordNoteOrRest) {
     return false
   }
 
-  let g_duration = chord_note_rest_duration(group[0]),
+  let gi_duration = chord_note_rest_duration(group[0]),
     c_duration = chord_note_rest_duration(cnr)
 
-  if (g_duration === c_duration) {
+  let g_duration = group.map(chord_note_rest_duration).reduce(fsum, 0)
+
+  if (g_duration >= note_value) {
+    return false
+  }
+
+  if (gi_duration === c_duration) {
     return true
   }
   return false
@@ -661,7 +626,7 @@ export class Composer {
     for (let i = 0; i < this.data.length; i++) {
       let cnr = this.data[i]
 
-      if (is_group(group, cnr)) {
+      if (is_group(this.note_value, group, cnr)) {
         group.push(cnr)
       } else {
         groups.push(group)

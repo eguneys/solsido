@@ -1,8 +1,6 @@
 import { createEffect } from 'solid-js'
 import g from './glyphs'
 
-import { ClefTimeNoteOrChord as OCommandNoteOrChord } from './music/format/model'
-
 import { is_rest, note_pitch, note_octave, note_duration, note_accidental } from './music/types'
 import { time_nb_note_value, time_note_value } from './music/types'
 import { white_index, black_index, is_black } from './music/piano'
@@ -55,6 +53,7 @@ export const FenSheet = (props) => {
     return (<Sheet composer={composer}/>)
   }
 
+
   return (<Sheet/>)
 
 }
@@ -62,27 +61,58 @@ export const FenSheet = (props) => {
 export const Sheet = (props) => {
 
   return (<div class='m-wrap'>
-    <Switch> 
-       <Match when={!props.composer}> <Staff/> </Match>
-       <Match when={Array.isArray(props.composer)}>
-         <For each={props.composer}>{ lines_with_wraps =>
-           <For each={lines_with_wraps?.lines}>{ line =>
-             <Staff 
-               playback={props.playback} 
-               playback_pos={props.playback_pos}
-               active_notes={props.active_notes}
-               zero_notes={props.zero_notes} 
-               line={line}/>
-           }</For>
-         }</For>
-       </Match>
-      </Switch>
+      <For each={props.composer}>{ lines_with_wraps =>
+        <Switch fallback={
+                <For each={lines_with_wraps?.lines}>{ line =>
+                  <Staff 
+                    playback={props.playback} 
+                    playback_pos={props.playback_pos}
+                    active_notes={props.active_notes}
+                    zero_notes={props.zero_notes} 
+                    line={line}/>
+                }</For>
+                }>
+          <Match when={lines_with_wraps.no_time}>
+              <StaffNoTime
+                 clef={lines_with_wraps.clef}
+                 no_time={lines_with_wraps.no_time}/>
+          </Match>
+        </Switch>
+      }</For>
     </div>)
+}
+
+export const StaffNoTime = (props) => {
+
+  let clef_x = 0.25,
+      x = clef_x + 1.75,
+      sx = 1.5
+
+  return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
+
+      <Show when={props.clef}>
+        <ClefOnStaff x={clef_x} clef={props.clef}/>
+      </Show>
+
+      <For each={props.no_time}>{ (cnr, i) =>
+          <Switch fallback={
+            <NoteOrTextOnStaff x={x + sx * i()} klass="free" note={cnr}/>
+          }>
+            <Match when={Array.isArray(cnr)}>
+              <For each={cnr}>{ note =>
+                <NoteOrTextOnStaff x={x + sx * i()} klass={['free', 'chord'].join(' ')} note={note}/> 
+              }</For>
+            </Match>
+            <Match when={is_rest(cnr)}>
+              <RestOnStaff x={x + sx * i()} klass={'free'} rest={cnr}/>
+            </Match>
+         </Switch>
+        }</For>
+    </staff>)
 }
 
 export const Staff = (props) => {
  
-console.log(props.line)
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
       <Playback playback_pos={props.playback_pos} playback={props.playback}/>
@@ -91,11 +121,6 @@ console.log(props.line)
     <For each={props.zero_notes}>{ note =>
       <ZeroNoteOnStaff pitch={note[0]} octave={note[1]} playback_pos={props.playback_pos}/>
     }</For>
-
-    <For each={props.frees}>{ (group, i) =>
-      <NoteGroupOnStaff ox={ox} group={group} i={i()}/>
-    }</For>
-
 
     <For each={props.line}>{ lined_measure =>
       <Measure lined_measure={lined_measure}/>
@@ -108,7 +133,8 @@ const Measure = (props) => {
 
   let clef_x = show_clef ? x + 0.25 : x,
       time_x = show_time ? clef_x + 1: clef_x,
-      notes_x = time_x + 0.75
+      notes_x = time_x + 0.75,
+      bar_x = notes_x + measure.width
 
 
   return (<>
@@ -121,6 +147,7 @@ const Measure = (props) => {
      <For each={measure.notes}>{ (group, _i) =>
        <NoteGroupOnStaff ox={notes_x}  group={group} i={_i()}/>
      }</For>
+     <Bar ox={bar_x}/>
    </>)
 }
 
@@ -172,7 +199,7 @@ const NoteGroupOnStaff = (props) => {
        </Switch>
       }</For>
       <Show when={dbar}>
-        <DoubleBar ox={ox + width + 1 } />
+        <DoubleBar ox={x + width} />
       </Show>
     </>)
 

@@ -18,7 +18,7 @@ import { PianoPlay } from './sound'
 
 import { useApp } from './loop'
 
-import { ComposerMoreTimes, grouped_frees_with_times } from './composer'
+import { ComposerMoreTimes, grouped_lines_wrap } from './composer'
 
 import { time_note_value_subs, fsum } from './composer'
 
@@ -37,6 +37,8 @@ const MusicProvider = (props) => {
 
 createEffect(() => {
   console.log(composer().data, composer().fen)
+  console.log(composer().notes)
+  console.log(grouped_lines_wrap(composer().notes).lines)
 })
 
   const bm = () => playback().bm
@@ -63,49 +65,10 @@ createEffect(() => {
       bm,
       time_signature,
       playback_pos() {
-
-        // TODO streamline this asap
-
-
-
-        let i_x = 0
-        let time_and_note_xs = _grouped_frees_with_times().map(([time, group]) => {
-            let res = i_x
-            i_x += 2
-            i_x += group.reduce((acc, _) => acc + _.w + 2, 0)
-            return res
-            })
-
-        let res
-        let _bm = 0
-        _grouped_frees_with_times().find((_, i) => {
-          let _x = time_and_note_xs[i]
-          let _ox = 1.5
-          let [time, notes] = _
-          return notes.find(({ x, w, group}, i) => {
-            let ox = 1 + _x + _ox + x
-            return group.find((_, _i) => {
-                let dur = time_note_value_subs(time, chord_note_rest_duration(_))
-                _bm += dur
-                let sx = w / group.length
-                let x = _x + ox
-                //console.log(_bm, bm(), x + sx * _i, _, res)
-                if (_bm > bm()) {
-                  res = x + sx * _i
-                  return true
-                } else {
-                  res = x + sx * _i
-                }
-            })
-          })
-        })
-        return res
+        return 0
       },
-      time_and_notes() {
-        return [{
-          clef: 1,
-          notes: _grouped_frees_with_times()
-        }]
+      _composer() {
+         return [grouped_lines_wrap(composer().notes)]
       },
       bars() {
         return composer().bars
@@ -373,7 +336,7 @@ const Sheet = (props) => {
     playback_pos,
     active_notes,
     zero_notes,
-    time_and_notes,
+    _composer,
   }] = useMusic()
 
   return (<Zoom zoom={3}>
@@ -381,7 +344,7 @@ const Sheet = (props) => {
       playback={playback()} 
       piano={piano()} 
       playback_pos={playback_pos()}
-      composer={time_and_notes()}
+      composer={_composer()}
       zero_notes={zero_notes()}
       active_notes={active_notes()}/>
     </Zoom>)
