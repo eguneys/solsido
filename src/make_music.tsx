@@ -1,4 +1,4 @@
-import { on, splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
+import { onCleanup, on, splitProps, onMount, useContext, createContext, createSignal, createMemo, createEffect } from 'solid-js'
 import { Zoom, PianoKeys, Sheet as _Sheet } from './music'
 
 import { getKeyAtDomPos, eventPosition, point_in_rect } from './util'
@@ -35,11 +35,11 @@ const MusicProvider = (props) => {
 
   let [composer, setComposer] = createSignal(new ComposerMoreTimes(), { equals: false })
 
-createEffect(() => {
-  console.log(composer().data, composer().fen)
-  console.log(composer().notes)
-  console.log(grouped_lines_wrap(composer().notes).lines)
-})
+  createEffect(() => {
+      console.log(composer().data, composer().fen)
+      console.log(composer().notes)
+      console.log(grouped_lines_wrap(composer().notes).lines)
+  })
 
   const bm = () => playback().bm
   const time_signature = () => _time_signature
@@ -243,8 +243,8 @@ const PianoPlayWithKeyboard = (props) => {
   let [input] = useApp()
 
   let synth = {
-    volume: 0.3,
-    amplitude: 0.5,
+    volume: 1,
+    amplitude: 0.7,
     cutoff: 0.7,
     cutoff_max: 0.0,
     amp_adsr: make_adsr(0, 0, 0.2, 0),
@@ -254,29 +254,43 @@ const PianoPlayWithKeyboard = (props) => {
 
   let player = new PlayerController(synth)
 
+
   let keys0 = [],
     keys
 
   let key_instrument_map = new Map<PianoKey, number>()
-  createEffect(() => {
+  function play_on_controller() {
     keys = piano().all_keys.flat()
-    
-    let added = keys.filter(_ => !keys0.includes(_))
-    let removed = keys0.filter(_ => !keys.includes(_))
 
-    added.forEach(key => {
-      let po = pianokey_pitch_octave(key)
-      let i = player.attack(make_note_po(po, 2), player.currentTime)
-      key_instrument_map.set(key, i)
-    })
+      let added = keys.filter(_ => !keys0.includes(_))
+      let removed = keys0.filter(_ => !keys.includes(_))
+
+      added.forEach(key => {
+          let po = pianokey_pitch_octave(key)
+          let i = player.attack(make_note_po(po, 2), player.currentTime)
+          key_instrument_map.set(key, i)
+          })
     removed.forEach(key => {
+        let i = key_instrument_map.get(key)
+        player.release(i, player.currentTime)
+        key_instrument_map.delete(key)
+        })
+
+    keys0 = keys
+  }
+
+  createEffect(play_on_controller)
+
+
+  onCleanup(() => {
+
+    keys.forEach(key => {
       let i = key_instrument_map.get(key)
       player.release(i, player.currentTime)
       key_instrument_map.delete(key)
     })
-
-    keys0 = keys
   })
+
 
   createEffect(() => {
     let _input = input()

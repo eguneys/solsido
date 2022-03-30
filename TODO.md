@@ -3,13 +3,13 @@
 - [ ] Edit with dsl
 - [ ] Persist Editor
 - [ ] Playback
-- [ ] Fix as much as possible on introduction
-- [ ] Fix as much as possible on music editor
-- [ ] Push and submit
 
 ### Done
 
+- [+] Push and submit
 - [+] Active links on learn
+- [+] Fix as much as possible on introduction
+- [+] Fix as much as possible on music editor
 
 ## Later
 
@@ -46,7 +46,6 @@
 
 ## Fix
 
-- [ ] Clear sounds on route change
 - [ ] Streamline note positioning
 - [ ] Persist learn navigation on route changes
 - [ ] Typescript Errors
@@ -70,3 +69,5 @@
 - [+] Dotted note spacing
 - [+] Header Router Navigation
 - [+] Table of notes and rests duration
+
+- [+] Clear sounds on route change

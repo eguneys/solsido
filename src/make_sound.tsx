@@ -1,5 +1,5 @@
 
-import { createEffect, createSignal, createContext, useContext } from 'solid-js'
+import { onCleanup, createEffect, createSignal, createContext, useContext } from 'solid-js'
 import { useApp } from './loop'
 import { createEnvelope, Envelope, Knob, Group } from './sound'
 import { PianoPlay } from './sound'
@@ -137,6 +137,14 @@ export const ZoomedPiano = () => {
     })
 
     keys0 = keys
+  })
+
+  onCleanup(() => {
+    keys.forEach(key => {
+      let i = key_instrument_map.get(key)
+      player.release(i, player.currentTime)
+      key_instrument_map.delete(key)
+    })
   })
 
   createEffect(() => {
