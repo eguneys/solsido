@@ -46,6 +46,7 @@
 
 ## Fix
 
+- [ ] Clear sounds on route change
 - [ ] Streamline note positioning
 - [ ] Persist learn navigation on route changes
 - [ ] Typescript Errors

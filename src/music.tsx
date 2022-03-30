@@ -60,67 +60,32 @@ export const FenSheet = (props) => {
 }
 
 export const Sheet = (props) => {
- 
+
   return (<div class='m-wrap'>
     <Switch> 
        <Match when={!props.composer}> <Staff/> </Match>
        <Match when={Array.isArray(props.composer)}>
-         <For each={props.composer}>{ composer =>
-           <Staff 
-             clef={composer.clef}
-             playback={props.playback} 
-             playback_pos={props.playback_pos}
-             active_notes={props.active_notes}
-             zero_notes={props.zero_notes} 
-             frees={composer.frees}
-             time_and_notes={composer.notes}/>
+         <For each={props.composer}>{ lines_with_wraps =>
+           <For each={lines_with_wraps?.lines}>{ line =>
+             <Staff 
+               playback={props.playback} 
+               playback_pos={props.playback_pos}
+               active_notes={props.active_notes}
+               zero_notes={props.zero_notes} 
+               line={line}/>
            }</For>
+         }</For>
        </Match>
-
-       <Match when={!!props.composer.grandstaff}>
-         <grand>
-         <For each={props.composer.grandstaff}>{ composer =>
-           <Staff 
-             clef={props.composer.clef}
-             playback={props.playback} 
-             playback_pos={props.playback_pos}
-             active_notes={props.active_notes}
-             zero_notes={props.zero_notes} 
-             frees={props.composer.frees}
-             time_and_notes={props.composer.notes}/>
-           }</For>
-           <span class='staff-line'/>
-           <span class='brace'>{g['brace']}</span>
-         </grand>
-       </Match>
-
       </Switch>
     </div>)
 }
 
 export const Staff = (props) => {
  
-  let ox = 0
-
-  if (props.clef) {
-    ox += 1.5
-  }
-
-  let i_x = 0
-  let time_and_note_xs = (props.time_and_notes || []).map(([time, group]) => {
-      let res = i_x
-      i_x += 2
-      i_x += group.reduce((acc, _) => acc + _.w + 2, 0)
-      return res
-    })
-
+console.log(props.line)
   return (<staff> <lines> <line/> <line/> <line/> <line/> <line/> </lines>
     <Show when={props.playback}>
       <Playback playback_pos={props.playback_pos} playback={props.playback}/>
-    </Show>
-
-    <Show when={props.clef}>
-      <ClefOnStaff klass="clef" x={0.25} clef={props.clef}/>
     </Show>
 
     <For each={props.zero_notes}>{ note =>
@@ -131,29 +96,32 @@ export const Staff = (props) => {
       <NoteGroupOnStaff ox={ox} group={group} i={i()}/>
     }</For>
 
-    <For each={props.time_and_notes}>{ (time_and_note, i) =>
-      <TimeAndNotes ox={ox} x={time_and_note_xs[i()]} time_and_note={time_and_note}/>
+
+    <For each={props.line}>{ lined_measure =>
+      <Measure lined_measure={lined_measure}/>
     }</For>
-
-
   </staff>)
 }
 
+const Measure = (props) => {
+  let { lined_measure: { show_clef, show_time, measure, x } } = props
 
-const TimeAndNotes = (props) => {
-  let { ox, time_and_note, x } = props
+  let clef_x = show_clef ? x + 0.25 : x,
+      time_x = show_time ? clef_x + 1: clef_x,
+      notes_x = time_x + 0.75
 
-  let [time_signature, group] = time_and_note
-  
-  let width = group.reduce((acc, _) => _.w + acc + 1, 0) + 1
 
   return (<>
-      <TimeSignatureOnStaff time_signature={time_signature} x={x + ox}/>
-      <For each={group}>{ (group, _i) =>
-        <NoteGroupOnStaff ox={1 + x + ox} group={group} i={_i()}/>
-      }</For>
-      <DoubleBar ox={width + x + ox}/>
-    </>)
+     <Show when={show_clef}>
+       <ClefOnStaff x={clef_x} clef={measure.clef}/>
+     </Show>
+     <Show when={show_time}>
+       <TimeSignatureOnStaff x={time_x} time_signature={measure.time_signature}/>
+     </Show>
+     <For each={measure.notes}>{ (group, _i) =>
+       <NoteGroupOnStaff ox={notes_x}  group={group} i={_i()}/>
+     }</For>
+   </>)
 }
 
 const TimeSignatureOnStaff = (props) => {
@@ -178,18 +146,18 @@ const TimeSignatureOnStaff = (props) => {
 }
 
 const NoteGroupOnStaff = (props) => {
-  let { group: { bar, group, w, x: _x }, i, ox } = props
+  let { group: { bar, dbar, notes, width, x: _x }, i, ox } = props
 
   let klass = `group-${i}`
 
-  let sx = w / group.length
+  let sx = width / (notes.length + 1)
   let x = _x + ox
 
   return (<>
       <Show when={bar}>
         <Bar ox={x - 0.5}/>
       </Show>
-      <For each={group}>{ (cnr, i) =>
+      <For each={notes}>{ (cnr, i) =>
         <Switch fallback={
           <NoteOrTextOnStaff x={x + sx * i()} klass={klass} note={cnr}/>
         }>
@@ -203,6 +171,9 @@ const NoteGroupOnStaff = (props) => {
           </Match>
        </Switch>
       }</For>
+      <Show when={dbar}>
+        <DoubleBar ox={ox + width + 1 } />
+      </Show>
     </>)
 
 }

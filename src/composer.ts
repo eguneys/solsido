@@ -56,13 +56,6 @@ function chord_note_rest_free(note: ChordNoteOrRest) {
   }
 }
 
-export type ChordGroup = Array<ChordNoteRest>
-
-export type SheetVis = {
-  clef?: Clef
-  time?: TimeSignature,
-  notes: Array<ChordGroup>
-}
 
 const model_nb_beats = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 function model_to_nb_beats(_nb_beats: string) {
@@ -124,6 +117,20 @@ function model_chord(model: ClefTimeNoteOrChord) {
   }
 }
 
+export function fen_composer(fen: Fen) {
+
+  let { staffs, grandstaff } = read_fen(fen)
+
+  if (grandstaff) {
+    return {
+      grandstaff: grandstaff.staffs.map(fen_staff)
+    }
+  } else if (staffs) {
+    return staffs.map(fen_staff)
+  }
+
+}
+
 function fen_staff(staff) {
   let { notes: _notes } = staff
 
@@ -131,7 +138,7 @@ function fen_staff(staff) {
   time,
   notes = []
 
-  _notes.map(model => {
+  _notes.flatMap(model => {
     if (Array.isArray(model)) {
       let [command, rest] = model
 
@@ -161,10 +168,7 @@ function fen_staff(staff) {
       res.add_cnr(note)
     })
 
-    return {
-      clef,
-      frees: grouped_no_time(res.notes)
-    }
+    return grouped_frees_no_time(res.notes)
   } else {
     let res = new ComposerMoreTimes()
     let m = 0
@@ -172,7 +176,7 @@ function fen_staff(staff) {
     notes.forEach(note => {
       if (typeof note === 'string') {
         if (note === '||') {
-          //bm = (m + 1) * res.beats_per_measure * 8
+          bm = (m + 1) * res.beats_per_measure * 8
         }
       } else if (Array.isArray(note) || typeof note === 'number') {
         res.add_cnr(bm, note)
@@ -185,42 +189,48 @@ function fen_staff(staff) {
       }
     })
 
-    return {
-      clef,
-      notes: grouped_frees_with_times(res.notes)
-    }
+    return grouped_lines_wrap(res.notes)
   }
 }
 
+export function grouped_lines_wrap(notes: Array<[TimeSignature, Array<ChordNoteOrRest>]>) {
 
-export function fen_composer(fen: Fen) {
+  let clef = 1
+  let time = notes[0][0]
 
-  let { staffs, grandstaff } = read_fen(fen)
 
-  if (grandstaff) {
-    return {
-      grandstaff: grandstaff.staffs.map(fen_staff)
+  let res = new LinesWithWraps(time, clef)
+
+  console.log(time, clef, notes, res.lines)
+
+  notes.forEach(([time, notes]) => {
+    if (notes.length === 0) {
+      res.add([], time, undefined, true)
     }
-  } else if (staffs) {
-    return staffs.map(fen_staff)
-  }
+    notes.forEach((notes, i) => res.add(notes, time, undefined, (i === notes.length - 1)))
+  })
 
+  return res
 }
+
 
 export function grouped_frees_with_times(composer_notes: any) {
   let last_time_signature
-  return composer_notes.map(([time_signature, notes]) => {
-    return [
+  return composer_notes.flatMap(([time_signature, notes]) =>
+    grouped_free(time_signature, notes).map(frees => [
+      1,
       last_time_signature === time_signature ? undefined : (last_time_signature = time_signature),
-        grouped_free(time_signature, notes)
-    ]
-  })
+      frees
+    ])
+  )
 }
 
 
-export function grouped_no_time(notes: Array<ChordNoteRest>) {
+export function grouped_frees_no_time(notes: Array<ChordNoteRest>) {
+  let lines = []
+  let line = []
   let group_x = 0
-  return notes.map(note => {
+  return notes.forEach(note => {
     let x = group_x,
       w = 1.5
     let res = {
@@ -229,22 +239,33 @@ export function grouped_no_time(notes: Array<ChordNoteRest>) {
       group: [note]
     }
     group_x += w
-    return res
+
+
+    line.push(res)
   })
+
+  lines.push(line)
+  return [1, undefined, lines]
 }
 
 let dur_lengths = [0, 4, 2, 1, 1, 1, 1, 1, 1]
-export function group_w(group: Array<ChordNoteRest>) {
+export function group_w(group: Array<ChordNoteRest>, dbar?: true) {
+  let bar_width = dbar ? 0.25 : 0
+  if (!group[0]) {
+    return bar_width
+  }
   let duration = chord_note_rest_duration(group[0])
 
-  return group.length * dur_lengths[duration]
+  return group.length * dur_lengths[duration] + bar_width
 }
 
 export function grouped_free(time_signature: TimeSignature, notes: Array<Array<ChordNoteRest>>) { 
+  let lines = []
+  let line = []
   let group_bm = 0
   let group_x = 0
   let m0
-  return notes.map(group => {
+  notes.forEach(group => {
     let group_m = time_bm_measure(time_signature, group_bm)
     let bar = false
 
@@ -258,6 +279,8 @@ export function grouped_free(time_signature: TimeSignature, notes: Array<Array<C
       if (group_m % 2 === 0) {
         br = true
         group_x = 0
+        lines.push(line)
+        line = []
       }
     }
 
@@ -281,9 +304,178 @@ export function grouped_free(time_signature: TimeSignature, notes: Array<Array<C
     .reduce(fsum, 0)
 
     group_x += w + 0.25
-    return res
+
+    line.push(res)
   })
+  lines.push(line)
+
+  return lines
 }
+
+export type ChordGroup = {
+  x: number
+  width: number
+  notes: Array<ChordNoteOrRest>,
+  dbar?: true
+}
+
+export class Measure {
+
+  get width() {
+     return this.notes.map(_ => _.width).reduce(fsum, 0)
+  }
+
+  get nb_subs() {
+    return this.notes
+    .map(_ => 
+         _.notes
+         .map(_ => 
+              time_note_value_subs(this.time_signature, 
+                                   chord_note_rest_duration(_)))
+         .reduce(fsum, 0))
+     .reduce(fsum, 0)
+  }
+
+  get max_subs() {
+    return time_note_value_subs(this.time_signature,
+                                time_note_value(this.time_signature)) *
+                                  time_nb_note_value(this.time_signature)
+  }
+
+  get left_subs() {
+    return this.max_subs - this.nb_subs
+  }
+
+  readonly notes: Array<ChordGroup>
+
+  constructor(
+    readonly time_signature: TimeSignature,
+    readonly clef: Clef,
+    notes: Array<ChordNoteRest>,
+    dbar?: true) {
+
+      this.notes = [{
+        x: 0,
+        width: group_w(notes, dbar),
+        notes,
+        dbar
+      }]
+    }
+
+  maybe_add(notes: Array<ChordNoteRest>, dbar?: true) {
+    let duration = notes
+    .map(_ => 
+         time_note_value_subs(this.time_signature, 
+                              chord_note_rest_duration(_)))
+                              .reduce(fsum, 0)
+
+
+     if (this.left_subs > duration) {
+       this.notes.push({
+         x: this.width,
+         width: group_w(notes, dbar),
+         notes,
+         dbar
+       })
+       return true
+     }
+
+     return false
+  }
+}
+
+export type LinedMeasure = {
+  show_clef?: true,
+  show_time?: true,
+  x: number,
+  width: number,
+  measure: Measure
+}
+
+export class LinesWithWraps {
+  data: Array<Measure>
+
+  get last() {
+    return this.data[this.data.length - 1]
+  }
+
+  get lines() {
+    let res = []
+    let ns = []
+    let _width = 0
+    let _time0,
+      _clef0
+
+    this.data.forEach(measure => {
+
+      let show_clef = measure.clef !== _clef0,
+        show_time = measure.time_signature !== _time0
+
+      _clef0 = measure.clef
+      _time0 = measure.time_signature
+
+      let x = _width
+      let width = measure.width +
+        (show_clef ? 0.25 : 0) +
+        (show_time ? 2.25 : 0)
+
+      ns.push({
+        x,
+        width,
+        show_clef,
+        show_time,
+        measure 
+      })
+
+      if (_width + width > 30) {
+        res.push(ns)
+        ns = []
+      }
+
+      _width += width
+    })
+    if (ns.length > 0) {
+      res.push(ns)
+    }
+    return res
+  }
+
+  constructor(readonly time_signature: TimeSignature,
+              readonly clef: Clef) {
+                this.data = [new Measure(
+                  time_signature,
+                  clef,
+                  []
+                )]
+              }
+
+  add(notes: Array<ChordNoteRest>, time_signature?: TimeSignature, clef?: Clef, dbar?: true) {
+
+    let add_new = false
+
+    if (clef !== undefined && this.last.clef !== clef) {
+      add_new = true
+    }
+
+    if (time_signature !== undefined && this.last.time_signature !== time_signature) {
+      add_new = true
+    }
+
+    if (!add_new) {
+     add_new = !this.last.maybe_add(notes, dbar)
+    }
+
+    if (add_new) {
+      this.data.push(new Measure(
+        time_signature || this.last.time_signature,
+        clef || this.last.clef,
+        notes,
+        dbar
+      ))
+    }
+  }
+}
+
 
 
 function replaceAt(self: string, index: number, replacement: string) {
