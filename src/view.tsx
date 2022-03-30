@@ -126,7 +126,7 @@ const Home = () => {
     <section class='extra'>
 
       <div class='manual'>
-      <h2> Notice and Manual </h2>
+      <h2 class='underline'> Notice and Manual </h2>
 
       <p class='red'> Playing the piano might sound loud, beware of your volume. If the keys stick try pressing the piano key again, or refresh the page. </p>
       <p class='red'> The material in Learn section is not reviewed and may be inaccurate. </p>
@@ -147,11 +147,11 @@ const Home = () => {
         If you press a piano key again at the same point you activated it, it will deactivate without putting a note on the sheet.
     <br/>
 
-    <h2> Piano Keys </h2>
+    <h2 class='underline'> Piano Keys </h2>
     <p> One octave of keys: <strong>Space j k l ; ' \</strong> </p>
     <p> Another octave of keys: <strong>a s d f g h</strong> </p>
     <p> Black keys are one row up on the keyboard </p>
-    <h2> Buttons </h2>
+    <h2 class='underline'> Buttons </h2>
     <ul>
       <li>  <strong>Dup Beat:</strong> Duplicate the beat the cursor is on
       </li>
@@ -169,7 +169,7 @@ const Home = () => {
       </li>
     </ul>
 
-        <h2>Shortcuts:</h2>
+        <h2 class='underline'>Shortcuts:</h2>
 
         <ul>
         <li>

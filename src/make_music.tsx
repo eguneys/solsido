@@ -17,6 +17,7 @@ import { make_adsr, PlayerController } from './audio/player'
 import { PianoPlay } from './sound'
 
 import { useApp } from './loop'
+import { Link } from './router'
 
 import { ComposerMoreTimes, grouped_lines_wrap } from './composer'
 
@@ -180,6 +181,17 @@ const MusicProvider = (props) => {
     </MusicContext.Provider>)
 }
 
+
+const ManualNotice = () => {
+  return (<div class='box-padding notice'>
+    <h2 class='underline'> Make Music </h2>
+    <p class='red'> Piano may sound loud.</p>
+    <p class='red'> Not ready for production, feedback welcome </p>
+    <p> There is a manual in the <Link href='/'>home page</Link> </p>
+      </div>)
+}
+
+
 const Music = () => {
 
   let [[piano, playback, composer], { 
@@ -229,6 +241,7 @@ const Music = () => {
   add_measure()
 
   return (<div class='make-music'>
+      <ManualNotice/>
       <Sheet/>
       <Controls/>
       <Zoom zoom={2}>

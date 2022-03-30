@@ -100,9 +100,22 @@ const SoundProvider = (props) => {
 
 export const Sound = () => {
   return (<div class='make-sound'>
+    <NoticeAndManual/>
     <Knobs/>
     <ZoomedPiano/>
   </div>)
+}
+
+export const NoticeAndManual = () => {
+  return (<div class='notice box-padding'>
+    <h2 class='underline'>Make Sound Manual</h2>
+    <p class='red'> Piano may sound loud. </p>
+    <p class='underline'>Features in Plan</p>
+    <ul>
+      <li>An interactive tutorial to teach the editor</li>
+      <li>More controls</li>
+    </ul>
+      </div>)
 }
 
 export const ZoomedPiano = () => {

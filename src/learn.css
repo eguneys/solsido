@@ -113,7 +113,7 @@
 }
 
 .learn .content section h2 {
-  display: inline-block;
+  display: table;
   border-bottom: 0.2em solid var(--color-primary);
   padding-right: 2em;
 }

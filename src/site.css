@@ -78,3 +78,32 @@ nav section a:hover {
 .bravura::before {
   content: ' ';
 }
+
+
+.red {
+  display: table;
+  border-bottom: 0.03em solid var(--color-primary);
+}
+
+.red:after {
+  content: '!';
+  color: var(--color-primary);
+}
+
+
+
+.box-padding {
+  margin: 1em;
+  padding: 1em;
+  color: black;
+  background: linear-gradient(var(--color-primary), var(--color-font));
+  box-shadow: 0.03em 0.03em 0.01em black;
+}
+
+h2.underline {
+  display: table;
+  border-bottom: 0.2em solid var(--color-primary);
+  padding-right: 2em;
+}
+
+
