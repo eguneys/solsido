@@ -36,6 +36,18 @@ const MusicProvider = (props) => {
 
   let [composer, setComposer] = createSignal(new ComposerMoreTimes(), { equals: false })
 
+  let synth = {
+    volume: 1,
+    amplitude: 0.7,
+    cutoff: 0.6,
+    cutoff_max: 0.2,
+    amp_adsr: make_adsr(20, 80, 0.2, 100),
+    filter_adsr: make_adsr(0, 80, 0.2, 0)
+  }
+
+  let player = new PlayerController(synth)
+
+
   createEffect(() => {
       console.log(composer().data, composer().fen)
       console.log(composer().notes)
@@ -63,6 +75,7 @@ const MusicProvider = (props) => {
   const store = [
     [piano, playback, composer],
     {
+      player,
       bm,
       time_signature,
       playback_pos() {
@@ -187,14 +200,14 @@ const ManualNotice = () => {
     <h2 class='underline'> Make Music </h2>
     <p class='red'> Piano may sound loud.</p>
     <p class='red'> Not ready for production, feedback welcome </p>
-    <p> There is a manual in the <Link href='/'>home page</Link> </p>
+    <p> There is a manual in the <Link href='/' anchor='manual'>home page</Link> </p>
       </div>)
 }
-
 
 const Music = () => {
 
   let [[piano, playback, composer], { 
+    player,
     bm,
     add_measure, 
     quanti,
@@ -245,28 +258,35 @@ const Music = () => {
       <Sheet/>
       <Controls/>
       <Zoom zoom={2}>
-        <PianoPlayWithKeyboard piano={piano} press={press} release={release}/>
+        <PianoPlayWithKeyboard player={player} piano={piano} press={press} release={release}/>
       </Zoom>
     </div>) 
 }
 
-const PianoPlayWithKeyboard = (props) => {
-  
-  let { piano, press, release } = props
+
+const PlaybackControls = () => {
+
+
   let [input] = useApp()
 
-  let synth = {
-    volume: 1,
-    amplitude: 0.7,
-    cutoff: 0.7,
-    cutoff_max: 0.0,
-    amp_adsr: make_adsr(0, 0, 0.2, 0),
-    filter_adsr: make_adsr(0, 0, 0.5, 0)
-  }
+
+  
+  
+
+  const play = () => {}
+  const stop = () => {}
+
+  return (<div class='playback-controls'>
+      <span class='play-pause' title="Play/Pause" onClick={play}>Play</span>
+      <span class='stop' title="Stop" onClick={stop}>Stop</span>
+    </div>)
+}
 
 
-  let player = new PlayerController(synth)
-
+const PianoPlayWithKeyboard = (props) => {
+  
+  let { player, piano, press, release } = props
+  let [input] = useApp()
 
   let keys0 = [],
     keys
@@ -346,6 +366,7 @@ const Controls = () => {
  
 
   return (<div class='controls'>
+      <PlaybackControls/>
       <span class='dup-beat' title='Duplicate Beat' onClick={dup_beat}>Dup Beat</span>
       <span class='dup-measure' title='Duplicate Measure' onClick={dup_measure}>Dup Measure</span>
       <span class='rel-piano' title='Cancel Piano Press' onClick={rel_piano}>Cancel Press</span>

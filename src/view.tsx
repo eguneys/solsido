@@ -125,7 +125,7 @@ const Home = () => {
 
     <section class='extra'>
 
-      <div class='manual'>
+      <div id='manual' class='manual'>
       <h2 class='underline'> Notice and Manual </h2>
 
       <p class='red'> Playing the piano might sound loud, beware of your volume. If the keys stick try pressing the piano key again, or refresh the page. </p>

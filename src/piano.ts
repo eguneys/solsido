@@ -97,7 +97,11 @@ export class Piano {
       this.keys.delete(t)
       return [t, res]
     }
+
     res.push(key)
+    if (res.length > 1) {
+      res.shift()
+    }
   }
 
   release(key: PianoKey) {

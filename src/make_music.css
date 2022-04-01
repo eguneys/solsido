@@ -11,10 +11,25 @@
 .make-music .controls {
   display: flex;
   padding: 1em;
-  gap: 0.5em;
 }
 
-.make-music .controls span {
+.make-music .playback-controls > span {
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+  box-shadow: 0.03em 0.03em 0.01em black;
+  font-size: 0.75em;
+  padding: 0.5em;
+  background: var(--color-accent);
+  color: black;
+}
+
+.make-music .playback-controls > span:hover {
+  background: var(--color-accent-secondary);
+  color: black;
+}
+
+.make-music .controls > span {
   cursor: pointer;
   user-select: none;
   font-size: 0.75em;
@@ -25,7 +40,7 @@
   padding: 0.5em;
 }
 
-.make-music .controls span:hover {
+.make-music .controls > span:hover {
   background: var(--color-secondary);
   color: black;
 }

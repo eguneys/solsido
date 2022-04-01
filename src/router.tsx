@@ -67,7 +67,7 @@ function internal_route(href) {
 
 
 export const Link = (props) => {
-  let { href, children } = props;
+  let { href, children, anchor } = props;
 
   let [route, { setRoute }] = useRouter()
 
@@ -76,6 +76,12 @@ export const Link = (props) => {
   let onClick = (e) => {
     e.preventDefault()
     setRoute(_route)
+    if (anchor) {
+      let $el = document.getElementById(anchor)
+      if ($el) {
+        $el.scrollIntoView()
+      }
+    }
   }
 
   return (
