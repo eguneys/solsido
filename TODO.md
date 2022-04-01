@@ -1,10 +1,13 @@
 ## 2022-03-27
 
+- [ ] 
+
 - [ ] Edit with dsl
 - [ ] Persist Editor
-- [ ] Playback
 
 ### Done
+
+- [+] Playback
 
 - [+] Push and submit
 - [+] Active links on learn

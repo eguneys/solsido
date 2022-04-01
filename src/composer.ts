@@ -283,7 +283,8 @@ export function grouped_free(time_signature: TimeSignature, notes: Array<Array<C
 
 export type ChordGroup = {
   x: number
-  width: number
+  width: number,
+  bm_duration: number,
   notes: Array<ChordNoteOrRest>,
   dbar?: true
 }
@@ -336,7 +337,8 @@ export class Measure {
          x: this.width,
          width: group_w(notes, dbar),
          notes,
-         dbar
+         dbar,
+         bm_duration: duration
        })
        return true
      }

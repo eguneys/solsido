@@ -57,6 +57,11 @@ const MusicProvider = (props) => {
 
   const bm = () => playback().bm
   const time_signature = () => _time_signature
+  const add_measure = () => {
+    setComposer(composer => {
+        composer.add_measure(time_signature())
+        return composer})
+  }
 
   const inc_tempo = (dir: Direction) => {
    setTempo(tempo => {
@@ -85,14 +90,38 @@ const MusicProvider = (props) => {
     return grouped_frees_with_times(composer().notes)
   }
 
+  add_measure()
+
   const store = [
     [piano, playback, composer, tempo],
     {
       player,
       bm,
       time_signature,
+      add_measure,
       playback_pos() {
-        return 0
+        let { lines } = grouped_lines_wrap(composer().notes)
+
+        let _bm = bm()
+        let c_bm = 0
+        let res
+        lines.find(line =>
+          line.find(({ x, measure }) => {
+            if (c_bm + measure.nb_subs >= _bm) {
+               let i_bm = 0
+               return measure.notes.find(({x: _x, notes, bm_duration})=> {
+                   if (c_bm + i_bm + bm_duration >= _bm) {
+                   res = x + _x + 2
+                   return true
+                   } else {
+                   i_bm += bm_duration
+                   }
+                 })
+            }
+            c_bm += measure.nb_subs
+          })
+        )
+        return res
       },
       _composer() {
          return [grouped_lines_wrap(composer().notes)]
@@ -106,11 +135,6 @@ const MusicProvider = (props) => {
       },
       active_notes() {
         return []
-      },
-      add_measure() {
-        setComposer(composer => {
-            composer.add_measure(time_signature())
-            return composer})
       },
       press(key: PianoKey) {
         setPiano(piano => {
@@ -248,7 +272,6 @@ const Music = () => {
   }))
 
 
-  add_measure()
 
   return (<div class='make-music'>
       <ManualNotice/>
