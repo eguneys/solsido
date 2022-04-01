@@ -7,10 +7,10 @@ import { Black, White, index_black, index_white } from './music/piano'
 import { pianokey_pitch_octave } from './music/piano'
 
 import { btn_pitches_all, keys_by_button, btn_pianokey } from './buttons'
-import { is_note, make_time_signature, time_note_value, time_bm_duration } from './music/types'
+import { is_note, make_time_signature, time_note_value, time_bm_duration, time_duration_bm } from './music/types'
 import { make_note_po } from './music/types'
-import { Piano as OPiano, Playback as OPlayback } from './piano'
-import { chord_note_rest_duration } from './piano'
+import { Piano as OPiano, Playback as OPlayback, NotesInBms } from './piano'
+import { chord_note_rest_duration, tempo_bpms } from './piano'
 import { note_free } from './sheet'
 
 import { make_adsr, PlayerController } from './audio/player'
@@ -35,6 +35,7 @@ const MusicProvider = (props) => {
   let [piano, setPiano] = createSignal(new OPiano(), { equals: false })
 
   let [composer, setComposer] = createSignal(new ComposerMoreTimes(), { equals: false })
+  let [tempo, setTempo] = createSignal(2)
 
   let synth = {
     volume: 1,
@@ -57,6 +58,18 @@ const MusicProvider = (props) => {
   const bm = () => playback().bm
   const time_signature = () => _time_signature
 
+  const inc_tempo = (dir: Direction) => {
+   setTempo(tempo => {
+     if (!dir) {
+       if (tempo < 7) {
+         return tempo + 1
+       } else {
+         return 1
+       }
+     }
+     return Math.max(1, Math.min(7, tempo + dir))
+   })
+  }
 
   const quanti = (quanti: BeatMeasure) => {
     setPlayback(playback => {
@@ -73,7 +86,7 @@ const MusicProvider = (props) => {
   }
 
   const store = [
-    [piano, playback, composer],
+    [piano, playback, composer, tempo],
     {
       player,
       bm,
@@ -93,23 +106,6 @@ const MusicProvider = (props) => {
       },
       active_notes() {
         return []
-        return piano().actives(time_signature(), bm()).map(([t0, note]) => {
-
-            let _calc_measures = new OPlayback(time_signature())
-            _calc_measures.bm = t0
-
-            let { measure, beat, sub_beat } = _calc_measures
-            let x = composer().measure_beat_sub_pos(
-                measure, beat, sub_beat)
-
-            let cnr
-            if (Array.isArray(note)) {
-              cnr = note.map(note_free)
-            } else {
-              cnr = note_free(note)
-            }
-            return { cnr, x }
-          })
       },
       add_measure() {
         setComposer(composer => {
@@ -122,6 +118,7 @@ const MusicProvider = (props) => {
 
           piano.actives(time_signature(), bm())
           .map(([t0, note]) => {
+              console.log(note, chord_note_rest_duration(note), time_duration_bm(time_signature(), chord_note_rest_duration(note)))
               setComposer(composer => { 
                 composer.add_cnr(t0, note)
                 return composer
@@ -138,6 +135,7 @@ const MusicProvider = (props) => {
           return piano
         })
       },
+      inc_tempo,
       quanti,
       quanti_note(dir: Direction) {
         let sbm = bm() + dir
@@ -176,15 +174,7 @@ const MusicProvider = (props) => {
         })
       },
       dup_measure() {
-        // TODO make this a function
-        let _calc_measures = new OPlayback(time_signature())
-          _calc_measures.bm = bm()
-          let { measure, beat, sub_beat } = _calc_measures
 
-        setComposer(composer => {
-            composer.dup_measure(measure)
-            return composer
-            })
       }
     }
   ]
@@ -209,6 +199,7 @@ const Music = () => {
   let [[piano, playback, composer], { 
     player,
     bm,
+    inc_tempo,
     add_measure, 
     quanti,
     quanti_note,
@@ -248,6 +239,12 @@ const Music = () => {
     } else if (_input.btnp('$', true)) {
       quanti(ix * 4 * -1)
     }
+
+    if (_input.btnp('+')) {
+      inc_tempo(1)
+    } else if (_input.btnp('-')) {
+      inc_tempo(-1)
+    }
   }))
 
 
@@ -266,18 +263,72 @@ const Music = () => {
 
 const PlaybackControls = () => {
 
+  let [[piano, playback, composer, tempo], {
+    player,
+    
+    time_signature,
+    bm,
+    inc_tempo,
+    quanti,
+    press,
+    release
+  }] = useMusic()
+  let [input, timer] = useApp()
 
-  let [input] = useApp()
+  let note_player
 
+  createEffect(on(bm, bm => {
+    if (!note_player) {
+      return
+    }
+
+    let voice = note_player.voice(bm)
+
+    if (voice && is_note(voice.note)) {
+      let i = player.attack(voice.note, player.currentTime)
+      player.release(i, player.currentTime + voice.d_s)
+    }
+
+  }))
+
+
+  let i_bm = 0
+  createEffect(on(timer, ({ dt }) => {
+   if (note_player) {
+     i_bm += dt
+
+     // TODO hide
+     if (i_bm >= note_player.tempo_bm_s(time_signature(), 1)*1000) {
+       i_bm = 0
+       quanti(1)
+     }
+   }
+  }))
+
+  createEffect(on(tempo, tempo => {
+    if (note_player) {
+      note_player.tempo = tempo
+    }
+  }))
+
+  const play = () => {
+    note_player = new NotesInBms(tempo(), composer().notes)
+    quanti(0)
+  }
+
+  const stop = () => {
+    quanti(0)
+    note_player = undefined
+  }
 
   
-  
-
-  const play = () => {}
-  const stop = () => {}
+  const incTempo = () => {
+    inc_tempo()
+  }
 
   return (<div class='playback-controls'>
-      <span class='play-pause' title="Play/Pause" onClick={play}>Play</span>
+      <span class='tempo' title="Tempo" onClick={incTempo}>Tempo {tempo_bpms[tempo()]}</span>
+      <span class='play-reset' title="Play/Reset" onClick={play}>Play</span>
       <span class='stop' title="Stop" onClick={stop}>Stop</span>
     </div>)
 }

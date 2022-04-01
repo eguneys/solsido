@@ -88,7 +88,7 @@ export function is_tempo(tempo: number): tempo is Tempo {
 }
 
 export function time_duration_bm(time_signature: TimeSignature, duration: Duration) {
-  return Math.max(1, Math.pow(2, duration - time_note_value(time_signature)) * 8)
+  return Math.max(1, Math.pow(2, time_note_value(time_signature) - duration) * 8)
 }
 
 export function time_bm_duration(time: TimeSignature, quanti: BeatMeasure) {

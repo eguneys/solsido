@@ -1,9 +1,71 @@
 import { time_nb_note_value, time_note_value, make_note_po, is_note, note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { BeatMeasure, time_bm_duration, time_duration_bm } from './music/types'
+import { Tempo } from './music/types'
 import { pianokey_pitch_octave } from './music/piano'
 
 import { note_uci } from './music/format/uci'
 
+type InstrumentId = number
+
+type Voice = {
+  note: ChordNoteOrRest,
+  start: BeatMeasure,
+  d_bm: BeatMeasure,
+  d_s: number
+}
+
+export const tempo_bpms = [0, 10, 60, 90, 120, 180, 220, 400]
+
+export class NotesInBms {
+
+  voices_by_start: Map<BeatMeasure, Voice>
+
+  get bpm() {
+    return tempo_bpms[this.tempo]
+  }
+
+
+  tempo_bm_s(time_signature: TimeSignature, bm: BeatMeasure) {
+    let bm_per_beat = time_duration_bm(time_signature, 
+                                       chord_note_rest_duration(time_note_value(time_signature)))
+
+    let b_ratio = bm / bm_per_beat
+
+    return (60 / this.bpm) * b_ratio
+  }
+
+  constructor(readonly tempo: Tempo,
+              readonly notes: Array<[TimeSignature, Array<ChordNoteOrRest>]>) {
+  
+    this.voices_by_start = new Map()
+
+    let bm = 0
+    notes.forEach(([time_signature, measures]) =>
+      measures.forEach(measure =>
+        measure.forEach(note => {
+            let duration = chord_note_rest_duration(note)
+
+            let d_bm = time_duration_bm(time_signature, duration)
+
+            let start = bm
+
+            let d_s = this.tempo_bm_s(time_signature, d_bm)
+            this.voices_by_start.set(start, {
+              start,
+              note,
+              d_bm,
+              d_s
+            })
+
+            bm += d_bm
+      })))
+  }
+
+
+  voice(bm: BeatMeasure) {
+    return this.voices_by_start.get(bm)
+  }
+}
 
 export class Playback {
 

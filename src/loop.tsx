@@ -1,6 +1,11 @@
 import { useContext, createContext, createSignal } from 'solid-js'  
 import Input from './input'
 
+class Timer {
+ dt: number;
+ dt0: number;
+}
+
 const AppContext = createContext()
 
 export const useApp = () => { return useContext(AppContext) }
@@ -8,6 +13,7 @@ export const useApp = () => { return useContext(AppContext) }
 export const AppProvider = (props) => {
   
   let [input, setInput] = createSignal(new Input().init(), { equals: false })
+  let [timer, setTimer] = createSignal(new Timer(), { equals: false })
 
   let fixed_dt = 1000/60
   let timestamp0: number | undefined,
@@ -28,6 +34,13 @@ export const AppProvider = (props) => {
       return input
     })
     //mouse.update(dt, dt0)
+    //
+
+    setTimer(timer => {
+      timer.dt = dt
+      timer.dt0 = dt0
+      return timer
+    })
 
     dt0 = dt 
     timestamp0 = timestamp
@@ -37,7 +50,8 @@ export const AppProvider = (props) => {
  
 
   let store = [
-    input
+    input,
+    timer
   ]
 
   return (<AppContext.Provider value={store}>
