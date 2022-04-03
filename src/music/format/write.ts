@@ -27,7 +27,7 @@ export function note_text_fen(cnr: Note | HasText) {
 }
 
 export function rest_fen(rest: Rest) {
-  return `r${rest}`
+  return `r${duration_ucis[rest]}`
 }
 
 const pitch_ucis = ['', 'c', 'd', 'e', 'f', 'g', 'a', 'b']

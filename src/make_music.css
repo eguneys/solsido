@@ -46,3 +46,21 @@
 }
 
 
+.make-music .dsl-editor {
+}
+
+.make-music .dsl-editor p {
+  padding: 1em;
+}
+
+.make-music .dsl-editor p .copy {
+  user-select: none;
+  cursor: pointer;
+  background: var(--color-primary);
+  padding: 0.3em 0.8em;
+}
+
+.make-music .dsl-editor p .copy.active {
+  background: var(--color-accent);
+  color: black;
+}

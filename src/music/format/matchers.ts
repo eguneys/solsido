@@ -2,7 +2,7 @@ import { mm, rr } from 'tamcher'
 
 export const mSpaceStar = mm.mr(/^( +)(.*)$/s, 'space')
 export const mSpace = mm.mr(/^( )(.*)$/s, 'newline')
-export const mNewline = mm.mr(/^(\n)(.*)$/s, 'newline')
+export const mNewline = mm.mr(/^(\r?\n)(.*)$/s, 'newline')
 export const mSlash = mm.mr(/^(\/)(.*)$/s, 'slash')
 export const mWord = mm.mr(/^([a-zA-Z]+)(.*)$/s, 'word')
 
@@ -51,8 +51,15 @@ export const mDuration = mm.mseq3([
   mm.mOpt(mDot)
 ], rr.fOneAndThree('duration'))
 
+
+export const mRestDuration = mm.mseq3([
+  mRest,
+  mm.mpass,
+  mDuration
+], rr.fOneAndThree('restduration'))
+
 export const mWithPitchOctave = mm.mseq3([
-  mm.meither([mRest, mPitch]),
+  mPitch,
   mm.mseq3([
     mm.mOpt(mAccidental), 
     mm.mOpt(mAccidental),
@@ -68,13 +75,15 @@ export const mWithPitchOctave = mm.mseq3([
   ], rr.fOneAndThree('duration_ties'))
 ], rr.fAll('wPO'))
 
+export const mRestOrNote = mm.meither([mRestDuration, mWithPitchOctave])
+
 export const mNotes = mm.mstar(mm.meither([
-  mWithPitchOctave,
+  mRestOrNote,
   mSpace
 ]))
 
 export const mNotesOrBars = mm.mstar(mm.meither([
-  mWithPitchOctave,
+  mRestOrNote,
   mDoubleBar,
   mBar,
   mSpace

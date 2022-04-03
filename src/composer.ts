@@ -1,4 +1,4 @@
-import { is_note, make_time_signature, time_note_value, time_nb_note_value } from './music/types'
+import { is_note, make_time_signature, time_note_value, time_nb_note_value, time_duration_bm } from './music/types'
 import { note_pitch, note_duration, note_octave, note_accidental } from './music/types'
 import { chord_note_rest_duration } from './piano'
 import { is_rest, make_note } from './music/types'
@@ -86,12 +86,20 @@ function model_time(_time: string) {
 }
 
 
+function model_rest(model: any) {
+  let { rest } = model
+
+  let _duration = model_durations.indexOf(rest)
+
+  if (_duration > 0) {
+    return _duration
+  }
+}
 
 let model_pitches = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
 let model_octaves = [3, 4, 5, 6]
 let model_durations = [undefined, undefined, '1', '2', '4', '8', '16', '32']
 let model_accidentals = ['is', 'es', 'isis', 'eses']
-
 function model_chord(model: ClefTimeNoteOrChord) {
   let { pitch, octave, dot, duration, text, accidental, tie } = model
 
@@ -117,9 +125,22 @@ function model_chord(model: ClefTimeNoteOrChord) {
   }
 }
 
+function model_chord_or_rest(model: any) {
+  if ("rest" in model) {
+    return model_rest(model)
+  }
+  return model_chord(model)
+}
+
 export function fen_composer(fen: Fen) {
 
-  let { staffs, grandstaff } = read_fen(fen)
+  let model = read_fen(fen)
+
+  if (!model) {
+    return
+  }
+
+  let { staffs, grandstaff }  = model
 
   if (grandstaff) {
     return {
@@ -150,14 +171,14 @@ function fen_staff(staff) {
           time: model_time(rest)
         })
       } else {
-        notes.push(model.map(model_chord))
+        notes.push(model.map(model_chord_or_rest))
       }
     } else if (model === '|') {
       notes.push(model)
     } else if (model === '||') {
       notes.push(model)
     } else {
-      notes.push(model_chord(model))
+      notes.push(model_chord_or_rest(model))
     }
   })
 
@@ -168,10 +189,7 @@ function fen_staff(staff) {
       res.add_cnr(note)
     })
 
-    return {
-      no_time: res.notes,
-      clef
-    }
+    return res
   } else {
     let res = new ComposerMoreTimes()
     let m = 0
@@ -192,7 +210,7 @@ function fen_staff(staff) {
       }
     })
 
-    return grouped_lines_wrap(res.notes)
+    return res
   }
 }
 
@@ -503,7 +521,7 @@ export class ComposerMoreTimes {
     let [composer, bm_start] = this.seek_composer(bm)
 
     if (composer) {
-      composer.del_beat(bm - bm_start)
+      return composer.del_beat(bm - bm_start)
     }
   }
 
@@ -558,8 +576,12 @@ export class Composer {
 
   get fen() {
 
-    return [time_fen(this.time_signature),
-      this.data.map(cnr => cnr_fen(cnr))].join('\n')
+    return ['{', 
+      '/clef treble', 
+      time_fen(this.time_signature),
+      this.data.map(cnr => cnr_fen(cnr)).join(' '),
+      '}'
+    ].join('\n')
 
   }
 
@@ -733,10 +755,20 @@ export class Composer {
         return
       }
 
-      this.data.splice(start_i, end_i - start_i + 1)
+      let dels = this.data.slice(start_i, end_i + 1)
+      let bms = dels
+      .map(chord_note_rest_duration)
+      .map(_ => time_duration_bm(this.time_signature, _))
+      .reduce(fsum, 0)
+
+      let notes = this.subs_to_fill(bms)
+
+      this.data.splice(start_i, end_i - start_i + 1, ...notes)
+
+      return true
     }
 
-
+    return false
   }
 
   dup_beat(bm: BeatMeasure) {

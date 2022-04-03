@@ -2,12 +2,12 @@
 
 - [ ] 
 
-- [ ] Edit with dsl
-- [ ] Persist Editor
 
 ### Done
 
 - [+] Playback
+- [+] Edit with dsl
+- [+] Persist Editor
 
 - [+] Push and submit
 - [+] Active links on learn

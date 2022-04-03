@@ -21,7 +21,7 @@ import { Link } from './router'
 
 import { ComposerMoreTimes, grouped_lines_wrap } from './composer'
 
-import { time_note_value_subs, fsum } from './composer'
+import { fen_composer, time_note_value_subs, fsum } from './composer'
 
 const MusicContext = createContext()
 
@@ -82,6 +82,7 @@ const MusicProvider = (props) => {
         playback.bm = 0
       } else {
         playback.bm += quanti
+        playback.bm = Math.max(0, playback.bm)
       }
       return playback })
   }
@@ -95,6 +96,7 @@ const MusicProvider = (props) => {
   const store = [
     [piano, playback, composer, tempo],
     {
+      setComposer,
       player,
       bm,
       time_signature,
@@ -187,7 +189,9 @@ const MusicProvider = (props) => {
       },
       del_beat() {
         setComposer(composer => {
-          composer.del_beat(bm())
+          if (composer.del_beat(bm())) {
+            quanti(-8)
+          }
           return composer
         })
       },
@@ -280,9 +284,58 @@ const Music = () => {
       <Zoom zoom={2}>
         <PianoPlayWithKeyboard player={player} piano={piano} press={press} release={release}/>
       </Zoom>
+      <DslEditor/>
     </div>) 
 }
 
+const DslEditor = () => {
+
+
+  let [[piano, playback, composer, tempo], { setComposer }] = useMusic()
+
+    let changing = false
+  const onChange = (e) => {
+
+    let data = e?.clipboardData?.getData('Text') || e.target.value
+    let composer = fen_composer(data)
+    if (composer) {
+      changing = true
+      setComposer(_ => composer[0])
+      changing = false
+    }
+
+  }
+
+  let $input
+ 
+  createEffect(() => {
+    composer()
+    if (changing) { return }
+    $input.value = composer().fen
+  })
+
+  let [copied, setCopied] = createSignal('Copy')
+  const copyDsl = () => {
+    $input.focus()
+    $input.select()
+    document.execCommand('copy')
+    
+    setCopied('Copied!')
+    setTimeout(() => {
+      setCopied('Copy')
+    }, 1000)
+  }
+
+  const copiedKlass = () => {
+    return copied() === 'Copied!' ? 'active' : ''
+  }
+
+  return (<div class="dsl-editor">
+    <p> Copy paste the dsl data below to share your music. <span class={['copy', copiedKlass()].join(' ')} onClick={copyDsl}>{copied()}</span> </p>
+    <textarea ref={$input} onChange={onChange} onPaste={onChange} rows="16" cols="80"/>
+      </div>)
+
+}
 
 const PlaybackControls = () => {
 

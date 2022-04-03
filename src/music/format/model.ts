@@ -31,7 +31,7 @@ export type Note = {
 export type Chord = Array<Note>
 
 export const ignores = []
-export const ids = ['staffs', 'octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar']
+export const ids = ['staffs', 'octave', 'pitch', 'clef', 'duration_number', 'dot', 'duration', 'text', 'word', 'accidental', 'tie', 'bar', 'dbar', 'restduration']
 
 type Context = {
   duration: number
@@ -67,6 +67,8 @@ export function staff(_: any, ctx: Context) {
       return _.dbar
     } else if ("bar" in _) {
       return _.bar
+    } else if ("restduration" in _) {
+      return restduration(_, ctx)
     } else if ("wPO" in _) {
       return wPO(_, ctx)
     } else if ("chord" in _) {
@@ -92,6 +94,21 @@ export function command(_: any) {
   let { command } = _
 
   return command.map(_ => _.word)
+}
+
+export function restduration(_: any, ctx: Context) {
+  let { restduration } = _
+
+  if (restduration) {
+    let _duration = restduration.find(_ => "duration" in _)
+    let duration = _duration?.duration
+    let _duration_number = duration?.find(_ => _.duration_number)?.duration_number
+ 
+    return {
+      rest: _duration_number
+    }
+  }
+
 }
 
 export function wPO(_: any, ctx: Context) {
