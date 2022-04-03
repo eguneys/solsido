@@ -113,6 +113,7 @@ export const NoticeAndManual = () => {
     <p class='underline'>Features in Plan</p>
     <ul>
       <li>An interactive tutorial to teach the editor</li>
+      <li>Instrument selection on music editor</li>
       <li>More controls</li>
     </ul>
       </div>)

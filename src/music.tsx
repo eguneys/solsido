@@ -8,6 +8,8 @@ import { white_index, black_index, is_black } from './music/piano'
 import { composer_sheet } from './piano'
 import { notes_grouped, fen_composer } from './composer'
 
+import { FreeComposer, ComposerMoreTimes, grouped_lines_wrap } from './composer'
+
 function pitch_y(pitch: Pitch, octave: Octave) {
   return ((4 - octave) * 7 + 7 - pitch) * 0.25 / 2
 }
@@ -49,7 +51,13 @@ export const FenSheet = (props) => {
   let { fen } = props
 
   if (fen) {
-    let composer = fen_composer(fen)
+    let res = fen_composer(fen)
+
+    let composer = res
+    if (Array.isArray(res) && res[0] instanceof ComposerMoreTimes) {
+      composer = res.map(_ => grouped_lines_wrap(_.notes))
+    }
+
     return (<Sheet composer={composer}/>)
   }
 

@@ -189,7 +189,10 @@ function fen_staff(staff) {
       res.add_cnr(note)
     })
 
-    return res
+    return {
+      clef,
+      no_time: res.notes
+    }
   } else {
     let res = new ComposerMoreTimes()
     let m = 0
